@@ -1,0 +1,6 @@
+:host { display: block; padding: 1rem; }
+.dashboard h2 { margin-top: 0; }
+.panels { display: flex; gap: 1rem; flex-wrap: wrap; }
+.panel { flex: 1 1 320px; border: 1px solid rgba(0,0,0,0.06); padding: 0.75rem; border-radius: 6px; background: #fff; }
+.home-panel { background: color-mix(in srgb, #f7fbff 75%, transparent); }
+.about-panel { background: color-mix(in srgb, #fff7fb 75%, transparent); }

@@ -1,0 +1,39 @@
+<section class="py-xl bg-surface-container-low px-gutter border-y border-outline-variant">
+  <div class="max-w-container-max mx-auto">
+    <div class="flex justify-between items-end mb-lg">
+      <div>
+        <h2 class="font-headline-lg text-headline-lg text-primary">Featured Solutions</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Technical specifications for core infrastructure.</p>
+      </div>
+      <a class="font-label-md text-label-md text-primary flex items-center hover:underline" href="#">
+        View Catalog <span class="material-symbols-outlined ml-xs">arrow_forward</span>
+      </a>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+      <div *ngFor="let product of products" 
+           class="bg-surface-container-lowest border border-outline-variant rounded group hover:bg-surface-bright transition-colors">
+        <div class="h-48 border-b border-outline-variant bg-surface-container relative">
+          <div class="w-full h-full bg-cover bg-center mix-blend-multiply"
+               [style.background-image]="'url(' + product.image + ')'">
+          </div>
+          <div class="absolute top-sm right-sm bg-surface-container-highest px-xs py-base rounded font-label-sm text-label-sm text-on-surface-variant">
+            {{ product.status }}
+          </div>
+        </div>
+        <div class="p-sm">
+          <h3 class="font-headline-md text-headline-md text-on-surface mb-xs group-hover:text-primary transition-colors">
+            {{ product.name }}
+          </h3>
+          <div class="flex flex-col gap-base mt-sm">
+            <div *ngFor="let spec of product.specs" 
+                 class="flex justify-between border-b border-outline-variant pb-base border-dotted">
+              <span class="font-label-sm text-label-sm text-on-surface-variant">{{ spec.label }}</span>
+              <span class="font-body-md text-body-md text-on-surface">{{ spec.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

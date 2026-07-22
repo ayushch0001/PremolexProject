@@ -1,0 +1,26 @@
+<section class="relative w-full h-[600px] bg-surface-container overflow-hidden">
+  <div class="absolute inset-0 z-0">
+    <div class="bg-cover bg-center w-full h-full opacity-80 mix-blend-multiply"
+         [style.background-image]="'url(' + heroImage + ')'">
+    </div>
+  </div>
+  
+  <div class="absolute inset-0 bg-gradient-to-r from-surface-container via-surface-container/70 to-transparent z-10"></div>
+  
+  <div class="relative z-20 h-full flex flex-col justify-center px-gutter max-w-container-max mx-auto md:w-2/3">
+    <h1 class="font-headline-xl text-headline-xl text-primary mb-sm">
+      Engineered for Durability. Built for Tomorrow.
+    </h1>
+    <p class="font-body-lg text-body-lg text-on-surface-variant mb-lg max-w-2xl">
+      High-performance HDPE Pipes and Advanced Irrigation Systems designed for the most demanding industrial and agricultural applications.
+    </p>
+    <div class="flex gap-sm">
+      <button class="bg-primary text-on-primary font-label-md text-label-md px-md py-sm rounded hover:bg-primary-container hover:text-on-primary-container transition-colors">
+        Explore Products
+      </button>
+      <button class="border border-outline text-primary font-label-md text-label-md px-md py-sm rounded hover:bg-surface-container-low transition-colors">
+        Download Specs
+      </button>
+    </div>
+  </div>
+</section>

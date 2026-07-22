@@ -1,0 +1,35 @@
+<footer class="w-full py-xl bg-surface-container-highest dark:bg-surface-dim border-t border-outline-variant dark:border-outline">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-gutter max-w-container-max mx-auto">
+    <div class="md:col-span-1">
+      <div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed mb-sm">
+        Premolex Industries
+      </div>
+      <p class="font-body-md text-body-md text-on-surface dark:text-on-surface-variant mb-md">Engineering Durability.</p>
+      
+      <div class="flex flex-col gap-xs">
+        <h4 class="font-label-md text-label-md text-on-surface">Subscribe to Tech Updates</h4>
+        <div class="flex">
+          <input class="bg-surface-container-lowest border border-outline-variant rounded-l px-xs py-xs text-body-md focus:border-primary focus:ring-0 outline-none w-full" 
+                 placeholder="Email Address" 
+                 type="email">
+          <button class="bg-primary text-on-primary px-sm rounded-r hover:bg-primary-container transition-colors">
+            <span class="material-symbols-outlined text-sm">send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="md:col-start-3 md:col-span-2 flex flex-col justify-end items-start md:items-end gap-sm mt-lg md:mt-0">
+      <nav class="flex gap-md flex-wrap justify-start md:justify-end">
+        <a *ngFor="let link of footerLinks" 
+           class="font-body-md text-body-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors ease-in" 
+           href="#">
+          {{ link }}
+        </a>
+      </nav>
+      <div class="font-body-md text-body-md text-on-surface dark:text-on-surface-variant mt-sm">
+        &copy; {{ currentYear }} Premolex Industries. Engineering Durability.
+      </div>
+    </div>
+  </div>
+</footer>
