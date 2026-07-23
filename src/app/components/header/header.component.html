@@ -1,13 +1,13 @@
 <header class="w-full top-0 sticky z-50 bg-surface-container-lowest dark:bg-surface-dim border-b border-outline-variant dark:border-outline">
   <div class="flex justify-between items-center h-16 px-gutter max-w-container-max mx-auto">
     <div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">
-      Premolex Industries
+      <a href="Home"> Premolex Industries </a>
     </div>
     
     <nav class="hidden md:flex gap-gutter">
       <a *ngFor="let item of navItems" 
          class="font-label-md text-label-md text-secondary dark:text-secondary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200 ease-in-out" 
-         href="#">
+         href="/{{ item }}">
         {{ item }}
       </a>
     </nav>

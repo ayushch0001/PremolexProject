@@ -1,0 +1,140 @@
+<div class="text-on-surface font-body-lg min-h-screen flex flex-col bg-[#F9FAFB]">
+  
+    <!-- Main Content -->
+    <main class="flex-grow max-w-container-max mx-auto w-full px-gutter py-xl">
+        <!-- Page Header -->
+        <div
+            class="mb-lg border-b border-outline-variant pb-md flex flex-col md:flex-row justify-between items-start md:items-end gap-sm">
+            <div>
+                <h1 class="font-headline-xl text-headline-xl text-on-surface mb-xs">Industrial Products Catalog</h1>
+                <p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">Comprehensive specifications for
+                    engineered piping solutions, designed for durability and high-performance infrastructure.</p>
+            </div>
+            <div class="flex items-center gap-xs">
+                <span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Display Mode:</span>
+                <!-- Dynamic View Mode Buttons -->
+                <button (click)="setViewMode('grid')"
+                    [class]="viewMode() === 'grid' ? 'p-2 border border-outline-variant rounded bg-surface-container-lowest text-primary' : 'p-2 border border-outline-variant rounded bg-surface-container-low text-secondary hover:bg-surface-container'">
+                    <span class="material-symbols-outlined">grid_view</span>
+                </button>
+                <button (click)="setViewMode('list')"
+                    [class]="viewMode() === 'list' ? 'p-2 border border-outline-variant rounded bg-surface-container-lowest text-primary' : 'p-2 border border-outline-variant rounded bg-surface-container-low text-secondary hover:bg-surface-container'">
+                    <span class="material-symbols-outlined">view_list</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Layout: Sidebar + Grid -->
+        <div class="flex flex-col md:flex-row gap-gutter">
+            <!-- Filters Sidebar -->
+            <aside class="w-full md:w-64 flex-shrink-0">
+                <div class="bg-surface-container-lowest border border-outline-variant rounded p-sm sticky top-24">
+                    <h2 class="font-headline-md text-headline-md mb-md border-b border-outline-variant pb-xs">Categories
+                    </h2>
+                    <div class="space-y-xs font-body-md text-body-md">
+
+                        <!-- Dynamic Category Checkboxes -->
+                        @for (category of categories(); track category.name; let i = $index) {
+                        <label class="flex items-center space-x-3 cursor-pointer group">
+                            <input type="checkbox" [checked]="category.checked" (change)="toggleCategory(i)"
+                                class="form-checkbox h-4 w-4 text-primary border-outline rounded focus:ring-primary" />
+                            <span
+                                class="text-on-surface group-hover:text-primary transition-colors">{{ category.name }}</span>
+                            <span
+                                class="ml-auto text-secondary font-label-sm text-label-sm bg-surface-container-low px-2 rounded">{{ category.count }}</span>
+                        </label>
+                        }
+
+                    </div>
+
+                    <h2 class="font-headline-md text-headline-md mt-lg mb-md border-b border-outline-variant pb-xs">
+                        Specifications</h2>
+                    <div class="space-y-sm">
+                        <div>
+                            <label class="font-label-sm text-label-sm text-secondary uppercase block mb-1">Pressure
+                                Rating (PN)</label>
+                            <!-- Dynamic Select Binding -->
+                            <select [(ngModel)]="pressureRating"
+                                class="w-full border border-outline-variant rounded bg-surface-container-lowest p-2 text-body-md focus:border-primary focus:ring-1 focus:ring-primary">
+                                <option>All Ratings</option>
+                                <option>PN 4</option>
+                                <option>PN 6</option>
+                                <option>PN 10</option>
+                                <option>PN 16</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="font-label-sm text-label-sm text-secondary uppercase block mb-1">Standard
+                                Compliance</label>
+                            <select [(ngModel)]="standardCompliance"
+                                class="w-full border border-outline-variant rounded bg-surface-container-lowest p-2 text-body-md focus:border-primary focus:ring-1 focus:ring-primary">
+                                <option>Any Standard</option>
+                                <option>ISO 4427</option>
+                                <option>DIN 8074</option>
+                                <option>IS 4984</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Dynamic Product List -->
+            <div class="flex-grow grid gap-md"
+                [ngClass]="viewMode() === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'">
+
+                @for (product of filteredProducts(); track product.id) {
+                <div class="bg-surface-container-lowest border border-outline-variant rounded group hover:border-primary transition-colors duration-200 flex"
+                    [ngClass]="viewMode() === 'grid' ? 'flex-col h-full' : 'flex-row h-48'">
+
+                    <div class="bg-surface-container-low flex items-center justify-center relative overflow-hidden p-4"
+                        [ngClass]="viewMode() === 'grid' ? 'h-48 w-full' : 'w-48 h-full flex-shrink-0 border-r border-outline-variant'">
+
+                        <span
+                            class="absolute top-2 right-2 font-label-sm text-label-sm px-2 py-1 rounded border border-outline-variant"
+                            [ngClass]="product.inStock ? 'bg-surface-container-lowest text-primary' : 'bg-surface-container-lowest text-on-surface-variant'">
+                            {{ product.stockStatus }}
+                        </span>
+                        <img [src]="product.imageUrl" [alt]="product.name"
+                            class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-300" />
+                    </div>
+
+                    <div class="p-sm flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-secondary font-label-sm text-label-sm">{{ product.category }}</span>
+                            <span class="text-secondary font-label-sm text-label-sm">{{ product.pressureRating }}</span>
+                        </div>
+                        <h3 class="font-headline-md text-headline-md text-on-surface mb-2">{{ product.name }}</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant mb-4 flex-grow">
+                            {{ product.description }}</p>
+
+                        <div class="border-t border-outline-variant pt-sm mt-auto space-y-1">
+                            <div class="flex justify-between font-label-sm text-label-sm">
+                                <span class="text-secondary">Diameter Range</span>
+                                <span class="text-on-surface font-semibold">{{ product.diameterRange }}</span>
+                            </div>
+                            <div class="flex justify-between font-label-sm text-label-sm">
+                                <span class="text-secondary">{{ product.secondarySpecLabel }}</span>
+                                <span class="text-on-surface font-semibold">{{ product.secondarySpecValue }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-sm pt-sm flex gap-2">
+                            <button
+                                class="flex-1 bg-surface-container border border-outline-variant text-on-surface font-label-md text-label-md py-2 rounded hover:bg-surface-container-high transition-colors">Specs</button>
+                            <button
+                                class="flex-1 bg-primary text-on-primary font-label-md text-label-md py-2 rounded hover:bg-on-primary-fixed-variant transition-colors">Quote</button>
+                        </div>
+                    </div>
+                </div>
+                }
+
+                <!-- Empty State -->
+                @if (filteredProducts().length === 0) {
+                <div class="col-span-full py-xl text-center text-on-surface-variant font-body-lg">
+                    No products match the selected filters.
+                </div>
+                }
+            </div>
+        </div>
+    </main>
+</div>

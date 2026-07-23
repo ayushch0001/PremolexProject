@@ -2,7 +2,7 @@ import { Component , OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeroSliderComponent } from "../components/hero-slider/hero-slider.component";
 import { HeaderComponent } from "../components/header/header.component";
-import { About } from "../about/about";
+import { AboutComponent } from '../components/about/about.component';
 import { ProductsComponent } from "../components/products/products.component";
 import { FooterComponent } from "../components/footer/footer.component";
 
@@ -11,7 +11,7 @@ import { FooterComponent } from "../components/footer/footer.component";
   selector: 'app-dashboard',
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
-  imports: [CommonModule, HeroSliderComponent, HeaderComponent, About, ProductsComponent, FooterComponent],
+  imports: [CommonModule, HeroSliderComponent, HeaderComponent, AboutComponent, ProductsComponent, FooterComponent],
 })
 
 export class Dashboard implements OnInit {

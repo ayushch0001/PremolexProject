@@ -27,7 +27,7 @@ const angularApp = new AngularNodeAppEngine();
 // Server-side redirect: make the root URL respond with an HTTP redirect to /dashboard
 // This ensures visiting http://host:/ will immediately redirect to the dashboard route
 app.get('/', (req, res) => {
-  res.redirect(302, '/dashboard');
+  res.redirect(302, '/Home');
 });
 
 /**
