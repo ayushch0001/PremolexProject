@@ -1,0 +1,73 @@
+<div class="max-w-2xl bg-surface-container-lowest border border-outline-variant rounded p-lg shadow-sm">
+    <div class="flex justify-between items-center mb-md pb-xs border-b border-outline-variant">
+        <div>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface">Database Credentials</h2>
+            <p class="font-body-md text-on-surface-variant text-sm mt-1">
+                Manage your Firebase keys locally. These settings are stored in your browser's LocalStorage.
+            </p>
+        </div>
+
+        <!-- Connection Status Badge -->
+        <span
+            [class]="firebaseService.isConfigured() ? 'bg-green-100 text-green-800 border-green-300' : 'bg-red-100 text-red-800 border-red-300'"
+            class="px-3 py-1 rounded text-xs font-semibold border">
+            {{ firebaseService.isConfigured() ? 'Connected' : 'Disconnected' }}
+        </span>
+    </div>
+
+    <form [formGroup]="configForm" (ngSubmit)="onSaveConfig()" class="space-y-sm">
+        <div>
+            <label class="font-label-sm text-secondary uppercase block mb-1">API Key</label>
+            <input formControlName="apiKey" type="password"
+                class="w-full border border-outline-variant rounded p-2 focus:ring-1 focus:ring-primary"
+                placeholder="AIzaSy..." />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Project ID</label>
+                <input formControlName="projectId" type="text" class="w-full border border-outline-variant rounded p-2"
+                    placeholder="my-project-id" />
+            </div>
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Auth Domain</label>
+                <input formControlName="authDomain" type="text" class="w-full border border-outline-variant rounded p-2"
+                    placeholder="my-project.firebaseapp.com" />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Storage Bucket</label>
+                <input formControlName="storageBucket" type="text"
+                    class="w-full border border-outline-variant rounded p-2" placeholder="my-project.appspot.com" />
+            </div>
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Messaging Sender ID</label>
+                <input formControlName="messagingSenderId" type="text"
+                    class="w-full border border-outline-variant rounded p-2" placeholder="123456789" />
+            </div>
+        </div>
+
+        <div>
+            <label class="font-label-sm text-secondary uppercase block mb-1">App ID</label>
+            <input formControlName="appId" type="text" class="w-full border border-outline-variant rounded p-2"
+                placeholder="1:123456:web:abcdef" />
+        </div>
+
+        <div class="pt-md border-t border-outline-variant flex justify-between items-center">
+            @if (firebaseService.isConfigured()) {
+            <button type="button" (click)="onDisconnect()" class="text-error font-label-md hover:underline">
+                Clear Credentials
+            </button>
+            } @else {
+            <div></div>
+            }
+
+            <button type="submit" [disabled]="configForm.invalid"
+                class="bg-primary text-on-primary px-6 py-2 rounded font-label-md disabled:opacity-50 hover:bg-on-primary-fixed-variant transition-colors">
+                Save & Connect
+            </button>
+        </div>
+    </form>
+</div>

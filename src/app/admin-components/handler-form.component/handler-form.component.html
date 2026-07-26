@@ -1,0 +1,36 @@
+<div class="max-w-2xl bg-surface-container-lowest border border-outline-variant rounded p-lg shadow-sm">
+    <h2 class="font-headline-lg mb-md pb-xs border-b border-outline-variant">Register New Handler</h2>
+    <form [formGroup]="handlerForm" (ngSubmit)="onSubmit()" class="space-y-sm">
+        <div>
+            <label class="font-label-sm text-secondary uppercase block mb-1">Full Name</label>
+            <input formControlName="fullName" type="text" class="w-full border border-outline-variant rounded p-2"
+                placeholder="Jane Doe" />
+        </div>
+        <div>
+            <label class="font-label-sm text-secondary uppercase block mb-1">Email Address</label>
+            <input formControlName="email" type="email" class="w-full border border-outline-variant rounded p-2"
+                placeholder="jane@premolex.com" />
+        </div>
+        <div class="grid grid-cols-2 gap-sm">
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Role</label>
+                <select formControlName="role" class="w-full border border-outline-variant rounded p-2">
+                    <option value="admin">Super Admin</option>
+                    <option value="editor">Content Editor</option>
+                    <option value="inventory">Inventory Manager</option>
+                </select>
+            </div>
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Temporary Password</label>
+                <input formControlName="password" type="password"
+                    class="w-full border border-outline-variant rounded p-2" placeholder="Min 8 characters" />
+            </div>
+        </div>
+        <div class="pt-md flex justify-end">
+            <button type="submit" [disabled]="handlerForm.invalid"
+                class="bg-primary text-on-primary px-6 py-2 rounded font-label-md disabled:opacity-50 hover:bg-on-primary-fixed-variant transition-colors">
+                Register User
+            </button>
+        </div>
+    </form>
+</div>

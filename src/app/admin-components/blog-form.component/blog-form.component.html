@@ -1,0 +1,33 @@
+<div class="max-w-3xl bg-surface-container-lowest border border-outline-variant rounded p-lg shadow-sm">
+    <h2 class="font-headline-lg mb-md pb-xs border-b border-outline-variant">Post a Blog</h2>
+    <form [formGroup]="blogForm" (ngSubmit)="onSubmit()" class="space-y-sm">
+        <div class="grid grid-cols-3 gap-sm">
+            <div class="col-span-2">
+                <label class="font-label-sm text-secondary uppercase block mb-1">Post Title</label>
+                <input formControlName="title" type="text" class="w-full border border-outline-variant rounded p-2"
+                    placeholder="New advancements in HDPE..." />
+            </div>
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Author</label>
+                <input formControlName="author" type="text" class="w-full border border-outline-variant rounded p-2"
+                    placeholder="Admin Name" />
+            </div>
+        </div>
+        <div>
+            <label class="font-label-sm text-secondary uppercase block mb-1">Content</label>
+            <textarea formControlName="content" rows="6" class="w-full border border-outline-variant rounded p-2"
+                placeholder="Write the blog content here..."></textarea>
+        </div>
+        <div>
+            <label class="font-label-sm text-secondary uppercase block mb-1">Cover Image</label>
+            <input type="file" accept="image/*"
+                class="w-full border border-outline-variant rounded p-2 text-body-md bg-surface-container-low" />
+        </div>
+        <div class="pt-md flex justify-end">
+            <button type="submit" [disabled]="blogForm.invalid"
+                class="bg-primary text-on-primary px-6 py-2 rounded font-label-md disabled:opacity-50 hover:bg-on-primary-fixed-variant transition-colors">
+                Publish Post
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,39 @@
+<div class="max-w-3xl bg-surface-container-lowest border border-outline-variant rounded p-lg shadow-sm">
+    <h2 class="font-headline-lg mb-md pb-xs border-b border-outline-variant">
+        {{ isEditing() ? 'Update Product' : 'Add New Product' }}
+    </h2>
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="space-y-sm">
+        <div>
+            <label class="font-label-sm text-secondary uppercase block mb-1">Product Name</label>
+            <input formControlName="name" type="text"
+                class="w-full border border-outline-variant rounded bg-surface-container-lowest p-2 focus:ring-1 focus:ring-primary"
+                placeholder="HDPE Pipe 200mm" />
+        </div>
+        <div class="grid grid-cols-2 gap-sm">
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Category</label>
+                <select formControlName="category" class="w-full border border-outline-variant rounded p-2">
+                    <option value="HDPE Pipes">HDPE Pipes</option>
+                    <option value="PVC Pipes">PVC Pipes</option>
+                    <option value="CPVC Solutions">CPVC Solutions</option>
+                </select>
+            </div>
+            <div>
+                <label class="font-label-sm text-secondary uppercase block mb-1">Pressure Rating</label>
+                <input formControlName="pressureRating" type="text"
+                    class="w-full border border-outline-variant rounded p-2" placeholder="e.g. PN 16" />
+            </div>
+        </div>
+        <div>
+            <label class="font-label-sm text-secondary uppercase block mb-1">Description</label>
+            <textarea formControlName="description" rows="3"
+                class="w-full border border-outline-variant rounded p-2"></textarea>
+        </div>
+        <div class="pt-md border-t border-outline-variant flex justify-end">
+            <button type="submit" [disabled]="productForm.invalid"
+                class="bg-primary text-on-primary px-6 py-2 rounded font-label-md disabled:opacity-50 hover:bg-on-primary-fixed-variant transition-colors">
+                Save Product
+            </button>
+        </div>
+    </form>
+</div>

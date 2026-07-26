@@ -13,7 +13,7 @@ import { FooterComponent } from "../components/footer/footer.component";
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
-  imports: [CommonModule, HeroSliderComponent, HeaderComponent, AboutComponent, ProductsComponent, FooterComponent],
+  imports: [CommonModule, HeroSliderComponent, AboutComponent, ProductsComponent],
 })
 export class Home implements OnInit {
   // Statistics data
