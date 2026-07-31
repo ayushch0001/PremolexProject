@@ -1,0 +1,34 @@
+<section class="project-gallery" appScrollAnimate>
+  <div class="gallery-container">
+    <div class="section-header">
+      <span class="section-tag">Our Portfolio</span>
+      <h2 class="section-title">Recent Infrastructure Projects</h2>
+      <p class="section-description">
+        Delivering reliable piping solutions across diverse sectors — from municipal water supply
+        to heavy industrial applications.
+      </p>
+    </div>
+
+    <div class="gallery-grid">
+      <div
+        class="gallery-item"
+        *ngFor="let project of projects"
+      >
+        <div class="gallery-image-wrapper">
+          <img
+            [src]="project.image"
+            [alt]="project.title"
+            class="gallery-image"
+            loading="lazy"
+          />
+          <div class="gallery-overlay">
+            <div class="overlay-content">
+              <span class="overlay-category">{{ project.category }}</span>
+              <h3 class="overlay-title">{{ project.title }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

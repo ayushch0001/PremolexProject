@@ -1,0 +1,56 @@
+<nav class="category-nav" aria-label="Product categories">
+  <h2 class="category-heading">
+    <span class="category-heading-icon" aria-hidden="true">&#9881;</span>
+    Categories
+  </h2>
+
+  <!-- Desktop / Tablet vertical list -->
+  <ul class="category-list">
+    <li>
+      <button
+        type="button"
+        class="category-item"
+        [class.is-active]="selectedCategoryId() === 'all'"
+        (click)="selectCategory('all')"
+      >
+        <span class="category-dot" aria-hidden="true"></span>
+        <span class="category-label">All Products</span>
+      </button>
+    </li>
+    @for (category of categories(); track category.id) {
+      <li>
+        <button
+          type="button"
+          class="category-item"
+          [class.is-active]="selectedCategoryId() === category.id"
+          (click)="selectCategory(category.id)"
+        >
+          <span class="category-dot" aria-hidden="true"></span>
+          <span class="category-label">{{ category.name }}</span>
+        </button>
+      </li>
+    }
+  </ul>
+
+  <!-- Mobile horizontal scrollable chip list -->
+  <div class="category-chips">
+    <button
+      type="button"
+      class="category-chip"
+      [class.is-active]="selectedCategoryId() === 'all'"
+      (click)="selectCategory('all')"
+    >
+      All Products
+    </button>
+    @for (category of categories(); track category.id) {
+      <button
+        type="button"
+        class="category-chip"
+        [class.is-active]="selectedCategoryId() === category.id"
+        (click)="selectCategory(category.id)"
+      >
+        {{ category.name }}
+      </button>
+    }
+  </div>
+</nav>

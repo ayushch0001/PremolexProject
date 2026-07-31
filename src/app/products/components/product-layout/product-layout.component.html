@@ -1,0 +1,79 @@
+<section class="catalog-page">
+  <div class="catalog-container">
+    <!-- Page header -->
+    <header class="catalog-header">
+      <p class="catalog-eyebrow">Product Catalog</p>
+      <h1 class="catalog-title">Industrial Piping Systems</h1>
+      <p class="catalog-subtitle">
+        Engineered piping solutions for water supply, drainage, agriculture and
+        heavy industrial applications. Select a category to refine the range.
+      </p>
+    </header>
+
+    <!-- Content layout: sidebar (25%) + grid (75%) -->
+    <div class="catalog-layout">
+      <!-- Category sidebar -->
+      <aside class="catalog-sidebar">
+        <div class="sidebar-card">
+          <app-category-sidebar
+            [categories]="categories()"
+            [selectedCategoryId]="selectedCategoryId()"
+            (selectedCategoryIdChange)="onSelectCategory($event)"
+          />
+        </div>
+      </aside>
+
+      <!-- Product grid -->
+      <div class="catalog-content">
+        <div class="results-bar">
+          <span class="results-count">{{ filteredProducts().length }} product(s)</span>
+          <span class="results-category">{{ selectedCategoryName() }}</span>
+        </div>
+
+        <div [class]="fadeClass()" aria-live="polite">
+          <app-product-grid
+            [products]="filteredProducts()"
+            (viewDetails)="openSpecs($event)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Specifications overlay -->
+@if (selectedProduct(); as product) {
+  <div class="spec-overlay" (click)="closeSpecs()">
+    <div
+      class="spec-modal"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="product.name + ' specifications'"
+      (click)="$event.stopPropagation()"
+    >
+      <button type="button" class="spec-close" (click)="closeSpecs()" aria-label="Close specifications">
+        <span aria-hidden="true">&times;</span>
+      </button>
+
+      <div class="spec-modal-image-wrap">
+        <img [src]="product.imageUrl" [alt]="product.name" class="spec-modal-image" />
+      </div>
+
+      <div class="spec-modal-body">
+        <span class="spec-modal-category">{{ product.category }}</span>
+        <h2 class="spec-modal-title">{{ product.name }}</h2>
+        <p class="spec-modal-subtitle">{{ product.subtitle }}</p>
+
+        <h3 class="spec-modal-heading">Technical Specifications</h3>
+        <dl class="spec-list">
+          @for (spec of product.specifications; track spec.label) {
+            <div class="spec-row">
+              <dt>{{ spec.label }}</dt>
+              <dd>{{ spec.value }}</dd>
+            </div>
+          }
+        </dl>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,20 @@
+<div class="top-bar hidden md:block bg-[#0A2540] text-white text-sm">
+  <div class="max-w-container-max mx-auto px-gutter py-2 flex items-center justify-between">
+    <!-- Left: Location & Phone -->
+    <div class="flex items-center gap-4">
+      <span class="flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px] text-[#FF6B00]">location_on</span>
+        {{ location }}
+      </span>
+      <span class="flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[16px] text-[#FF6B00]">phone</span>
+        {{ phone }}
+      </span>
+    </div>
+    <!-- Right: Email -->
+    <div class="flex items-center gap-1.5">
+      <span class="material-symbols-outlined text-[16px] text-[#FF6B00]">mail</span>
+      <a href="mailto:{{ email }}" class="hover:text-[#FF6B00] transition-colors duration-200">{{ email }}</a>
+    </div>
+  </div>
+</div>

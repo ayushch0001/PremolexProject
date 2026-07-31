@@ -1,0 +1,31 @@
+<section class="hero-carousel">
+  <div class="carousel-slides">
+    <div
+      *ngFor="let slide of slides; let i = index"
+      class="carousel-slide"
+      [class.active]="i === currentSlide"
+      [style.background-image]="'url(' + slide.image + ')'"
+    >
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1 class="slide-title">{{ slide.title }}</h1>
+        <p class="slide-subtitle">{{ slide.subtitle }}</p>
+        <a [routerLink]="slide.ctaLink" class="cta-button">
+          {{ slide.ctaLabel }}
+          <span class="cta-arrow">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation dots -->
+  <div class="carousel-dots">
+    <button
+      *ngFor="let slide of slides; let i = index"
+      class="dot"
+      [class.active]="i === currentSlide"
+      (click)="goToSlide(i)"
+      [attr.aria-label]="'Go to slide ' + (i + 1)"
+    ></button>
+  </div>
+</section>

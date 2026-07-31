@@ -2,11 +2,20 @@
 
     <main class="flex-grow">
 
-        <!-- Hero Slider -->
-        <app-hero-slider></app-hero-slider>
+        <!-- Hero Carousel -->
+        <app-hero-carousel></app-hero-carousel>
+        
+        <!-- Corporate Values (Mission, Vision, Values) -->
+        <app-corporate-values [cards]="valueCards"></app-corporate-values>
+        
+        <!-- Home About Section (Company History) -->
+        <app-home-about></app-home-about>
+        
+        <!-- Applications Grid (Features of HDPE Pipe) -->
+        <app-applications-grid></app-applications-grid>
 
         <!-- Dashboard Quick Stats -->
-        <section class="py-xl px-gutter max-w-container-max mx-auto -mt-16 relative z-30">
+        <section class="py-xl px-gutter max-w-container-max mx-auto mt-16 relative z-30">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-sm">
                 <div *ngFor="let stat of stats"
                     class="bg-surface-container-lowest border border-outline-variant p-md rounded shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -64,6 +73,9 @@
         <!-- Products Section -->
         <app-products></app-products>
 
+        <!-- Project Gallery (Portfolio) -->
+        <app-project-gallery></app-project-gallery>
+
         <!-- Quick Links & Recent Activity -->
         <section class="py-xl px-gutter max-w-container-max mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
@@ -120,23 +132,7 @@
             </div>
         </section>
 
-        <!-- Call to Action -->
-        <section class="py-xl px-gutter bg-primary text-on-primary">
-            <div class="max-w-container-max mx-auto text-center">
-                <h2 class="font-headline-lg text-headline-lg mb-sm">Ready to Build Your Next Project?</h2>
-                <p class="font-body-lg text-body-lg mb-lg opacity-90">Get expert consultation and premium quality
-                    products for your industrial needs.</p>
-                <div class="flex flex-wrap justify-center gap-sm">
-                    <button
-                        class="bg-on-primary text-primary font-label-md text-label-md px-lg py-sm rounded hover:bg-primary-container hover:text-on-primary-container transition-colors">
-                        Contact Sales
-                    </button>
-                    <button
-                        class="border border-on-primary text-on-primary font-label-md text-label-md px-lg py-sm rounded hover:bg-on-primary hover:text-primary transition-colors">
-                        Browse Catalog
-                    </button>
-                </div>
-            </div>
-        </section>
+        <!-- Contact CTA (Lead Generation Form) -->
+        <app-home-contact-cta></app-home-contact-cta>
 
     </main>

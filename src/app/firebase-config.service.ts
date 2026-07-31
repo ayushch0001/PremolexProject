@@ -35,32 +35,22 @@ export class FirebaseConfigService {
     }
   }
 
-  /**
-   * Initialize Firebase automatically if config exists
-   */
+
   private initFromLocalStorage(): void {
     const savedConfig = this.getConfig();
-
     if (savedConfig) {
       this.connectFirebase(savedConfig);
     }
   }
 
-  /**
-   * Get Firebase config from localStorage
-   */
   getConfig(): FirebaseConfig | null {
-
     if (!isPlatformBrowser(this.platformId)) {
       return null;
     }
-
     const config = localStorage.getItem(this.STORAGE_KEY);
-
     if (!config) {
       return null;
     }
-
     try {
       return JSON.parse(config) as FirebaseConfig;
     } catch (error) {
@@ -69,21 +59,16 @@ export class FirebaseConfigService {
     }
   }
 
-  /**
-   * Initialize Firebase
-   */
-  connectFirebase(config: FirebaseConfig): boolean {
 
+  connectFirebase(config: FirebaseConfig): boolean {
     try {
 
       // Initialize only once
       this.app = getApps().length
         ? getApp()
         : initializeApp(config);
-
       this.db = getFirestore(this.app);
       this.storage = getStorage(this.app);
-
       // Save config only in browser
       if (isPlatformBrowser(this.platformId)) {
         localStorage.setItem(
@@ -91,13 +76,9 @@ export class FirebaseConfigService {
           JSON.stringify(config)
         );
       }
-
       this.isConfigured.set(true);
-
       console.log('Firebase initialized successfully.');
-
       return true;
-
     } catch (error) {
 
       console.error('Firebase initialization failed:', error);
@@ -108,11 +89,7 @@ export class FirebaseConfigService {
     }
   }
 
-  /**
-   * Clear saved Firebase configuration
-   */
   clearConfig(): void {
-
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(this.STORAGE_KEY);
     }
@@ -128,23 +105,14 @@ export class FirebaseConfigService {
     }
   }
 
-  /**
-   * Get Firestore instance
-   */
   getFirestoreInstance(): Firestore | null {
     return this.db;
   }
 
-  /**
-   * Get Storage instance
-   */
   getStorageInstance(): FirebaseStorage | null {
     return this.storage;
   }
 
-  /**
-   * Check whether Firebase is initialized
-   */
   isFirebaseConnected(): boolean {
     return this.app !== null;
   }

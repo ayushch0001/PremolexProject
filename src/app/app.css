@@ -1,0 +1,10 @@
+/* App root layout styles */
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+/* Ensure the main content area fills available space */
+:host > div {
+  min-height: 100vh;
+}

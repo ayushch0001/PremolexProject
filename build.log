@@ -1,0 +1,109 @@
+[33m❯[39m Building...
+ERROR ReferenceError: window is not defined
+    at n.checkScroll (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:127:5232)
+    at n.ngOnInit (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:127:5152)
+    at kF (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26793)
+    at Xoe (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26962)
+    at _B (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26678)
+    at Mb (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26404)
+    at ule (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:66686)
+    at nI (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67778)
+    at zU (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67607)
+    at hle (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67540)
+ERROR ReferenceError: window is not defined
+    at n.checkScroll (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:127:5232)
+    at n.ngOnInit (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:127:5152)
+    at kF (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:25:26793)
+    at Xoe (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:25:26962)
+    at _B (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:25:26678)
+    at Mb (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:25:26404)
+    at ule (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:25:66686)
+    at nI (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:25:67778)
+    at zU (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:25:67607)
+    at hle (file:///f:/PremolexProject/premolex/.angular/prerender-root/14a89d7d-ec59-4bf8-bbcc-945651803891/main.server.mjs:25:67540)
+ERROR ReferenceError: window is not defined
+    at n.checkScroll (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:127:5232)
+    at n.ngOnInit (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:127:5152)
+    at kF (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26793)
+    at Xoe (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26962)
+    at _B (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26678)
+    at Mb (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26404)
+    at ule (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:66686)
+    at nI (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67778)
+    at zU (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67607)
+    at hle (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67540)
+ERROR ReferenceError: window is not defined
+    at n.checkScroll (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:127:5232)
+    at n.ngOnInit (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:127:5152)
+    at kF (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26793)
+    at Xoe (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26962)
+    at _B (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26678)
+    at Mb (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:26404)
+    at ule (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:66686)
+    at nI (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67778)
+    at zU (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67607)
+    at hle (file:///f:/PremolexProject/premolex/.angular/prerender-root/24e4618a-7e91-4b6d-ac17-94f117e38d5d/main.server.mjs:25:67540)
+ERROR ReferenceError: window is not defined
+    at n.checkScroll (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:127:5232)
+    at n.ngOnInit (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:127:5152)
+    at kF (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:25:26793)
+    at Xoe (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:25:26962)
+    at _B (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:25:26678)
+    at Mb (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:25:26404)
+    at ule (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:25:66686)
+    at nI (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:25:67778)
+    at zU (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:25:67607)
+    at hle (file:///f:/PremolexProject/premolex/.angular/prerender-root/ceca7ab9-fb45-4cb5-b587-acdebeac88b1/main.server.mjs:25:67540)
+ERROR ReferenceError: window is not defined
+    at n.checkScroll (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:127:5232)
+    at n.ngOnInit (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:127:5152)
+    at kF (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:25:26793)
+    at Xoe (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:25:26962)
+    at _B (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:25:26678)
+    at Mb (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:25:26404)
+    at ule (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:25:66686)
+    at nI (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:25:67778)
+    at zU (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:25:67607)
+    at hle (file:///f:/PremolexProject/premolex/.angular/prerender-root/9baf4b4f-e6c0-4129-9304-ee73966198ba/main.server.mjs:25:67540)
+[32m✔[39m Building...
+[35mBrowser bundles[39m     
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain-BBLEXGTH.js[39m    [2m | [22m[2mmain[22m            [2m | [22m  [36m1.07 MB[39m[2m | [22m              [36m243.30 kB[39m
+[32mstyles-6GWXIVNO.css[39m [2m | [22m[2mstyles[22m          [2m | [22m [36m40.11 kB[39m[2m | [22m                [36m6.01 kB[39m
+
+[1m [22m                   [2m | [22m[1mInitial total[22m   [2m | [22m  [1m[91m1.11 MB[39m[22m[2m | [22m              [1m249.31 kB[22m
+
+
+[35mServer bundles[39m      
+[1mInitial chunk files[22m [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mmain.server.mjs[39m     [2m | [22m[2mmain.server[22m     [2m | [22m  [36m1.83 MB[39m[2m | [22m                       
+[32mserver.mjs[39m          [2m | [22m[2mserver[22m          [2m | [22m[36m817.51 kB[39m[2m | [22m                       
+[32mpolyfills.server.mjs[39m[2m | [22m[2mpolyfills.server[22m[2m | [22m[36m233.65 kB[39m[2m | [22m                       
+[32mchunk-TWD63J35.mjs[39m  [2m | [22m[2m-[22m               [2m | [22m  [36m1.39 kB[39m[2m | [22m                       
+[32mchunk-ITOR7NUX.mjs[39m  [2m | [22m[2m-[22m               [2m | [22m  [36m1.38 kB[39m[2m | [22m                       
+
+[1mLazy chunk files[22m    [2m | [22m[1mNames[22m           [2m | [22m [1mRaw size[22m
+[32mchunk-KUERU4XA.mjs[39m  [2m | [22m[2mxhr2[22m            [2m | [22m [36m12.17 kB[39m[2m | [22m                       
+[32mchunk-ECXKONSQ.mjs[39m  [2m | [22m[2mxhr2[22m            [2m | [22m [36m12.07 kB[39m[2m | [22m                       
+
+[35mPrerendered 7 static routes.[39m
+Application bundle generation failed. [76.446 seconds] - 2026-07-31T16:32:26.311Z
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mbundle initial exceeded maximum budget. Budget 500.00 kB was not met by 610.70 kB with a total of 1.11 MB.[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mModule '@grpc/grpc-js' used by 'node_modules/@angular/fire/node_modules/@firebase/firestore/dist/index.node.mjs' is not ESM[0m
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: [4mhttps://angular.dev/tools/cli/build#configuring-commonjs-dependencies[0m
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mModule '@grpc/proto-loader' used by 'node_modules/@angular/fire/node_modules/@firebase/firestore/dist/index.node.mjs' is not ESM[0m
+
+  CommonJS or AMD dependencies can cause optimization bailouts.
+  For more information see: [4mhttps://angular.dev/tools/cli/build#configuring-commonjs-dependencies[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mbundle initial exceeded maximum budget. Budget 1.00 MB was not met by 110.69 kB with a total of 1.11 MB.[0m
+
+[39m[22m

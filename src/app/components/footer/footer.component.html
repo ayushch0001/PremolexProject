@@ -1,34 +1,100 @@
-<footer class="w-full py-xl bg-surface-container-highest dark:bg-surface-dim border-t border-outline-variant dark:border-outline">
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-gutter max-w-container-max mx-auto">
-    <div class="md:col-span-1">
-      <div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed mb-sm">
-        Premolex Industries
-      </div>
-      <p class="font-body-md text-body-md text-on-surface dark:text-on-surface-variant mb-md">Engineering Durability.</p>
-      
-      <div class="flex flex-col gap-xs">
-        <h4 class="font-label-md text-label-md text-on-surface">Subscribe to Tech Updates</h4>
-        <div class="flex">
-          <input class="bg-surface-container-lowest border border-outline-variant rounded-l px-xs py-xs text-body-md focus:border-primary focus:ring-0 outline-none w-full" 
-                 placeholder="Email Address" 
-                 type="email">
-          <button class="bg-primary text-on-primary px-sm rounded-r hover:bg-primary-container transition-colors">
-            <span class="material-symbols-outlined text-sm">send</span>
-          </button>
+<footer class="w-full bg-[#0A2540] text-white">
+  <!-- Main Footer Content -->
+  <div class="max-w-container-max mx-auto px-gutter py-12 lg:py-16">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+
+      <!-- Column 1: Company Logo & Bio -->
+      <div class="lg:col-span-1">
+        <a routerLink="/Home" class="flex items-center gap-2 mb-4">
+          <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+            <span class="text-[#0A2540] font-bold text-lg">P</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-headline-md text-headline-md font-bold text-white leading-tight">Premolex</span>
+            <span class="text-[10px] text-[#FF6B00] font-medium tracking-widest uppercase -mt-1">Industries</span>
+          </div>
+        </a>
+        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+          Premolex Industries is a leading manufacturer of high-quality industrial pipes and fittings. With over 15 years of excellence, we deliver durable, reliable piping solutions for agriculture, infrastructure, and industrial applications across India.
+        </p>
+        <div class="flex items-center gap-3">
+          <!-- Location -->
+          <div class="flex items-center gap-1.5 text-gray-300 text-sm">
+            <span class="material-symbols-outlined text-[16px] text-[#FF6B00]">location_on</span>
+            Raipur, C.G
+          </div>
         </div>
       </div>
+
+      <!-- Column 2: Quick Links -->
+      <div>
+        <h3 class="font-headline-md text-headline-md font-semibold text-white mb-4 text-sm lg:text-base">Quick Links</h3>
+        <ul class="space-y-2.5">
+          <li *ngFor="let link of quickLinks">
+            <a [routerLink]="link.path"
+               class="text-gray-300 hover:text-[#FF6B00] transition-colors duration-200 text-sm flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[14px] text-[#FF6B00]">chevron_right</span>
+              {{ link.label }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 3: Products Links -->
+      <div>
+        <h3 class="font-headline-md text-headline-md font-semibold text-white mb-4 text-sm lg:text-base">Our Products</h3>
+        <ul class="space-y-2.5">
+          <li *ngFor="let product of productLinks">
+            <a [routerLink]="product.path"
+               class="text-gray-300 hover:text-[#FF6B00] transition-colors duration-200 text-sm flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[14px] text-[#FF6B00]">chevron_right</span>
+              {{ product.label }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Column 4: Social Media & Newsletter -->
+      <div>
+        <h3 class="font-headline-md text-headline-md font-semibold text-white mb-4 text-sm lg:text-base">Follow Us</h3>
+        <!-- Social Media Icons -->
+        <div class="flex items-center gap-3 mb-6">
+          <a *ngFor="let social of socialLinks"
+             [href]="social.url"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="w-10 h-10 bg-white/10 hover:bg-[#FF6B00] rounded-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+             [attr.aria-label]="social.name"
+             [innerHTML]="social.icon">
+          </a>
+        </div>
+
+        <!-- Newsletter Subscription -->
+        <div>
+          <h4 class="text-sm font-medium text-white mb-3">Subscribe to Newsletter</h4>
+          <div class="flex flex-col gap-2">
+            <input type="email"
+                   placeholder="Your email address"
+                   class="w-full px-4 py-2.5 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-gray-400 focus:outline-none focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] transition-colors">
+            <button class="w-full px-4 py-2.5 bg-[#FF6B00] hover:bg-[#E06000] text-white text-sm font-medium rounded-lg transition-colors duration-200 flex items-center justify-center gap-2">
+              <span class="material-symbols-outlined text-[18px]">send</span>
+              Subscribe
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
-    
-    <div class="md:col-start-3 md:col-span-2 flex flex-col justify-end items-start md:items-end gap-sm mt-lg md:mt-0">
-      <nav class="flex gap-md flex-wrap justify-start md:justify-end">
-        <a *ngFor="let link of footerLinks" 
-           class="font-body-md text-body-md text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed transition-colors ease-in" 
-           href="#">
-          {{ link }}
-        </a>
-      </nav>
-      <div class="font-body-md text-body-md text-on-surface dark:text-on-surface-variant mt-sm">
-        &copy; {{ currentYear }} Premolex Industries. Engineering Durability.
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="border-t border-white/10">
+    <div class="max-w-container-max mx-auto px-gutter py-4 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p class="text-gray-400 text-xs">&copy; {{ currentYear }} Premolex Industries. All rights reserved.</p>
+      <div class="flex items-center gap-4">
+        <a href="#" class="text-gray-400 hover:text-[#FF6B00] text-xs transition-colors">Privacy Policy</a>
+        <a href="#" class="text-gray-400 hover:text-[#FF6B00] text-xs transition-colors">Terms of Service</a>
+        <a href="#" class="text-gray-400 hover:text-[#FF6B00] text-xs transition-colors">ISO Certifications</a>
       </div>
     </div>
   </div>

@@ -1,0 +1,14 @@
+<div class="product-grid">
+  @for (product of products(); track product.id) {
+    <app-product-card
+      [product]="product"
+      (viewDetails)="viewDetails.emit(product)"
+    />
+  } @empty {
+    <div class="empty-state">
+      <span class="empty-icon" aria-hidden="true">&#9883;</span>
+      <p class="empty-title">No products found</p>
+      <p class="empty-text">No products are available for the selected category.</p>
+    </div>
+  }
+</div>

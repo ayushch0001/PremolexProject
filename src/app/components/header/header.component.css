@@ -1,3 +1,35 @@
-.site-header { padding: 1rem 0; background: #ffffff; border-bottom: 1px solid #e5e7eb; }
-.site-header .container { display:flex; justify-content:space-between; align-items:center; }
-.site-header nav a { margin-left: 1rem; color:#111827; text-decoration:none }
+/* Header Component Styles */
+
+/* Dropdown animation */
+.dropdown-menu {
+  animation: dropdownFadeIn 0.2s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Active nav link style */
+.nav-link.active-link {
+  color: #FF6B00;
+  font-weight: 600;
+}
+
+/* Mobile active link style */
+.mobile-link.active-link {
+  color: #FF6B00;
+  background-color: #FFF5EB;
+  font-weight: 600;
+}
+
+/* Smooth scroll behavior for the whole page */
+html {
+  scroll-behavior: smooth;
+}

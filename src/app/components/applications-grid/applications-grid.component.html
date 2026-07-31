@@ -1,0 +1,20 @@
+<section class="applications-grid" appScrollAnimate>
+  <div class="applications-container">
+    <div class="section-header">
+      <span class="section-tag">Product Features</span>
+      <h2 class="section-title">Features of HDPE Pipe</h2>
+      <p class="section-description">
+        Our HDPE pipes are engineered to deliver superior performance across a wide range of
+        industrial, agricultural, and infrastructure applications.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card" *ngFor="let feature of features">
+        <div class="feature-icon" [innerHTML]="feature.icon"></div>
+        <h3 class="feature-title">{{ feature.title }}</h3>
+        <p class="feature-description">{{ feature.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>

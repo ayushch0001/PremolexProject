@@ -1,0 +1,38 @@
+<section class="home-about" appScrollAnimate>
+  <div class="about-container">
+    <!-- Left column: Image -->
+    <div class="about-image-wrapper">
+      <img
+        [src]="facilityImage"
+        alt="Premolex manufacturing facility in Raipur, Chhattisgarh"
+        class="about-image"
+        loading="lazy"
+      />
+    </div>
+
+    <!-- Right column: Content -->
+    <div class="about-content">
+      <span class="about-tag">Who We Are</span>
+      <h2 class="about-title">India's Trusted Name in Industrial Piping Since 2008</h2>
+      <p class="about-text">
+        Established in 2008 in <strong>Raipur, Chhattisgarh</strong>, Premolex has grown from a
+        regional manufacturer into a nationally recognized supplier of high-quality HDPE and
+        PVC piping solutions. Our commitment to precision engineering, rigorous quality
+        control, and customer-centric innovation has made us the preferred partner for
+        agriculture, infrastructure, and industrial projects across India.
+      </p>
+
+      <!-- 2x2 bullet grid -->
+      <div class="bullet-grid">
+        <div class="bullet-item" *ngFor="let bullet of bullets">
+          <span class="bullet-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+          </span>
+          <span class="bullet-text">{{ bullet.text }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

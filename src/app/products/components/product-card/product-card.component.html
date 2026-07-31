@@ -1,0 +1,22 @@
+<article class="product-card">
+  <div class="product-image-wrap">
+    <img
+      [src]="product().imageUrl"
+      [alt]="product().name"
+      class="product-image"
+      loading="lazy"
+      fetchpriority="low"
+    />
+    <span class="product-category">{{ product().category }}</span>
+  </div>
+
+  <div class="product-body">
+    <h3 class="product-title">{{ product().name }}</h3>
+    <p class="product-subtitle">{{ product().subtitle }}</p>
+
+    <button type="button" class="spec-button" (click)="viewDetails.emit()">
+      <span>View Specifications</span>
+      <span class="spec-arrow" aria-hidden="true">&rarr;</span>
+    </button>
+  </div>
+</article>

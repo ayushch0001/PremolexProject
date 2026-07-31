@@ -1,0 +1,138 @@
+<section class="home-contact-cta" appScrollAnimate>
+  <div class="contact-container">
+    <!-- Left side: Text & Contact Info -->
+    <div class="contact-info">
+      <span class="contact-tag">Get In Touch</span>
+      <h2 class="contact-title">Ask Us Anything</h2>
+      <p class="contact-text">
+        Have a question about our products, need a custom quote, or want to discuss your
+        next infrastructure project? Our team of experts is ready to help.
+      </p>
+
+      <div class="contact-details">
+        <div class="contact-detail-item">
+          <div class="detail-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="detail-label">Our Location</p>
+            <p class="detail-value">Raipur, Chhattisgarh, India</p>
+          </div>
+        </div>
+
+        <div class="contact-detail-item">
+          <div class="detail-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22">
+              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="detail-label">Email Us</p>
+            <p class="detail-value">info&#64;premolex.com</p>
+          </div>
+        </div>
+
+        <div class="contact-detail-item">
+          <div class="detail-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="detail-label">Call Us</p>
+            <p class="detail-value">+91 771 234 5678</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side: Contact Form -->
+    <div class="contact-form-wrapper">
+      <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="contact-form" novalidate>
+        <h3 class="form-title">Send Us a Message</h3>
+
+        <!-- Success message -->
+        <div class="success-message" *ngIf="isSubmitted">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+          </svg>
+          <span>Your message has been sent successfully! We'll get back to you shortly.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            class="form-input"
+            placeholder="Your full name"
+            [class.input-error]="f['name'].touched && f['name'].invalid"
+          />
+          <span class="error-text" *ngIf="f['name'].touched && f['name'].invalid">
+            Please enter your name (min. 2 characters)
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="form-input"
+            placeholder="your@email.com"
+            [class.input-error]="f['email'].touched && f['email'].invalid"
+          />
+          <span class="error-text" *ngIf="f['email'].touched && f['email'].invalid">
+            Please enter a valid email address
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="subject">Subject</label>
+          <input
+            id="subject"
+            type="text"
+            formControlName="subject"
+            class="form-input"
+            placeholder="What is this about?"
+            [class.input-error]="f['subject'].touched && f['subject'].invalid"
+          />
+          <span class="error-text" *ngIf="f['subject'].touched && f['subject'].invalid">
+            Please enter a subject (min. 3 characters)
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="message">Message</label>
+          <textarea
+            id="message"
+            formControlName="message"
+            class="form-input form-textarea"
+            placeholder="Tell us about your requirements..."
+            rows="4"
+            [class.input-error]="f['message'].touched && f['message'].invalid"
+          ></textarea>
+          <span class="error-text" *ngIf="f['message'].touched && f['message'].invalid">
+            Please enter a message (min. 10 characters)
+          </span>
+        </div>
+
+        <button
+          type="submit"
+          class="submit-button"
+          [disabled]="isSubmitting"
+        >
+          <span *ngIf="!isSubmitting">Send Message</span>
+          <span *ngIf="isSubmitting" class="button-loading">
+            <span class="spinner"></span>
+            Sending...
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+</section>

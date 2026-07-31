@@ -1,0 +1,158 @@
+.category-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.category-heading-icon {
+  color: #00236f;
+  font-size: 1rem;
+}
+
+/* Desktop / tablet vertical list */
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.category-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #475569;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.category-item:hover {
+  background: #f1f5f9;
+  color: #00236f;
+}
+
+.category-item:active {
+  transform: scale(0.99);
+}
+
+.category-item.is-active {
+  background: #00236f;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 35, 111, 0.28);
+}
+
+.category-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  transition: background 0.18s ease;
+}
+
+.category-item:hover .category-dot {
+  background: #00236f;
+}
+
+.category-item.is-active .category-dot {
+  background: #ffffff;
+}
+
+.category-label {
+  line-height: 1.4;
+}
+
+/* Mobile horizontal scrollable chip list — hidden on desktop */
+.category-chips {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px 10px 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.category-chips::-webkit-scrollbar {
+  height: 4px;
+}
+
+.category-chips::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.category-chip {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.category-chip:hover {
+  border-color: #00236f;
+  color: #00236f;
+}
+
+.category-chip.is-active {
+  background: #00236f;
+  border-color: #00236f;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 35, 111, 0.25);
+}
+
+/* Mobile: show chips, hide vertical list */
+@media (max-width: 1023px) {
+  .category-list {
+    display: none;
+  }
+}
+
+/* Desktop: show vertical list, hide chips */
+@media (min-width: 1024px) {
+  .category-list {
+    display: flex;
+  }
+
+  .category-chips {
+    display: none;
+  }
+}

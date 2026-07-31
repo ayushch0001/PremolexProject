@@ -1,0 +1,13 @@
+<section class="corporate-values">
+  <div class="values-grid">
+    <article
+      *ngFor="let card of cards; let i = index"
+      class="value-card"
+    >
+      <div class="card-icon" [innerHTML]="card.icon"></div>
+      <h3 class="card-title">{{ card.title }}</h3>
+      <p class="card-subtitle">{{ card.subtitle }}</p>
+      <p class="card-description">{{ card.description }}</p>
+    </article>
+  </div>
+</section>
