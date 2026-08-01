@@ -1,0 +1,250 @@
+<div class="form-overlay" (click)="onCancel()">
+  <div
+    class="form-modal"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="isEditMode() ? 'Edit product' : 'Add new product'"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="form-header">
+      <h2 class="form-title">{{ isEditMode() ? 'Edit Product' : 'Add New Product' }}</h2>
+      <button type="button" class="form-close" (click)="onCancel()" aria-label="Close form">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-body">
+      <div class="form-grid">
+        <!-- ============ MAIN COLUMN (left) ============ -->
+        <div class="form-main">
+          <!-- Basic Info card -->
+          <section class="form-card">
+            <h3 class="card-title">Basic Information</h3>
+
+            <div class="form-field">
+              <label class="form-label" for="product-title">Product Title *</label>
+              <input
+                id="product-title"
+                type="text"
+                formControlName="title"
+                class="form-input"
+                placeholder="e.g. HDPE PN10 Pressure Pipe 110mm"
+              />
+              @if (form.get('title')?.invalid && form.get('title')?.touched) {
+                <p class="form-error">
+                  @if (form.get('title')?.errors?.['required']) {
+                    Product title is required.
+                  } @else if (form.get('title')?.errors?.['minlength']) {
+                    Title must be at least 3 characters.
+                  }
+                </p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="product-slug">Slug *</label>
+              <input
+                id="product-slug"
+                type="text"
+                formControlName="slug"
+                class="form-input"
+                placeholder="e.g. hdpe-pn10-pressure-pipe-110mm"
+              />
+              @if (form.get('slug')?.invalid && form.get('slug')?.touched) {
+                <p class="form-error">
+                  @if (form.get('slug')?.errors?.['required']) {
+                    Slug is required.
+                  } @else {
+                    Slug must be lowercase with hyphens (e.g. hdpe-pipes).
+                  }
+                </p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="product-description">Short Description *</label>
+              <textarea
+                id="product-description"
+                formControlName="shortDescription"
+                class="form-input form-textarea"
+                rows="3"
+                placeholder="A concise summary shown on product cards and listings."
+              ></textarea>
+              @if (form.get('shortDescription')?.invalid && form.get('shortDescription')?.touched) {
+                <p class="form-error">
+                  @if (form.get('shortDescription')?.errors?.['required']) {
+                    Short description is required.
+                  } @else if (form.get('shortDescription')?.errors?.['maxlength']) {
+                    Description must be 200 characters or fewer.
+                  }
+                </p>
+              }
+            </div>
+          </section>
+
+          <!-- Media card -->
+          <section class="form-card">
+            <h3 class="card-title">Product Image</h3>
+
+            <div
+              class="dropzone"
+              [class.dropzone--active]="dragOver()"
+              [class.dropzone--filled]="previewUrl() !== null"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+            >
+              @if (previewUrl()) {
+                <div class="preview">
+                  <img [src]="previewUrl()!" alt="Product preview" class="preview-img" />
+                  <div class="preview-info">
+                    <span class="preview-name">{{ imageName() }}</span>
+                    @if (uploading()) {
+                      <div class="progress-bar">
+                        <div class="progress-fill" [style.width.%]="uploadProgress()"></div>
+                      </div>
+                      <span class="progress-text">Uploading… {{ uploadProgress() }}%</span>
+                    } @else {
+                      <span class="progress-text done">Upload complete</span>
+                    }
+                  </div>
+                  <button type="button" class="preview-remove" (click)="removeImage()" aria-label="Remove image">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                  </button>
+                </div>
+              } @else {
+                <div class="dropzone-empty">
+                  <span class="material-symbols-outlined dropzone-icon" aria-hidden="true">cloud_upload</span>
+                  <p class="dropzone-text">Drag & drop an image here</p>
+                  <p class="dropzone-hint">or click to browse</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    class="dropzone-input"
+                    (change)="onFilePicked($event)"
+                    aria-label="Choose product image"
+                  />
+                </div>
+              }
+            </div>
+            @if (!previewUrl()) {
+              <p class="form-hint">PNG, JPG or WEBP. The image is uploaded via a multipart request.</p>
+            }
+          </section>
+
+          <!-- Specifications card -->
+          <section class="form-card">
+            <div class="card-title-row">
+              <h3 class="card-title">Specifications</h3>
+              <button type="button" class="btn-link" (click)="addSpecRow()">
+                <span class="material-symbols-outlined" aria-hidden="true">add</span>
+                Add Row
+              </button>
+            </div>
+
+            <div formArrayName="specifications" class="spec-list">
+              @for (row of specControls; track $index; let i = $index) {
+                <div [formGroupName]="i" class="spec-row spec-row-enter">
+                  <div class="spec-field">
+                    <label class="form-label" [for]="'spec-key-' + i">Key</label>
+                    <input
+                      [id]="'spec-key-' + i"
+                      type="text"
+                      formControlName="key"
+                      class="form-input"
+                      placeholder="e.g. Material"
+                    />
+                  </div>
+                  <div class="spec-field">
+                    <label class="form-label" [for]="'spec-value-' + i">Value</label>
+                    <input
+                      [id]="'spec-value-' + i"
+                      type="text"
+                      formControlName="value"
+                      class="form-input"
+                      placeholder="e.g. HDPE"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    class="spec-remove"
+                    (click)="removeSpecRow(i)"
+                    aria-label="Remove specification row"
+                  >
+                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                  </button>
+                </div>
+              } @empty {
+                <p class="spec-empty">No specifications yet. Click "Add Row" to create one.</p>
+              }
+            </div>
+          </section>
+        </div>
+
+        <!-- ============ SIDEBAR COLUMN (right) ============ -->
+        <div class="form-sidebar">
+          <!-- Organization card -->
+          <section class="form-card">
+            <h3 class="card-title">Organization</h3>
+
+            <div class="form-field">
+              <label class="form-label" for="product-category">Category *</label>
+              <select
+                id="product-category"
+                formControlName="categoryId"
+                class="form-input"
+                (change)="onCategoryChange($event)"
+              >
+                <option value="" disabled>— Select a category —</option>
+                @for (category of categories(); track category.id) {
+                  <option [ngValue]="category.id">{{ category.name }}</option>
+                }
+              </select>
+              @if (form.get('categoryId')?.invalid && form.get('categoryId')?.touched) {
+                <p class="form-error">Please select a category.</p>
+              }
+            </div>
+
+            <div class="form-field">
+              <label class="form-label" for="product-subcategory">Subcategory</label>
+              <select id="product-subcategory" formControlName="subcategoryId" class="form-input" [disabled]="loadingSubcategories()">
+                <option [ngValue]="null">— None —</option>
+                @for (sub of subcategories(); track sub.id) {
+                  <option [ngValue]="sub.id">{{ sub.name }}</option>
+                }
+              </select>
+              @if (loadingSubcategories()) {
+                <p class="form-hint">Loading subcategories…</p>
+              } @else {
+                <p class="form-hint">Subcategories load based on the selected category.</p>
+              }
+            </div>
+          </section>
+
+          <!-- Status card -->
+          <section class="form-card">
+            <h3 class="card-title">Status</h3>
+
+            <div class="form-field">
+              <label class="form-label" for="product-status">Publish Status *</label>
+              <select id="product-status" formControlName="status" class="form-input">
+                <option value="draft">Draft (hidden)</option>
+                <option value="active">Active (published)</option>
+              </select>
+              <p class="form-hint">Draft products are not visible on the public site.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid || uploading()">
+          {{ isEditMode() ? 'Save Changes' : 'Create Product' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

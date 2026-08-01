@@ -1,0 +1,45 @@
+<aside
+  class="admin-sidebar"
+  [class.is-collapsed]="collapsed()"
+  [class.is-mobile-open]="mobileOpen()"
+>
+  <!-- Mobile close button -->
+  <button
+    type="button"
+    class="sidebar-mobile-close"
+    (click)="closeMobile.emit()"
+    aria-label="Close navigation"
+  >
+    <span aria-hidden="true">&times;</span>
+  </button>
+
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <span class="brand-mark" aria-hidden="true">P</span>
+    <span class="brand-text">Premolex Admin</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav" aria-label="Admin navigation">
+    @for (item of navItems; track item.route) {
+      <a
+        class="nav-link"
+        [routerLink]="item.route"
+        routerLinkActive="is-active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/admin/dashboard' }"
+        (click)="closeMobile.emit()"
+      >
+        <span class="material-symbols-outlined nav-icon" aria-hidden="true">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+
+  <!-- Footer -->
+  <div class="sidebar-footer">
+    <a class="nav-link" routerLink="/" (click)="closeMobile.emit()">
+      <span class="material-symbols-outlined nav-icon" aria-hidden="true">public</span>
+      <span class="nav-label">View Site</span>
+    </a>
+  </div>
+</aside>

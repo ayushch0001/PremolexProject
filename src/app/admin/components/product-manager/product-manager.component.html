@@ -1,0 +1,137 @@
+<div class="product-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Products</h2>
+      <p class="manager-subtitle">
+        {{ totalProducts() }} total · {{ activeCount() }} active · {{ draftCount() }} draft
+      </p>
+    </div>
+    <button type="button" class="btn-add" (click)="openAddForm()">
+      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      Add New Product
+    </button>
+  </div>
+
+  <!-- Toolbar: search + status filter -->
+  <div class="manager-toolbar">
+    <div class="search-field">
+      <span class="material-symbols-outlined search-icon" aria-hidden="true">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search products by name, slug or description…"
+        [value]="search()"
+        (input)="onSearch($event)"
+      />
+    </div>
+    <select class="status-select" [value]="statusFilter()" (change)="onStatusFilter($event)">
+      <option value="all">All statuses</option>
+      <option value="active">Active</option>
+      <option value="draft">Draft</option>
+    </select>
+  </div>
+
+  <!-- Desktop table -->
+  <div class="table-wrap">
+    <table class="product-table">
+      <thead>
+        <tr>
+          <th class="col-image">Image</th>
+          <th class="col-name">Product Name</th>
+          <th class="col-category">Category</th>
+          <th class="col-subcategory">Subcategory</th>
+          <th class="col-status">Status</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.id) {
+          <tr class="product-row">
+            <td class="col-image">
+              <div class="thumb">
+                @if (row.imageUrl) {
+                  <img [src]="row.imageUrl" [alt]="row.title" />
+                } @else {
+                  <span class="material-symbols-outlined thumb-placeholder" aria-hidden="true">image</span>
+                }
+              </div>
+            </td>
+            <td class="col-name">
+              <div class="name-cell">
+                <span class="product-name">{{ row.title }}</span>
+                <code class="slug-code">{{ row.slug }}</code>
+              </div>
+            </td>
+            <td class="col-category">{{ row.categoryName }}</td>
+            <td class="col-subcategory">{{ row.subcategoryName }}</td>
+            <td class="col-status">
+              <span class="status-badge" [class.status-active]="row.status === 'active'" [class.status-draft]="row.status === 'draft'">
+                {{ row.status === 'active' ? 'Active' : 'Draft' }}
+              </span>
+            </td>
+            <td class="col-actions">
+              <button type="button" class="icon-btn" (click)="openEditForm(row)" aria-label="Edit {{ row.title }}">
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+              </button>
+              <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(row)" aria-label="Delete {{ row.title }}">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="empty-cell">
+              <p class="empty-text">No products match your filters. Click "Add New Product" to create one.</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile card list -->
+  <div class="card-list">
+    @for (row of rows(); track row.id) {
+      <div class="product-card">
+        <div class="card-row">
+          <div class="thumb">
+            @if (row.imageUrl) {
+              <img [src]="row.imageUrl" [alt]="row.title" />
+            } @else {
+              <span class="material-symbols-outlined thumb-placeholder" aria-hidden="true">image</span>
+            }
+          </div>
+          <div class="card-main">
+            <span class="product-name">{{ row.title }}</span>
+            <span class="card-meta">{{ row.categoryName }} · {{ row.subcategoryName }}</span>
+            <span class="status-badge" [class.status-active]="row.status === 'active'" [class.status-draft]="row.status === 'draft'">
+              {{ row.status === 'active' ? 'Active' : 'Draft' }}
+            </span>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="icon-btn" (click)="openEditForm(row)" aria-label="Edit {{ row.title }}">
+              <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+            </button>
+            <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(row)" aria-label="Delete {{ row.title }}">
+              <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-card">
+        <p class="empty-text">No products match your filters.</p>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Add/Edit form modal -->
+@if (showForm()) {
+  <app-product-form
+    [product]="editingProduct()"
+    (close)="closeForm()"
+    (saved)="onSaved()"
+  />
+}

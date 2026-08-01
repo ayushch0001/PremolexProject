@@ -1,0 +1,27 @@
+<div class="admin-shell">
+  <!-- Sidebar -->
+  <app-admin-sidebar
+    [collapsed]="sidebarCollapsed()"
+    [mobileOpen]="mobileSidebarOpen()"
+    (closeMobile)="closeMobileSidebar()"
+  />
+
+  <!-- Mobile backdrop -->
+  @if (mobileSidebarOpen()) {
+    <div class="mobile-backdrop" (click)="closeMobileSidebar()"></div>
+  }
+
+  <!-- Main column: header + content -->
+  <div class="admin-main" [class.is-collapsed]="sidebarCollapsed()">
+    <app-admin-header
+      [pageTitle]="pageTitle()"
+      [sidebarCollapsed]="sidebarCollapsed()"
+      (toggleSidebar)="toggleSidebar()"
+      (openMobileSidebar)="openMobileSidebar()"
+    />
+
+    <main class="admin-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

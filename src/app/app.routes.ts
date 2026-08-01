@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { AboutComponent } from './components/about/about.component';
 import { Home } from './home/home';
-import { AdminDashboard } from './dashboard/admin-dashboard/admin-dashboard';
-import { ProductFormComponent } from './admin-components/product-form.component/product-form.component';
 import { FirebaseConfigFormComponent } from './admin-components/firebase-config-form.component/firebase-config-form.component';
 
 export const routes: Routes = [
@@ -18,12 +16,10 @@ export const routes: Routes = [
   },
   { path: 'firebaseConections', component: FirebaseConfigFormComponent },
 
-  // Admin Dashboard with child routes
+  // Admin area (protected by AuthGuard)
   {
-    path: 'AdminDashboard',
-    component: AdminDashboard,
-    children: [
-      { path: 'productsForm', component: ProductFormComponent },
-    ]
+    path: 'admin',
+    loadChildren: () =>
+      import('./admin/admin.routes').then((m) => m.ADMIN_ROUTES),
   },
 ];

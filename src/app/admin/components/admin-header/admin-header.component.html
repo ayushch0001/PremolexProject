@@ -1,0 +1,64 @@
+<header class="admin-header">
+  <!-- Left: hamburger + page title -->
+  <div class="header-left">
+    <!-- Mobile hamburger -->
+    <button
+      type="button"
+      class="header-icon-btn mobile-hamburger"
+      (click)="openMobileSidebar.emit()"
+      aria-label="Open navigation"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">menu</span>
+    </button>
+
+    <!-- Desktop collapse toggle -->
+    <button
+      type="button"
+      class="header-icon-btn desktop-toggle"
+      (click)="toggleSidebar.emit()"
+      [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">
+        {{ sidebarCollapsed() ? 'menu_open' : 'menu' }}
+      </span>
+    </button>
+
+    <h1 class="header-title">{{ pageTitle() }}</h1>
+  </div>
+
+  <!-- Right: profile / logout dropdown -->
+  <div class="header-right">
+    <div class="profile-wrap">
+      <button
+        type="button"
+        class="profile-trigger"
+        (click)="toggleProfile()"
+        aria-haspopup="true"
+        [attr.aria-expanded]="profileOpen()"
+      >
+        <span class="profile-avatar" aria-hidden="true">A</span>
+        <span class="profile-name">Admin</span>
+        <span class="material-symbols-outlined profile-caret" aria-hidden="true">
+          {{ profileOpen() ? 'expand_less' : 'expand_more' }}
+        </span>
+      </button>
+
+      @if (profileOpen()) {
+        <div class="profile-menu" role="menu">
+          <div class="profile-menu-header">
+            <span class="profile-menu-avatar" aria-hidden="true">A</span>
+            <div>
+              <p class="profile-menu-name">Administrator</p>
+              <p class="profile-menu-email">admin&#64;premolex.com</p>
+            </div>
+          </div>
+          <div class="profile-menu-divider"></div>
+          <button type="button" class="profile-menu-item" role="menuitem" (click)="logout()">
+            <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+            <span>Logout</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

@@ -1,0 +1,158 @@
+<div class="category-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Categories</h2>
+      <p class="manager-subtitle">{{ totalCategories() }} total categor{{ totalCategories() === 1 ? 'y' : 'ies' }}</p>
+    </div>
+    <button type="button" class="btn-add" (click)="openAddForm()">
+      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      Add New Category
+    </button>
+  </div>
+
+  <!-- Desktop table -->
+  <div class="table-wrap">
+    <table class="category-table">
+      <thead>
+        <tr>
+          <th class="col-name">Name</th>
+          <th class="col-slug">Slug</th>
+          <th class="col-desc">Description</th>
+          <th class="col-type">Type</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (category of tree(); track category.id) {
+          <ng-container>
+            <tr class="category-row" [class.has-children]="category.children.length > 0">
+              <td class="col-name">
+                <button
+                  type="button"
+                  class="expand-btn"
+                  [class.is-expanded]="isExpanded(category.id)"
+                  (click)="toggleExpand(category.id)"
+                  [attr.aria-expanded]="isExpanded(category.id)"
+                  [attr.aria-label]="(isExpanded(category.id) ? 'Collapse' : 'Expand') + ' ' + category.name"
+                >
+                  <span class="material-symbols-outlined expand-icon" aria-hidden="true">chevron_right</span>
+                </button>
+                <span class="category-name">{{ category.name }}</span>
+              </td>
+              <td class="col-slug"><code class="slug-code">{{ category.slug }}</code></td>
+              <td class="col-desc">{{ category.description }}</td>
+              <td class="col-type"><span class="type-badge">Parent</span></td>
+              <td class="col-actions">
+                <button type="button" class="icon-btn" (click)="openEditForm(category)" aria-label="Edit {{ category.name }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                </button>
+                <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(category)" aria-label="Delete {{ category.name }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                </button>
+              </td>
+            </tr>
+
+            @if (category.children.length > 0) {
+              <tr class="subcategory-row" [class.is-open]="isExpanded(category.id)">
+                <td colspan="5" class="subcategory-cell">
+                  <div class="subcategory-inner">
+                    @for (child of category.children; track child.id) {
+                      <div class="subcategory-item">
+                        <div class="subcategory-info">
+                          <span class="subcategory-indent" aria-hidden="true"></span>
+                          <span class="subcategory-name">{{ child.name }}</span>
+                          <code class="slug-code">{{ child.slug }}</code>
+                        </div>
+                        <div class="subcategory-actions">
+                          <button type="button" class="icon-btn" (click)="openEditForm(child)" aria-label="Edit {{ child.name }}">
+                            <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                          </button>
+                          <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(child)" aria-label="Delete {{ child.name }}">
+                            <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </ng-container>
+        } @empty {
+          <tr>
+            <td colspan="5" class="empty-cell">
+              <p class="empty-text">No categories yet. Click "Add New Category" to create one.</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile card list -->
+  <div class="card-list">
+    @for (category of tree(); track category.id) {
+      <div class="category-card">
+        <div class="card-row">
+          <button
+            type="button"
+            class="expand-btn"
+            [class.is-expanded]="isExpanded(category.id)"
+            (click)="toggleExpand(category.id)"
+            [attr.aria-expanded]="isExpanded(category.id)"
+            [attr.aria-label]="(isExpanded(category.id) ? 'Collapse' : 'Expand') + ' ' + category.name"
+          >
+            <span class="material-symbols-outlined expand-icon" aria-hidden="true">chevron_right</span>
+          </button>
+          <div class="card-main">
+            <span class="category-name">{{ category.name }}</span>
+            <code class="slug-code">{{ category.slug }}</code>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="icon-btn" (click)="openEditForm(category)" aria-label="Edit {{ category.name }}">
+              <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+            </button>
+            <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(category)" aria-label="Delete {{ category.name }}">
+              <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+            </button>
+          </div>
+        </div>
+
+        @if (category.children.length > 0) {
+          <div class="card-subcategories" [class.is-open]="isExpanded(category.id)">
+            @for (child of category.children; track child.id) {
+              <div class="card-subcategory">
+                <div class="card-main">
+                  <span class="subcategory-name">{{ child.name }}</span>
+                  <code class="slug-code">{{ child.slug }}</code>
+                </div>
+                <div class="card-actions">
+                  <button type="button" class="icon-btn" (click)="openEditForm(child)" aria-label="Edit {{ child.name }}">
+                    <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                  </button>
+                  <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(child)" aria-label="Delete {{ child.name }}">
+                    <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    } @empty {
+      <div class="empty-card">
+        <p class="empty-text">No categories yet. Click "Add New Category" to create one.</p>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Add/Edit form modal -->
+@if (showForm()) {
+  <app-category-form
+    [category]="editingCategory()"
+    (close)="closeForm()"
+    (saved)="onSaved()"
+  />
+}

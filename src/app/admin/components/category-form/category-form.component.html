@@ -1,0 +1,87 @@
+<div class="form-overlay" (click)="onCancel()">
+  <div
+    class="form-modal"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="isEditMode() ? 'Edit category' : 'Add new category'"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="form-header">
+      <h2 class="form-title">{{ isEditMode() ? 'Edit Category' : 'Add New Category' }}</h2>
+      <button type="button" class="form-close" (click)="onCancel()" aria-label="Close form">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-body">
+      <div class="form-field">
+        <label class="form-label" for="category-name">Category Name *</label>
+        <input
+          id="category-name"
+          type="text"
+          formControlName="name"
+          class="form-input"
+          placeholder="e.g. HDPE Pipes"
+        />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <p class="form-error">
+            @if (form.get('name')?.errors?.['required']) {
+              Category name is required.
+            } @else if (form.get('name')?.errors?.['minlength']) {
+              Category name must be at least 3 characters.
+            }
+          </p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="category-slug">Slug *</label>
+        <input
+          id="category-slug"
+          type="text"
+          formControlName="slug"
+          class="form-input"
+          placeholder="e.g. hdpe-pipes"
+        />
+        @if (form.get('slug')?.invalid && form.get('slug')?.touched) {
+          <p class="form-error">
+            @if (form.get('slug')?.errors?.['required']) {
+              Slug is required.
+            } @else {
+              Slug must be lowercase with hyphens (e.g. hdpe-pipes).
+            }
+          </p>
+        }
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="category-description">Description</label>
+        <textarea
+          id="category-description"
+          formControlName="description"
+          class="form-input form-textarea"
+          rows="3"
+          placeholder="Short description of this category"
+        ></textarea>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="category-parent">Parent Category</label>
+        <select id="category-parent" formControlName="parentId" class="form-input">
+          <option [ngValue]="null">— None (Top-level category) —</option>
+          @for (parent of parentOptions(); track parent.id) {
+            <option [ngValue]="parent.id">{{ parent.name }}</option>
+          }
+        </select>
+        <p class="form-hint">Selecting a parent makes this a subcategory.</p>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+          {{ isEditMode() ? 'Save Changes' : 'Create Category' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
