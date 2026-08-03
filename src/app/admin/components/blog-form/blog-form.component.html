@@ -1,0 +1,240 @@
+<div class="form-overlay" (click)="onCancel()">
+  <div
+    class="form-modal"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="isEditMode() ? 'Edit blog post' : 'Write new blog post'"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Header -->
+    <div class="form-header">
+      <h2 class="form-title">{{ isEditMode() ? 'Edit Post' : 'Write New Post' }}</h2>
+      <div class="header-actions">
+        <button type="button" class="btn-ghost" (click)="togglePreview()">
+          <span class="material-symbols-outlined" aria-hidden="true">{{ showPreview() ? 'edit' : 'visibility' }}</span>
+          {{ showPreview() ? 'Edit' : 'Preview' }}
+        </button>
+        <button type="button" class="form-close" (click)="onCancel()" aria-label="Close form">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-body">
+      <!-- ===== EDIT MODE ===== -->
+      @if (!showPreview()) {
+        <!-- Title row -->
+        <div class="title-row">
+          <input
+            #titleInput
+            type="text"
+            formControlName="title"
+            class="title-input"
+            placeholder="Post title…"
+            (input)="onTitleInput($event)"
+          />
+          @if (form.get('title')?.invalid && form.get('title')?.touched) {
+            <p class="field-error">
+              @if (form.get('title')?.errors?.['required']) {
+                Title is required.
+              } @else if (form.get('title')?.errors?.['minlength']) {
+                Title must be at least 3 characters.
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Slug + Author row -->
+        <div class="meta-row">
+          <div class="meta-field">
+            <label class="meta-label" for="post-slug">URL Slug</label>
+            <div class="slug-input-wrap">
+              <span class="slug-prefix">/blog/</span>
+              <input
+                id="post-slug"
+                type="text"
+                formControlName="slug"
+                class="slug-input"
+                placeholder="auto-generated-slug"
+                (input)="onSlugInput()"
+              />
+            </div>
+            @if (form.get('slug')?.invalid && form.get('slug')?.touched) {
+              <p class="field-error">
+                @if (form.get('slug')?.errors?.['required']) {
+                  Slug is required.
+                } @else {
+                  Slug must be lowercase with hyphens.
+                }
+              </p>
+            }
+          </div>
+
+          <div class="meta-field">
+            <label class="meta-label" for="post-author">Author</label>
+            <input
+              id="post-author"
+              type="text"
+              formControlName="author"
+              class="meta-input"
+              placeholder="Author name"
+            />
+            @if (form.get('author')?.invalid && form.get('author')?.touched) {
+              <p class="field-error">Author is required.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Featured image -->
+        <div class="featured-image-section">
+          <label class="meta-label">Featured Image</label>
+          <div
+            class="dropzone"
+            [class.dropzone--active]="dragOver()"
+            [class.dropzone--filled]="previewUrl() !== null"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+          >
+            @if (previewUrl()) {
+              <div class="preview">
+                <img [src]="previewUrl()!" alt="Featured image preview" class="preview-img" />
+                <div class="preview-info">
+                  <span class="preview-name">{{ imageName() }}</span>
+                  @if (uploading()) {
+                    <div class="progress-bar">
+                      <div class="progress-fill" [style.width.%]="uploadProgress()"></div>
+                    </div>
+                    <span class="progress-text">Uploading… {{ uploadProgress() }}%</span>
+                  } @else {
+                    <span class="progress-text done">Upload complete</span>
+                  }
+                </div>
+                <button type="button" class="preview-remove" (click)="removeImage()" aria-label="Remove image">
+                  <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+              </div>
+            } @else {
+              <div class="dropzone-empty">
+                <span class="material-symbols-outlined dropzone-icon" aria-hidden="true">add_photo_alternate</span>
+                <p class="dropzone-text">Drag & drop a featured image</p>
+                <p class="dropzone-hint">or click to browse</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="dropzone-input"
+                  (change)="onFilePicked($event)"
+                  aria-label="Choose featured image"
+                />
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Excerpt -->
+        <div class="excerpt-field">
+          <label class="meta-label" for="post-excerpt">Excerpt <span class="optional">(optional)</span></label>
+          <textarea
+            id="post-excerpt"
+            formControlName="excerpt"
+            class="excerpt-input"
+            rows="2"
+            placeholder="A short summary for listings and SEO. Leave blank to auto-generate from content."
+          ></textarea>
+          @if (form.get('excerpt')?.invalid && form.get('excerpt')?.touched) {
+            <p class="field-error">Excerpt must be 300 characters or fewer.</p>
+          }
+        </div>
+
+        <!-- Rich text editor -->
+        <div class="editor-section">
+          <div class="editor-toolbar">
+            <button type="button" class="tb-btn" (click)="execCmd('bold')" title="Bold" aria-label="Bold">
+              <span class="material-symbols-outlined" aria-hidden="true">format_bold</span>
+            </button>
+            <button type="button" class="tb-btn" (click)="execCmd('italic')" title="Italic" aria-label="Italic">
+              <span class="material-symbols-outlined" aria-hidden="true">format_italic</span>
+            </button>
+            <button type="button" class="tb-btn" (click)="execCmd('underline')" title="Underline" aria-label="Underline">
+              <span class="material-symbols-outlined" aria-hidden="true">format_underlined</span>
+            </button>
+            <span class="tb-divider"></span>
+            <button type="button" class="tb-btn" (click)="setBlock('h2')" title="Heading 2" aria-label="Heading 2">
+              <span class="material-symbols-outlined" aria-hidden="true">title</span>
+            </button>
+            <button type="button" class="tb-btn" (click)="setBlock('h3')" title="Heading 3" aria-label="Heading 3">
+              <span class="material-symbols-outlined" aria-hidden="true">format_h3</span>
+            </button>
+            <button type="button" class="tb-btn" (click)="setBlock('p')" title="Paragraph" aria-label="Paragraph">
+              <span class="material-symbols-outlined" aria-hidden="true">format_paragraph</span>
+            </button>
+            <span class="tb-divider"></span>
+            <button type="button" class="tb-btn" (click)="execCmd('insertUnorderedList')" title="Bullet list" aria-label="Bullet list">
+              <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+            </button>
+            <button type="button" class="tb-btn" (click)="execCmd('insertOrderedList')" title="Numbered list" aria-label="Numbered list">
+              <span class="material-symbols-outlined" aria-hidden="true">format_list_numbered</span>
+            </button>
+            <span class="tb-divider"></span>
+            <button type="button" class="tb-btn" (click)="insertLink()" title="Insert link" aria-label="Insert link">
+              <span class="material-symbols-outlined" aria-hidden="true">link</span>
+            </button>
+            <button type="button" class="tb-btn" (click)="execCmd('removeFormat')" title="Clear formatting" aria-label="Clear formatting">
+              <span class="material-symbols-outlined" aria-hidden="true">format_clear</span>
+            </button>
+          </div>
+
+          <!-- Hidden FormControl binding (content is synced manually) -->
+          <input type="hidden" formControlName="content" />
+
+          <div
+            #editor
+            class="editor-content"
+            contenteditable="true"
+            (input)="onEditorInput()"
+            [innerHTML]="form.get('content')?.value || ''"
+            role="textbox"
+            aria-multiline="true"
+            aria-label="Blog content editor"
+            data-placeholder="Start writing your post…"
+          ></div>
+
+          <div class="editor-footer">
+            <span class="word-count">{{ wordCount() }} words</span>
+            @if (contentControl.invalid && contentControl.touched) {
+              <span class="editor-error-text">Content is required (min 20 characters).</span>
+            }
+          </div>
+        </div>
+      } @else {
+        <!-- ===== PREVIEW MODE ===== -->
+        <article class="preview-article">
+          @if (previewUrl()) {
+            <img [src]="previewUrl()!" alt="Featured image" class="preview-featured-img" />
+          }
+          <h1 class="preview-title">{{ form.get('title')?.value }}</h1>
+          <div class="preview-meta">
+            <span>By {{ form.get('author')?.value }}</span>
+          </div>
+          <div class="preview-content" [innerHTML]="sanitizedPreview()"></div>
+        </article>
+      }
+
+      <!-- ===== ACTIONS BAR (always visible) ===== -->
+      <div class="actions-bar">
+        <label class="publish-toggle">
+          <input type="checkbox" formControlName="publishNow" class="toggle-input" />
+          <span class="toggle-switch"></span>
+          <span class="toggle-label">Publish immediately</span>
+        </label>
+
+        <div class="action-buttons">
+          <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || uploading()">
+            {{ isEditMode() ? 'Save Changes' : 'Save Post' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -16,6 +16,12 @@ export const routes: Routes = [
   },
   { path: 'firebaseConections', component: FirebaseConfigFormComponent },
 
+  // Auth (login)
+  {
+    path: 'login',
+    loadChildren: () => import('./auth/auth.routes').then((m) => m.AUTH_ROUTES),
+  },
+
   // Admin area (protected by AuthGuard)
   {
     path: 'admin',

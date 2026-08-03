@@ -1,0 +1,133 @@
+<div class="blog-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Blog Posts</h2>
+      <p class="manager-subtitle">
+        {{ totalPosts() }} total · {{ publishedCount() }} published · {{ draftCount() }} draft
+      </p>
+    </div>
+    <button type="button" class="btn-add" (click)="openAddForm()">
+      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      Write New Post
+    </button>
+  </div>
+
+  <!-- Toolbar: search + status filter -->
+  <div class="manager-toolbar">
+    <div class="search-field">
+      <span class="material-symbols-outlined search-icon" aria-hidden="true">search</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search posts by title, slug or author…"
+        [value]="search()"
+        (input)="onSearch($event)"
+      />
+    </div>
+    <select class="status-select" [value]="statusFilter()" (change)="onStatusFilter($event)">
+      <option value="all">All statuses</option>
+      <option value="published">Published</option>
+      <option value="draft">Draft</option>
+    </select>
+  </div>
+
+  <!-- Desktop table -->
+  <div class="table-wrap">
+    <table class="blog-table">
+      <thead>
+        <tr>
+          <th class="col-title">Post Title</th>
+          <th class="col-author">Author</th>
+          <th class="col-date">Publish Date</th>
+          <th class="col-status">Status</th>
+          <th class="col-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (post of rows(); track post.id) {
+          <tr class="blog-row">
+            <td class="col-title">
+              <div class="title-cell">
+                <span class="post-title">{{ post.title }}</span>
+                <code class="slug-code">/{{ post.slug }}</code>
+              </div>
+            </td>
+            <td class="col-author">
+              <div class="author-cell">
+                <span class="author-avatar" aria-hidden="true">{{ post.author.charAt(0) }}</span>
+                <span class="author-name">{{ post.author }}</span>
+              </div>
+            </td>
+            <td class="col-date">{{ formatDate(post.publishedAt) }}</td>
+            <td class="col-status">
+              <span
+                class="status-badge"
+                [class.status-published]="post.status === 'published'"
+                [class.status-draft]="post.status === 'draft'"
+              >
+                {{ post.status === 'published' ? 'Published' : 'Draft' }}
+              </span>
+            </td>
+            <td class="col-actions">
+              <button type="button" class="icon-btn" (click)="openEditForm(post)" aria-label="Edit {{ post.title }}">
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+              </button>
+              <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(post)" aria-label="Delete {{ post.title }}">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="empty-cell">
+              <p class="empty-text">No posts match your filters. Click "Write New Post" to create one.</p>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile card list -->
+  <div class="card-list">
+    @for (post of rows(); track post.id) {
+      <div class="blog-card">
+        <div class="card-row">
+          <div class="card-main">
+            <span class="post-title">{{ post.title }}</span>
+            <span class="card-meta">{{ post.author }} · {{ formatDate(post.publishedAt) }}</span>
+            <span
+              class="status-badge"
+              [class.status-published]="post.status === 'published'"
+              [class.status-draft]="post.status === 'draft'"
+            >
+              {{ post.status === 'published' ? 'Published' : 'Draft' }}
+            </span>
+          </div>
+          <div class="card-actions">
+            <button type="button" class="icon-btn" (click)="openEditForm(post)" aria-label="Edit {{ post.title }}">
+              <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+            </button>
+            <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(post)" aria-label="Delete {{ post.title }}">
+              <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-card">
+        <p class="empty-text">No posts match your filters.</p>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Add/Edit form modal -->
+@if (showForm()) {
+  <app-blog-form
+    [post]="editingPost()"
+    (close)="closeForm()"
+    (saved)="onSaved()"
+  />
+}

@@ -1,5 +1,6 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-admin-header',
@@ -15,6 +16,8 @@ export class AdminHeaderComponent {
 
   readonly profileOpen = signal(false);
 
+  private readonly authService = inject(AuthService);
+
   constructor(private readonly router: Router) {}
 
   toggleProfile(): void {
@@ -27,7 +30,7 @@ export class AdminHeaderComponent {
 
   logout(): void {
     this.closeProfile();
-    // TODO: Wire up to a real auth service (e.g. Firebase Auth signOut).
-    this.router.navigate(['/']);
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

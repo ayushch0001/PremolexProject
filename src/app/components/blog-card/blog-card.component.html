@@ -1,0 +1,33 @@
+<article class="blog-card">
+  <!-- Featured image with zoom-on-hover -->
+  <div class="blog-card__image-wrap">
+    @if (post().featuredImageUrl) {
+      <img
+        [src]="post().featuredImageUrl!"
+        [alt]="post().title"
+        class="blog-card__image"
+        loading="lazy"
+      />
+    } @else {
+      <div class="blog-card__image-placeholder">
+        <span class="material-symbols-outlined" aria-hidden="true">article</span>
+      </div>
+    }
+  </div>
+
+  <!-- Card body -->
+  <div class="blog-card__body">
+    <time class="blog-card__date" [attr.datetime]="post().publishedAt ?? post().createdAt">
+      {{ (post().publishedAt ?? post().createdAt) | date: 'mediumDate' }}
+    </time>
+
+    <h3 class="blog-card__title">{{ post().title }}</h3>
+
+    <p class="blog-card__excerpt">{{ post().excerpt }}</p>
+
+    <a class="blog-card__read-more" [routerLink]="['/blog', post().slug]">
+      Read More
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+    </a>
+  </div>
+</article>

@@ -1,0 +1,25 @@
+<section class="blog-section">
+  <div class="blog-section__container">
+    <!-- Section header -->
+    <div class="blog-section__header">
+      <h2 class="blog-section__title">Latest News & Updates</h2>
+      <a class="blog-section__view-all" [routerLink]="['/blog']">
+        View All News
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+      </a>
+    </div>
+
+    <!-- Posts grid: 1 column on mobile, 2 on tablet, 3 on desktop -->
+    @if (recentPosts().length > 0) {
+      <div class="blog-section__grid">
+        @for (post of recentPosts(); track post.id) {
+          <app-blog-card [post]="post" />
+        }
+      </div>
+    } @else {
+      <p class="blog-section__empty">
+        No news yet. Check back soon for company updates and product announcements.
+      </p>
+    }
+  </div>
+</section>

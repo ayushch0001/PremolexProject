@@ -1,15 +1,19 @@
 <div class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
-  <!-- Top Contact Bar -->
-  <app-top-bar></app-top-bar>
+  @if (!isAuthPage()) {
+    <!-- Top Contact Bar -->
+    <app-top-bar></app-top-bar>
 
-  <!-- Main Header -->
-  <app-header></app-header>
+    <!-- Main Header -->
+    <app-header></app-header>
+  }
 
   <!-- Page Content via Router -->
   <main class="flex-grow">
     <router-outlet />
   </main>
 
-  <!-- Footer -->
-  <app-footer></app-footer>
+  @if (!isAuthPage()) {
+    <!-- Footer -->
+    <app-footer></app-footer>
+  }
 </div>

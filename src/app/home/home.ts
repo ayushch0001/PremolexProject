@@ -9,6 +9,7 @@ import { ProjectGalleryComponent } from "../components/project-gallery/project-g
 import { HomeContactCTAComponent } from "../components/home-contact-cta/home-contact-cta.component";
 import { AboutComponent } from '../components/about/about.component';
 import { ProductsComponent } from "../components/products/products.component";
+import { HomeBlogSectionComponent } from "../components/home-blog-section/home-blog-section.component";
 
 
 @Component({
@@ -16,7 +17,7 @@ import { ProductsComponent } from "../components/products/products.component";
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
-  imports: [CommonModule, HeroCarouselComponent, CorporateValuesComponent, HomeAboutComponent, ApplicationsGridComponent, ProjectGalleryComponent, HomeContactCTAComponent, AboutComponent, ProductsComponent],
+  imports: [CommonModule, HeroCarouselComponent, CorporateValuesComponent, HomeAboutComponent, ApplicationsGridComponent, ProjectGalleryComponent, HomeContactCTAComponent, AboutComponent, ProductsComponent, HomeBlogSectionComponent],
 })
 export class Home implements OnInit {
   // Corporate values cards data
