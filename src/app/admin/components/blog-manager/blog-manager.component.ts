@@ -1,6 +1,7 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { BlogPost } from '../../models/blog.model';
-import { BlogService } from '../../services/blog.service';
+import { FirestoreDataService, FirestoreBlog } from '../../../services/firestore-data.service';
 import { BlogFormComponent } from '../blog-form/blog-form.component';
 
 @Component({
@@ -10,8 +11,8 @@ import { BlogFormComponent } from '../blog-form/blog-form.component';
   templateUrl: './blog-manager.component.html',
   styleUrls: ['./blog-manager.component.css'],
 })
-export class BlogManagerComponent {
-  private readonly blogService = inject(BlogService);
+export class BlogManagerComponent implements OnInit, OnDestroy {
+  private readonly firestoreService = inject(FirestoreDataService);
 
   readonly showForm = signal(false);
   readonly editingPost = signal<BlogPost | null>(null);
@@ -22,7 +23,17 @@ export class BlogManagerComponent {
   /** Status filter: 'all' | 'published' | 'draft'. */
   readonly statusFilter = signal<'all' | 'published' | 'draft'>('all');
 
+  /** Loading state while fetching from Firestore. */
+  readonly isLoading = signal(false);
+
+  /** Loading state while saving/deleting. */
+  readonly isSaving = signal(false);
+
+  /** Error message from Firestore operations. */
+  readonly errorMessage = signal<string | null>(null);
+
   private readonly posts = signal<BlogPost[]>([]);
+  private readonly subscriptions = new Subscription();
 
   readonly rows = computed<BlogPost[]>(() => {
     const q = this.search().trim().toLowerCase();
@@ -47,12 +58,30 @@ export class BlogManagerComponent {
   readonly publishedCount = computed<number>(() => this.posts().filter((p) => p.status === 'published').length);
   readonly draftCount = computed<number>(() => this.posts().filter((p) => p.status === 'draft').length);
 
-  constructor() {
+  ngOnInit(): void {
     this.refresh();
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
   refresh(): void {
-    this.posts.set(this.blogService.getPosts());
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    this.subscriptions.add(
+      this.firestoreService.getBlogs().subscribe({
+        next: (docs) => {
+          this.posts.set(docs as BlogPost[]);
+          this.isLoading.set(false);
+        },
+        error: (err: Error) => {
+          this.isLoading.set(false);
+          this.errorMessage.set(err.message);
+        },
+      }),
+    );
   }
 
   onSearch(event: Event): void {
@@ -78,15 +107,65 @@ export class BlogManagerComponent {
     this.editingPost.set(null);
   }
 
-  onSaved(): void {
-    this.closeForm();
-    this.refresh();
+  onSaved(post: BlogPost): void {
+    this.isSaving.set(true);
+    this.errorMessage.set(null);
+
+    const { id, ...data } = post;
+
+    if (id) {
+      // Update existing blog post in Firestore.
+      this.subscriptions.add(
+        this.firestoreService.updateBlog(id, data as Partial<Omit<FirestoreBlog, 'id' | 'createdAt'>>).subscribe({
+          next: () => {
+            this.isSaving.set(false);
+            this.closeForm();
+            this.refresh();
+          },
+          error: (err: Error) => {
+            this.isSaving.set(false);
+            this.errorMessage.set(err.message);
+          },
+        }),
+      );
+    } else {
+      // Add new blog post to Firestore.
+      this.subscriptions.add(
+        this.firestoreService.addBlog(data as Omit<FirestoreBlog, 'id' | 'createdAt' | 'updatedAt'>).subscribe({
+          next: () => {
+            this.isSaving.set(false);
+            this.closeForm();
+            this.refresh();
+          },
+          error: (err: Error) => {
+            this.isSaving.set(false);
+            this.errorMessage.set(err.message);
+          },
+        }),
+      );
+    }
   }
 
   onDelete(post: BlogPost): void {
+    if (!post.id) {
+      return;
+    }
     if (window.confirm(`Delete "${post.title}"? This cannot be undone.`)) {
-      this.blogService.deletePost(post.id);
-      this.refresh();
+      this.isSaving.set(true);
+      this.errorMessage.set(null);
+
+      this.subscriptions.add(
+        this.firestoreService.deleteBlog(post.id).subscribe({
+          next: () => {
+            this.isSaving.set(false);
+            this.refresh();
+          },
+          error: (err: Error) => {
+            this.isSaving.set(false);
+            this.errorMessage.set(err.message);
+          },
+        }),
+      );
     }
   }
 

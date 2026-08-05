@@ -13,6 +13,22 @@
     </button>
   </div>
 
+  <!-- Error banner -->
+  @if (errorMessage(); as message) {
+  <div class="error-banner" role="alert">
+    <span class="material-symbols-outlined" aria-hidden="true">error</span>
+    <span>{{ message }}</span>
+  </div>
+  }
+  
+  <!-- Loading state -->
+  @if (isLoading()) {
+  <div class="loading-state">
+    <span class="spinner" aria-hidden="true"></span>
+    <span>Loading products…</span>
+  </div>
+  }
+
   <!-- Toolbar: search + status filter -->
   <div class="manager-toolbar">
     <div class="search-field">
@@ -127,11 +143,9 @@
   </div>
 </div>
 
-<!-- Add/Edit form modal -->
-@if (showForm()) {
-  <app-product-form
-    [product]="editingProduct()"
-    (close)="closeForm()"
-    (saved)="onSaved()"
-  />
-}
+  <!-- Add/Edit form modal -->
+  @if (showForm()) {
+  <app-product-form [product]="editingProduct()" (close)="closeForm()"
+      (saved)="onSaved($event)"
+    />
+  }

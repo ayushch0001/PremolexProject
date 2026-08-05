@@ -287,8 +287,16 @@ export class BlogFormComponent implements OnInit, OnDestroy {
     const publishNow: boolean = value.publishNow;
     const status: BlogStatus = publishNow ? 'published' : 'draft';
     const now = new Date().toISOString();
+    const existing = this.post();
 
-    const payload = {
+    // Preserve original publishedAt if already published and staying published.
+    const publishedAt = publishNow ? now : existing?.publishedAt ?? null;
+
+    // Emit the payload (with the existing Firestore id when editing).
+    // The parent manager component decides whether to call addBlog or
+    // updateBlog on the FirestoreDataService.
+    const payload: BlogPost = {
+      ...(existing?.id ? { id: existing.id } : {}),
       title: value.title,
       slug: value.slug,
       author: value.author,
@@ -297,21 +305,12 @@ export class BlogFormComponent implements OnInit, OnDestroy {
       featuredImageUrl: this.uploadedUrl,
       featuredImageName: this.imageName(),
       status,
-      publishedAt: publishNow ? now : null,
+      publishedAt,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
     };
 
-    const existing = this.post();
-    if (existing) {
-      // Preserve original publishedAt if already published and staying published.
-      const publishedAt = payload.publishedAt ?? existing.publishedAt;
-      const updated = this.blogService.updatePost(existing.id, { ...payload, publishedAt });
-      if (updated) {
-        this.saved.emit(updated);
-      }
-    } else {
-      const created = this.blogService.createPost(payload);
-      this.saved.emit(created);
-    }
+    this.saved.emit(payload);
   }
 
   /** Generates a plain-text excerpt from the HTML content. */

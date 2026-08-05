@@ -6,7 +6,8 @@ export interface Specification {
 }
 
 export interface Product {
-  id: string;
+  /** Firestore document ID (assigned by Firestore). */
+  id?: string;
   title: string;
   slug: string;
   shortDescription: string;

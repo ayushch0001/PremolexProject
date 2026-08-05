@@ -231,7 +231,13 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       .filter((s) => s.key && s.value)
       .map((s) => ({ key: s.key.trim(), value: s.value.trim() }));
 
-    const payload = {
+    const existing = this.product();
+
+    // Emit the payload (with the existing Firestore id when editing).
+    // The parent manager component decides whether to call addProduct or
+    // updateProduct on the FirestoreDataService.
+    const payload: Product = {
+      ...(existing?.id ? { id: existing.id } : {}),
       title: value.title,
       slug: value.slug,
       shortDescription: value.shortDescription,
@@ -241,18 +247,11 @@ export class ProductFormComponent implements OnInit, OnDestroy {
       imageName: this.imageName(),
       specifications: specs,
       status: value.status as ProductStatus,
+      createdAt: existing?.createdAt ?? new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    const existing = this.product();
-    if (existing) {
-      const updated = this.productService.updateProduct(existing.id, payload);
-      if (updated) {
-        this.saved.emit(updated);
-      }
-    } else {
-      const created = this.productService.createProduct(payload);
-      this.saved.emit(created);
-    }
+    this.saved.emit(payload);
   }
 
   onCancel(): void {

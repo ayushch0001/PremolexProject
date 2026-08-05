@@ -1,7 +1,8 @@
 export type BlogStatus = 'published' | 'draft';
 
 export interface BlogPost {
-  id: string;
+  /** Firestore document ID (assigned by Firestore). */
+  id?: string;
   title: string;
   slug: string;
   author: string;

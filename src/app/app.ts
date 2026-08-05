@@ -23,7 +23,7 @@ export class App {
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => {
         const url = (event as NavigationEnd).urlAfterRedirects;
-        this.isAuthPage.set(url.startsWith('/login'));
+        this.isAuthPage.set(url.startsWith('/login') || url.startsWith('/firebase-setup'));
       });
   }
 }

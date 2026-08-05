@@ -1,0 +1,179 @@
+<div class="setup-page">
+  <div class="setup-card">
+    <!-- Header -->
+    <div class="setup-header">
+      <div class="setup-icon">
+        <span class="material-symbols-outlined" aria-hidden="true">database</span>
+      </div>
+      <h1 class="setup-title">Initialize Database Connection</h1>
+      <p class="setup-subtitle">Enter your Firebase project credentials to connect the application.</p>
+    </div>
+
+    <!-- Connection Status Badge -->
+    <div class="status-badge" [class.status-connected]="isConnected()" [class.status-disconnected]="!isConnected()" role="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span>{{ isConnected() ? 'Firebase Connected' : 'Firebase Disconnected' }}</span>
+    </div>
+
+    <!-- Success / Error Messages -->
+    @if (successMessage(); as message) {
+      <div class="message-banner message-success" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        <span>{{ message }}</span>
+      </div>
+    }
+
+    @if (errorMessage(); as message) {
+      <div class="message-banner message-error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        <span>{{ message }}</span>
+      </div>
+    }
+
+    <!-- Setup Form -->
+    <form [formGroup]="setupForm" (ngSubmit)="onSubmit()" novalidate>
+      <!-- API Key -->
+      <div class="form-group">
+        <label for="apiKey">API Key</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined input-icon" aria-hidden="true">key</span>
+          <input
+            id="apiKey"
+            type="text"
+            formControlName="apiKey"
+            placeholder="AIzaSy..."
+            autocomplete="off"
+            [class.input-error]="setupForm.get('apiKey')?.invalid && setupForm.get('apiKey')?.touched"
+          />
+        </div>
+        @if (setupForm.get('apiKey')?.invalid && setupForm.get('apiKey')?.touched) {
+          <p class="field-error">API Key is required.</p>
+        }
+      </div>
+
+      <!-- Auth Domain -->
+      <div class="form-group">
+        <label for="authDomain">Auth Domain</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined input-icon" aria-hidden="true">shield_person</span>
+          <input
+            id="authDomain"
+            type="text"
+            formControlName="authDomain"
+            placeholder="your-project.firebaseapp.com"
+            autocomplete="off"
+            [class.input-error]="setupForm.get('authDomain')?.invalid && setupForm.get('authDomain')?.touched"
+          />
+        </div>
+        @if (setupForm.get('authDomain')?.invalid && setupForm.get('authDomain')?.touched) {
+          <p class="field-error">Auth Domain is required.</p>
+        }
+      </div>
+
+      <!-- Project ID -->
+      <div class="form-group">
+        <label for="projectId">Project ID</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined input-icon" aria-hidden="true">folder</span>
+          <input
+            id="projectId"
+            type="text"
+            formControlName="projectId"
+            placeholder="your-project-id"
+            autocomplete="off"
+            [class.input-error]="setupForm.get('projectId')?.invalid && setupForm.get('projectId')?.touched"
+          />
+        </div>
+        @if (setupForm.get('projectId')?.invalid && setupForm.get('projectId')?.touched) {
+          <p class="field-error">Project ID is required.</p>
+        }
+      </div>
+
+      <!-- Storage Bucket -->
+      <div class="form-group">
+        <label for="storageBucket">Storage Bucket</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined input-icon" aria-hidden="true">storage</span>
+          <input
+            id="storageBucket"
+            type="text"
+            formControlName="storageBucket"
+            placeholder="your-project.appspot.com"
+            autocomplete="off"
+            [class.input-error]="setupForm.get('storageBucket')?.invalid && setupForm.get('storageBucket')?.touched"
+          />
+        </div>
+        @if (setupForm.get('storageBucket')?.invalid && setupForm.get('storageBucket')?.touched) {
+          <p class="field-error">Storage Bucket is required.</p>
+        }
+      </div>
+
+      <!-- Messaging Sender ID -->
+      <div class="form-group">
+        <label for="messagingSenderId">Messaging Sender ID</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined input-icon" aria-hidden="true">notifications</span>
+          <input
+            id="messagingSenderId"
+            type="text"
+            formControlName="messagingSenderId"
+            placeholder="1234567890"
+            autocomplete="off"
+            [class.input-error]="setupForm.get('messagingSenderId')?.invalid && setupForm.get('messagingSenderId')?.touched"
+          />
+        </div>
+        @if (setupForm.get('messagingSenderId')?.invalid && setupForm.get('messagingSenderId')?.touched) {
+          <p class="field-error">Messaging Sender ID is required.</p>
+        }
+      </div>
+
+      <!-- App ID -->
+      <div class="form-group">
+        <label for="appId">App ID</label>
+        <div class="input-wrap">
+          <span class="material-symbols-outlined input-icon" aria-hidden="true">apps</span>
+          <input
+            id="appId"
+            type="text"
+            formControlName="appId"
+            placeholder="1:1234567890:web:abcdef"
+            autocomplete="off"
+            [class.input-error]="setupForm.get('appId')?.invalid && setupForm.get('appId')?.touched"
+          />
+        </div>
+        @if (setupForm.get('appId')?.invalid && setupForm.get('appId')?.touched) {
+          <p class="field-error">App ID is required.</p>
+        }
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="connect-btn" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Connecting...</span>
+          } @else {
+            <span class="material-symbols-outlined" aria-hidden="true">link</span>
+            <span>Connect & Save</span>
+          }
+        </button>
+
+        @if (isConnected()) {
+          <button type="button" class="disconnect-btn" (click)="onDisconnect()">
+            <span class="material-symbols-outlined" aria-hidden="true">link_off</span>
+            <span>Disconnect</span>
+          </button>
+        }
+      </div>
+    </form>
+
+    <!-- Warning Note -->
+    <div class="warning-note">
+      <span class="material-symbols-outlined" aria-hidden="true">warning</span>
+      <p>
+        <strong>Note:</strong> Credentials are stored in your browser's localStorage.
+        Clearing browser data will require re-entering the credentials.
+      </p>
+    </div>
+  </div>
+</div>
