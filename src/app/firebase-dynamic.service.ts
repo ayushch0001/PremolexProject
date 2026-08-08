@@ -4,6 +4,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { getAuth, Auth } from 'firebase/auth';
 
 export interface FirebaseConfig {
   apiKey: string;
@@ -33,6 +34,7 @@ export class FirebaseDynamicService {
   private app: FirebaseApp | null = null;
   private db: Firestore | null = null;
   private storage: FirebaseStorage | null = null;
+  private auth: Auth | null = null;
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -56,6 +58,7 @@ export class FirebaseDynamicService {
       this.app = getApps().length ? getApp() : initializeApp(config);
       this.db = getFirestore(this.app);
       this.storage = getStorage(this.app);
+      this.auth = getAuth(this.app);
       this.isConnected.set(true);
       console.log('[FirebaseDynamicService] Firebase initialized from localStorage.');
       return true;
@@ -112,6 +115,7 @@ export class FirebaseDynamicService {
     this.app = null;
     this.db = null;
     this.storage = null;
+    this.auth = null;
     this.isConnected.set(false);
   }
 
@@ -123,6 +127,11 @@ export class FirebaseDynamicService {
   /** Returns the Storage instance, or null if not connected. */
   getStorageInstance(): FirebaseStorage | null {
     return this.storage;
+  }
+
+  /** Returns the Auth instance, or null if not connected. */
+  getAuthInstance(): Auth | null {
+    return this.auth;
   }
 
   /** Returns true if Firebase is currently connected. */

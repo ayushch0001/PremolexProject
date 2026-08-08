@@ -1,0 +1,35 @@
+<div class="page-wrapper">
+  <!-- Hero Banner -->
+  <section class="hero-banner">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">{{ pageTitle() }}</h1>
+      <p class="hero-subtitle">Our commitment to excellence in every product we deliver</p>
+    </div>
+  </section>
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading content…</span>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <!-- Rich text content -->
+  @if (!isLoading() && !errorMessage()) {
+    <section class="content-section">
+      <div class="content-container">
+        <div class="rich-content" [innerHTML]="pageContent()"></div>
+      </div>
+    </section>
+  }
+</div>

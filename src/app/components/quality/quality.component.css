@@ -1,0 +1,191 @@
+.page-wrapper {
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+/* ---- Hero Banner ---- */
+.hero-banner {
+  position: relative;
+  background: #0a2540;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 107, 0, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(255, 107, 0, 0.1) 0%, transparent 40%),
+    linear-gradient(135deg, #0a2540 0%, #0d2f52 50%, #0a2540 100%);
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 37, 64, 0.3);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero-title {
+  margin: 0 0 12px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ---- Loading ---- */
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 80px 24px;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #0a2540;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Error ---- */
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 16px 20px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.error-banner .material-symbols-outlined {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* ---- Content ---- */
+.content-section {
+  padding: 48px 24px;
+}
+
+.content-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+}
+
+/* Rich text content styling */
+.rich-content {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #334155;
+}
+
+.rich-content h1,
+.rich-content h2,
+.rich-content h3,
+.rich-content h4 {
+  color: #0a2540;
+  margin: 24px 0 12px;
+  font-weight: 700;
+}
+
+.rich-content h1 {
+  font-size: 1.8rem;
+}
+
+.rich-content h2 {
+  font-size: 1.5rem;
+}
+
+.rich-content h3 {
+  font-size: 1.25rem;
+}
+
+.rich-content p {
+  margin: 0 0 16px;
+}
+
+.rich-content ul,
+.rich-content ol {
+  margin: 0 0 16px;
+  padding-left: 24px;
+}
+
+.rich-content li {
+  margin-bottom: 8px;
+}
+
+.rich-content a {
+  color: #ff6b00;
+  text-decoration: underline;
+}
+
+.rich-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.rich-content blockquote {
+  border-left: 4px solid #ff6b00;
+  padding: 12px 20px;
+  margin: 16px 0;
+  background: #fff7ed;
+  color: #7c2d12;
+  font-style: italic;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 767px) {
+  .hero-banner {
+    padding: 60px 16px;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .content-section {
+    padding: 24px 16px;
+  }
+
+  .content-container {
+    padding: 24px 20px;
+  }
+}

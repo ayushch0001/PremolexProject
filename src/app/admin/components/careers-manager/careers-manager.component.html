@@ -1,0 +1,261 @@
+<div class="careers-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Careers</h2>
+      <p class="manager-subtitle">{{ careers().length }} total job postings</p>
+    </div>
+    <button type="button" class="btn-add" (click)="openAddForm()">
+      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      Add Job
+    </button>
+  </div>
+
+  <!-- Error banner -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading job postings…</span>
+    </div>
+  }
+
+  <!-- Desktop table -->
+  @if (!isLoading()) {
+    <div class="table-wrap">
+      <table class="careers-table">
+        <thead>
+          <tr>
+            <th class="col-title">Job Title</th>
+            <th class="col-department">Department</th>
+            <th class="col-location">Location</th>
+            <th class="col-status">Status</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (job of rows(); track job.id) {
+            <tr class="career-row">
+              <td class="col-title">
+                <div class="title-cell">
+                  <span class="job-title">{{ job.title }}</span>
+                  <p class="job-desc">{{ job.shortDescription }}</p>
+                </div>
+              </td>
+              <td class="col-department">
+                <span class="dept-badge">{{ job.department }}</span>
+              </td>
+              <td class="col-location">
+                <span class="location-cell">
+                  <span class="material-symbols-outlined" aria-hidden="true">location_on</span>
+                  {{ job.location }}
+                </span>
+              </td>
+              <td class="col-status">
+                <span class="status-badge" [class.status-open]="job.status === 'open'" [class.status-closed]="job.status === 'closed'">
+                  {{ job.status === 'open' ? 'Open' : 'Closed' }}
+                </span>
+              </td>
+              <td class="col-actions">
+                <button type="button" class="icon-btn" (click)="openEditForm(job)" aria-label="Edit {{ job.title }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                </button>
+                <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(job)" aria-label="Delete {{ job.title }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty-cell">
+                <p class="empty-text">No job postings yet. Click "Add Job" to create one.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div class="card-list">
+      @for (job of rows(); track job.id) {
+        <div class="career-card">
+          <div class="card-row">
+            <div class="card-main">
+              <span class="job-title">{{ job.title }}</span>
+              <span class="card-meta">{{ job.department }} · {{ job.location }}</span>
+              <p class="job-desc">{{ job.shortDescription }}</p>
+              <span class="status-badge" [class.status-open]="job.status === 'open'" [class.status-closed]="job.status === 'closed'">
+                {{ job.status === 'open' ? 'Open' : 'Closed' }}
+              </span>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="icon-btn" (click)="openEditForm(job)" aria-label="Edit {{ job.title }}">
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+              </button>
+              <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(job)" aria-label="Delete {{ job.title }}">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-card">
+          <p class="empty-text">No job postings yet.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Add/Edit modal -->
+@if (showForm()) {
+  <div class="form-overlay" (click)="closeForm()">
+    <div class="form-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="form-header">
+        <h2 class="form-title">{{ editingCareer() ? 'Edit Job Posting' : 'Add Job Posting' }}</h2>
+        <button type="button" class="form-close" (click)="closeForm()" aria-label="Close form">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSave()" class="form-body">
+        <div class="form-group">
+          <label for="job-title">Job Title *</label>
+          <input
+            id="job-title"
+            type="text"
+            formControlName="title"
+            placeholder="e.g. Production Engineer"
+            [class.input-error]="form.get('title')?.invalid && form.get('title')?.touched"
+          />
+          @if (form.get('title')?.invalid && form.get('title')?.touched) {
+            <p class="field-error">Job title is required (min 3 characters).</p>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="job-dept">Department *</label>
+            <input
+              id="job-dept"
+              type="text"
+              formControlName="department"
+              placeholder="e.g. Manufacturing"
+              [class.input-error]="form.get('department')?.invalid && form.get('department')?.touched"
+            />
+            @if (form.get('department')?.invalid && form.get('department')?.touched) {
+              <p class="field-error">Department is required.</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="job-location">Location *</label>
+            <input
+              id="job-location"
+              type="text"
+              formControlName="location"
+              placeholder="e.g. Raipur, C.G"
+              [class.input-error]="form.get('location')?.invalid && form.get('location')?.touched"
+            />
+            @if (form.get('location')?.invalid && form.get('location')?.touched) {
+              <p class="field-error">Location is required.</p>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="job-desc">Short Description *</label>
+          <textarea
+            id="job-desc"
+            formControlName="shortDescription"
+            rows="3"
+            placeholder="Brief summary of the role…"
+            [class.input-error]="form.get('shortDescription')?.invalid && form.get('shortDescription')?.touched"
+          ></textarea>
+          @if (form.get('shortDescription')?.invalid && form.get('shortDescription')?.touched) {
+            <p class="field-error">
+              @if (form.get('shortDescription')?.errors?.['required']) {
+                Short description is required.
+              } @else if (form.get('shortDescription')?.errors?.['maxlength']) {
+                Description must be 300 characters or fewer.
+              }
+            </p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Requirements *</label>
+          <div class="editor-toolbar">
+            <button type="button" class="toolbar-btn" (click)="execCmd('bold')" title="Bold">
+              <span class="material-symbols-outlined" aria-hidden="true">format_bold</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="execCmd('italic')" title="Italic">
+              <span class="material-symbols-outlined" aria-hidden="true">format_italic</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="execCmd('underline')" title="Underline">
+              <span class="material-symbols-outlined" aria-hidden="true">format_underlined</span>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn" (click)="setBlock('h3')" title="Heading 3">
+              <span class="toolbar-text">H3</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="setBlock('p')" title="Paragraph">
+              <span class="toolbar-text">P</span>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn" (click)="execCmd('insertUnorderedList')" title="Bullet list">
+              <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="execCmd('insertOrderedList')" title="Numbered list">
+              <span class="material-symbols-outlined" aria-hidden="true">format_list_numbered</span>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn" (click)="insertLink()" title="Insert link">
+              <span class="material-symbols-outlined" aria-hidden="true">link</span>
+            </button>
+          </div>
+          <div
+            #requirementsEditor
+            class="editor-area"
+            contenteditable="true"
+            (input)="onRequirementsInput()"
+            [class.editor-error]="form.get('requirements')?.invalid && form.get('requirements')?.touched"
+            data-placeholder="List the job requirements here…"
+          ></div>
+          @if (form.get('requirements')?.invalid && form.get('requirements')?.touched) {
+            <p class="field-error">Requirements are required (min 20 characters).</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="job-status">Status *</label>
+          <select id="job-status" formControlName="status" class="form-select">
+            <option value="open">Open</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSaving() || form.invalid">
+            @if (isSaving()) {
+              <span class="spinner spinner-sm" aria-hidden="true"></span>
+              <span>Saving…</span>
+            } @else {
+              {{ editingCareer() ? 'Save Changes' : 'Add Job' }}
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

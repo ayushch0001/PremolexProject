@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { FirebaseError } from 'firebase/app';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -49,23 +49,39 @@ export class LoginComponent {
         this.isLoading.set(false);
         this.router.navigate(['/admin']);
       },
-      error: (err: HttpErrorResponse) => {
+      error: (err: unknown) => {
         this.isLoading.set(false);
         this.errorMessage.set(this.getErrorMessage(err));
       },
     });
   }
 
-  private getErrorMessage(err: HttpErrorResponse): string {
-    if (err.status === 401) {
-      return 'Invalid email or password. Please try again.';
+  private getErrorMessage(err: unknown): string {
+    // Firebase Auth error codes.
+    if (err instanceof FirebaseError) {
+      switch (err.code) {
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+          return 'Invalid email or password. Please try again.';
+        case 'auth/invalid-email':
+          return 'Please enter a valid email address.';
+        case 'auth/user-disabled':
+          return 'This account has been disabled. Please contact support.';
+        case 'auth/too-many-requests':
+          return 'Too many failed attempts. Please try again later.';
+        case 'auth/network-request-failed':
+          return 'Unable to reach the server. Please check your connection and try again.';
+        default:
+          return err.message || 'An unexpected error occurred. Please try again later.';
+      }
     }
-    if (err.status === 0) {
-      return 'Unable to reach the server. Please check your connection and try again.';
+
+    // Fallback for non-Firebase errors (e.g. database not connected).
+    if (err instanceof Error) {
+      return err.message;
     }
-    if (err.error?.message) {
-      return err.error.message;
-    }
+
     return 'An unexpected error occurred. Please try again later.';
   }
 }

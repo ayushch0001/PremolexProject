@@ -8,6 +8,7 @@ import {
   getDoc,
   updateDoc,
   deleteDoc,
+  setDoc,
   query,
   orderBy,
   Firestore,
@@ -47,8 +48,37 @@ export interface FirestoreBlog extends FirestoreDocument {
   publishedAt: string | null;
 }
 
+/** Corporate page (Quality / Infrastructure) stored in the `site_pages` collection. */
+export interface FirestoreSitePage extends FirestoreDocument {
+  pageKey: 'quality' | 'infrastructure';
+  title: string;
+  content: string;
+}
+
+/** Certificate document shape stored in the `certificates` collection. */
+export interface FirestoreCertificate extends FirestoreDocument {
+  title: string;
+  description: string;
+  issueYear: number;
+  imageUrl: string | null;
+  imageName: string | null;
+}
+
+/** Job posting stored in the `careers` collection. */
+export interface FirestoreCareer extends FirestoreDocument {
+  title: string;
+  department: string;
+  location: string;
+  shortDescription: string;
+  requirements: string;
+  status: 'open' | 'closed';
+}
+
 const PRODUCTS_COLLECTION = 'products';
 const BLOGS_COLLECTION = 'blogs';
+const SITE_PAGES_COLLECTION = 'site_pages';
+const CERTIFICATES_COLLECTION = 'certificates';
+const CAREERS_COLLECTION = 'careers';
 
 /**
  * FirestoreDataService
@@ -121,6 +151,107 @@ export class FirestoreDataService {
   /** Deletes a blog post document by id. */
   deleteBlog(id: string): Observable<void> {
     return from(this.deleteBlogById(id));
+  }
+
+  // --------------------------------------------------------------------------
+  // Site Pages (Quality & Infrastructure)
+  // --------------------------------------------------------------------------
+
+  /** Fetches a single site page by document id (e.g. 'quality' | 'infrastructure'). */
+  getSitePage(id: string): Observable<FirestoreSitePage | null> {
+    return from(this.fetchSitePage(id));
+  }
+
+  /**
+   * Fetches the content of a site page by its document id.
+   * Alias for getSitePage() — returns the full page document.
+   */
+  getPageContent(pageId: string): Observable<FirestoreSitePage | null> {
+    return from(this.fetchSitePage(pageId));
+  }
+
+  /**
+   * Updates the content of a site page by its document id.
+   * Creates the document if it doesn't exist yet (upsert).
+   */
+  updatePageContent(pageId: string, content: any): Observable<FirestoreSitePage> {
+    return from(this.updateSitePageContent(pageId, content));
+  }
+
+  /**
+   * Saves (creates or updates) a site page under a fixed document id.
+   * The `pageKey` is used as the document id for stable upserts.
+   */
+  saveSitePage(pageKey: 'quality' | 'infrastructure', data: { title: string; content: string }): Observable<FirestoreSitePage> {
+    return from(this.saveSitePageByKey(pageKey, data));
+  }
+
+  // --------------------------------------------------------------------------
+  // Certificates
+  // --------------------------------------------------------------------------
+
+  /** Fetches all certificates (ordered by issueYear descending). */
+  getCertificates(): Observable<FirestoreCertificate[]> {
+    return from(this.fetchCertificates());
+  }
+
+  /** Adds a new certificate document to the `certificates` collection. */
+  addCertificate(data: Omit<FirestoreCertificate, 'id' | 'createdAt' | 'updatedAt'>): Observable<FirestoreCertificate> {
+    return from(this.createCertificate(data));
+  }
+
+  /** Updates an existing certificate document by id. */
+  updateCertificate(id: string, data: Partial<Omit<FirestoreCertificate, 'id' | 'createdAt'>>): Observable<FirestoreCertificate> {
+    return from(this.updateCertificateById(id, data));
+  }
+
+  /** Deletes a certificate document by id. */
+  deleteCertificate(id: string): Observable<void> {
+    return from(this.deleteCertificateById(id));
+  }
+
+  // --------------------------------------------------------------------------
+  // Careers
+  // --------------------------------------------------------------------------
+
+  /** Fetches all job postings (ordered by createdAt descending). */
+  getCareers(): Observable<FirestoreCareer[]> {
+    return from(this.fetchCareers());
+  }
+
+  /** Fetches all job postings — alias for getCareers(). */
+  getJobs(): Observable<FirestoreCareer[]> {
+    return from(this.fetchCareers());
+  }
+
+  /** Adds a new job posting to the `careers` collection. */
+  addCareer(data: Omit<FirestoreCareer, 'id' | 'createdAt' | 'updatedAt'>): Observable<FirestoreCareer> {
+    return from(this.createCareer(data));
+  }
+
+  /** Adds a new job posting — alias for addCareer(). */
+  addJob(data: Omit<FirestoreCareer, 'id' | 'createdAt' | 'updatedAt'>): Observable<FirestoreCareer> {
+    return from(this.createCareer(data));
+  }
+
+  /** Updates an existing job posting by id. */
+  updateCareer(id: string, data: Partial<Omit<FirestoreCareer, 'id' | 'createdAt'>>): Observable<FirestoreCareer> {
+    return from(this.updateCareerById(id, data));
+  }
+
+  /** Updates an existing job posting — alias for updateCareer(). */
+  updateJob(id: string, data: Partial<Omit<FirestoreCareer, 'id' | 'createdAt'>>): Observable<FirestoreCareer> {
+    return from(this.updateCareerById(id, data));
+  }
+
+  /** Deletes a job posting by id. */
+  deleteCareer(id: string): Observable<void> {
+    return from(this.deleteCareerById(id));
+  }
+
+  /** Deletes a job posting — alias for deleteCareer(). */
+  deleteJob(id: string): Observable<void> {
+    return from(this.deleteCareerById(id));
   }
 
   // --------------------------------------------------------------------------
@@ -231,5 +362,137 @@ export class FirestoreDataService {
   private async deleteBlogById(id: string): Promise<void> {
     const db = this.requireFirestore();
     await deleteDoc(doc(db, BLOGS_COLLECTION, id));
+  }
+
+  // ---- Site pages ----
+
+  private async fetchSitePage(id: string): Promise<FirestoreSitePage | null> {
+    const db = this.requireFirestore();
+    const ref = doc(db, SITE_PAGES_COLLECTION, id);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      return null;
+    }
+    return { id: snap.id, ...(snap.data() as FirestoreSitePage) };
+  }
+
+  private async saveSitePageByKey(
+    pageKey: 'quality' | 'infrastructure',
+    data: { title: string; content: string },
+  ): Promise<FirestoreSitePage> {
+    const db = this.requireFirestore();
+    const ref = doc(db, SITE_PAGES_COLLECTION, pageKey);
+    const now = new Date().toISOString();
+    const payload = { ...data, pageKey, updatedAt: now };
+
+    const existing = await getDoc(ref);
+    if (existing.exists()) {
+      await updateDoc(ref, payload);
+    } else {
+      // Use setDoc with the pageKey as the fixed document id.
+      await setDoc(ref, { ...payload, createdAt: now });
+    }
+
+    const snap = await getDoc(ref);
+    return { id: snap.id, ...(snap.data() as FirestoreSitePage) };
+  }
+
+  /**
+   * Updates (or creates) a site page document by its id.
+   * Used by the public `updatePageContent()` method.
+   */
+  private async updateSitePageContent(pageId: string, content: any): Promise<FirestoreSitePage> {
+    const db = this.requireFirestore();
+    const ref = doc(db, SITE_PAGES_COLLECTION, pageId);
+    const now = new Date().toISOString();
+    const payload = { ...content, updatedAt: now };
+
+    const existing = await getDoc(ref);
+    if (existing.exists()) {
+      await updateDoc(ref, payload);
+    } else {
+      await setDoc(ref, { ...payload, createdAt: now });
+    }
+
+    const snap = await getDoc(ref);
+    return { id: snap.id, ...(snap.data() as FirestoreSitePage) };
+  }
+
+  // ---- Certificates ----
+
+  private async fetchCertificates(): Promise<FirestoreCertificate[]> {
+    const db = this.requireFirestore();
+    const q = query(collection(db, CERTIFICATES_COLLECTION), orderBy('issueYear', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as FirestoreCertificate) }));
+  }
+
+  private async createCertificate(
+    data: Omit<FirestoreCertificate, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<FirestoreCertificate> {
+    const db = this.requireFirestore();
+    const now = new Date().toISOString();
+    const payload = { ...data, createdAt: now, updatedAt: now };
+    const ref = await addDoc(collection(db, CERTIFICATES_COLLECTION), payload);
+    return { id: ref.id, ...payload };
+  }
+
+  private async updateCertificateById(
+    id: string,
+    data: Partial<Omit<FirestoreCertificate, 'id' | 'createdAt'>>,
+  ): Promise<FirestoreCertificate> {
+    const db = this.requireFirestore();
+    const ref = doc(db, CERTIFICATES_COLLECTION, id);
+    const updates = { ...data, updatedAt: new Date().toISOString() };
+    await updateDoc(ref, updates);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      throw new Error(`Certificate with id "${id}" not found.`);
+    }
+    return { id: snap.id, ...(snap.data() as FirestoreCertificate) };
+  }
+
+  private async deleteCertificateById(id: string): Promise<void> {
+    const db = this.requireFirestore();
+    await deleteDoc(doc(db, CERTIFICATES_COLLECTION, id));
+  }
+
+  // ---- Careers ----
+
+  private async fetchCareers(): Promise<FirestoreCareer[]> {
+    const db = this.requireFirestore();
+    const q = query(collection(db, CAREERS_COLLECTION), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((d) => ({ id: d.id, ...(d.data() as FirestoreCareer) }));
+  }
+
+  private async createCareer(
+    data: Omit<FirestoreCareer, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<FirestoreCareer> {
+    const db = this.requireFirestore();
+    const now = new Date().toISOString();
+    const payload = { ...data, createdAt: now, updatedAt: now };
+    const ref = await addDoc(collection(db, CAREERS_COLLECTION), payload);
+    return { id: ref.id, ...payload };
+  }
+
+  private async updateCareerById(
+    id: string,
+    data: Partial<Omit<FirestoreCareer, 'id' | 'createdAt'>>,
+  ): Promise<FirestoreCareer> {
+    const db = this.requireFirestore();
+    const ref = doc(db, CAREERS_COLLECTION, id);
+    const updates = { ...data, updatedAt: new Date().toISOString() };
+    await updateDoc(ref, updates);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) {
+      throw new Error(`Job posting with id "${id}" not found.`);
+    }
+    return { id: snap.id, ...(snap.data() as FirestoreCareer) };
+  }
+
+  private async deleteCareerById(id: string): Promise<void> {
+    const db = this.requireFirestore();
+    await deleteDoc(doc(db, CAREERS_COLLECTION, id));
   }
 }

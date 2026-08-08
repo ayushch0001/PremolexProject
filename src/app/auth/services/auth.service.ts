@@ -1,29 +1,34 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { BehaviorSubject, Observable, from } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User,
+  UserCredential,
+} from 'firebase/auth';
+import { FirebaseDynamicService } from '../../firebase-dynamic.service';
 
 export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-export interface LoginResponse {
-  token: string;
-  user?: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-  };
-}
-
 const TOKEN_KEY = 'premolex_admin_token';
 
+/**
+ * AuthService
+ *
+ * Handles authentication using Firebase Auth (Email/Password).
+ * Stores the Firebase ID token in localStorage and exposes reactive
+ * auth state via BehaviorSubjects.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = environment.apiUrl;
+  private readonly firebaseService = inject(FirebaseDynamicService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   private readonly tokenSubject = new BehaviorSubject<string | null>(
     this.getStoredToken(),
@@ -31,35 +36,62 @@ export class AuthService {
   private readonly loggedInSubject = new BehaviorSubject<boolean>(
     this.hasStoredToken(),
   );
+  private readonly userSubject = new BehaviorSubject<User | null>(null);
 
   /** Observable that emits the current auth state (true = logged in). */
   readonly isLoggedIn$: Observable<boolean> = this.loggedInSubject.asObservable();
 
-  /** Observable that emits the current JWT (or null). */
+  /** Observable that emits the current Firebase ID token (or null). */
   readonly token$: Observable<string | null> = this.tokenSubject.asObservable();
 
+  /** Observable that emits the current Firebase User (or null). */
+  readonly user$: Observable<User | null> = this.userSubject.asObservable();
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.listenToAuthState();
+    }
+  }
+
   /**
-   * Calls POST /auth/login on the backend and stores the returned JWT.
-   * Emits the updated auth state immediately on success.
+   * Signs in with Firebase Auth (Email/Password).
+   * On success, stores the Firebase ID token in localStorage.
    */
-  login(credentials: LoginCredentials): Observable<LoginResponse> {
-    return this.http
-      .post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials)
-      .pipe(
-        tap((response) => {
-          this.setToken(response.token);
-        }),
-      );
+  login(credentials: LoginCredentials): Observable<UserCredential> {
+    const auth = this.firebaseService.getAuthInstance();
+    if (!auth) {
+      throw new Error('Database not connected. Please visit /firebase-setup.');
+    }
+
+    return from(signInWithEmailAndPassword(auth, credentials.email, credentials.password)).pipe(
+      tap((credential) => {
+        this.userSubject.next(credential.user);
+        // Fetch the ID token and store it.
+        credential.user.getIdToken().then((token) => {
+          this.setToken(token);
+        });
+      }),
+    );
   }
 
-  /** Clears the stored token and updates auth state. */
+  /** Signs out of Firebase Auth and clears the stored token. */
   logout(): void {
+    const auth = this.firebaseService.getAuthInstance();
+    if (auth) {
+      signOut(auth).catch((err) => console.error('[AuthService] Sign out failed:', err));
+    }
     this.clearToken();
+    this.userSubject.next(null);
   }
 
-  /** Returns the current JWT, or null if not authenticated. */
+  /** Returns the current Firebase ID token, or null if not authenticated. */
   getToken(): string | null {
     return this.tokenSubject.getValue();
+  }
+
+  /** Returns the current Firebase User, or null. */
+  getUser(): User | null {
+    return this.userSubject.getValue();
   }
 
   /** Returns true if a token is currently stored. */
@@ -68,6 +100,25 @@ export class AuthService {
   }
 
   // ------------------------------------------------------------------ private
+
+  /** Listens to Firebase Auth state changes and updates the reactive state. */
+  private listenToAuthState(): void {
+    const auth = this.firebaseService.getAuthInstance();
+    if (!auth) {
+      return;
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      this.userSubject.next(user);
+      if (user) {
+        user.getIdToken().then((token) => {
+          this.setToken(token);
+        });
+      } else {
+        this.clearToken();
+      }
+    });
+  }
 
   private setToken(token: string): void {
     if (typeof localStorage !== 'undefined') {

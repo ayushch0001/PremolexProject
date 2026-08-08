@@ -1,0 +1,251 @@
+{
+  "project": "Premolex Industries B2B Industrial Website",
+  "version": "1.0.0",
+  "description": "Complete API reference for all services used in the Premolex application. Includes REST endpoints (real and planned/mock) and Firebase Firestore database operations.",
+  "baseUrls": {
+    "development": {
+      "apiUrl": "http://localhost:3000/api",
+      "environmentFile": "src/environments/environment.ts"
+    },
+    "production": {
+      "apiUrl": "https://api.premolex.com/api",
+      "environmentFile": "src/environments/environment.prod.ts"
+    }
+  },
+  "authentication": {
+    "service": "AuthService",
+    "location": "src/app/auth/services/auth.service.ts",
+    "tokenStorageKey": "premolex_admin_token",
+    "authHeader": "Authorization: Bearer <token>",
+    "interceptor": "src/app/auth/interceptors/auth.interceptor.ts",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/auth/login",
+        "fullUrl": "{apiUrl}/auth/login",
+        "description": "Authenticates an admin user and returns a JWT token.",
+        "requestBody": {
+          "email": "string (required, valid email format)",
+          "password": "string (required)"
+        },
+        "successResponse": {
+          "token": "string (JWT)",
+          "user": {
+            "id": "string",
+            "name": "string",
+            "email": "string",
+            "role": "string"
+          }
+        },
+        "errorResponses": [
+          {
+            "status": 401,
+            "description": "Invalid credentials"
+          },
+          {
+            "status": 500,
+            "description": "Server error"
+          }
+        ],
+        "status": "REAL (uses HttpClient)"
+      }
+    ]
+  },
+  "adminServices": {
+    "description": "Mock services structured to mirror a standard REST API. Each method maps 1:1 to an HTTP endpoint for future backend integration.",
+    "productService": {
+      "service": "ProductService (Admin)",
+      "location": "src/app/admin/services/product.service.ts",
+      "currentImplementation": "In-memory signal (mock)",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/products",
+          "description": "Returns the flat list of products.",
+          "successResponse": "Product[]",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "GET",
+          "path": "/api/products/:id",
+          "description": "Returns a single product by id.",
+          "pathParams": {
+            "id": "string (product id)"
+          },
+          "successResponse": "Product | null",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "POST",
+          "path": "/api/products",
+          "description": "Creates a new product.",
+          "requestBody": "CreateProductPayload",
+          "successResponse": "Product",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/products/:id",
+          "description": "Updates an existing product.",
+          "pathParams": {
+            "id": "string (product id)"
+          },
+          "requestBody": "UpdateProductPayload",
+          "successResponse": "Product | null",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/products/:id",
+          "description": "Deletes a product.",
+          "pathParams": {
+            "id": "string (product id)"
+          },
+          "successResponse": "void",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "POST",
+          "path": "/api/products/upload",
+          "description": "Mock multipart file upload. Emits HttpEvent stream (Sent -> UploadProgress -> Response).",
+          "contentType": "multipart/form-data",
+          "requestBody": {
+            "file": "File"
+          },
+          "successResponse": {
+            "url": "string (object URL for preview)",
+            "name": "string (file name)",
+            "size": "number (file size in bytes)"
+          },
+          "status": "MOCK (planned REST)"
+        }
+      ]
+    },
+    "categoryService": {
+      "service": "CategoryService",
+      "location": "src/app/admin/services/category.service.ts",
+      "currentImplementation": "In-memory signal (mock)",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/categories",
+          "description": "Returns all categories.",
+          "successResponse": "Category[]",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "POST",
+          "path": "/api/categories",
+          "description": "Creates a new category.",
+          "requestBody": "CreateCategoryPayload",
+          "successResponse": "Category",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/categories/:id",
+          "description": "Updates an existing category.",
+          "pathParams": {
+            "id": "string (category id)"
+          },
+          "requestBody": "UpdateCategoryPayload",
+          "successResponse": "Category | null",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/categories/:id",
+          "description": "Deletes a category.",
+          "pathParams": {
+            "id": "string (category id)"
+          },
+          "successResponse": "void",
+          "status": "MOCK (planned REST)"
+        }
+      ]
+    },
+    "blogService": {
+      "service": "BlogService",
+      "location": "src/app/admin/services/blog.service.ts",
+      "currentImplementation": "In-memory signal (mock)",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/blog",
+          "description": "Returns all blog posts.",
+          "successResponse": "BlogPost[]",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "GET",
+          "path": "/api/blog/:id",
+          "description": "Returns a single blog post by id.",
+          "pathParams": {
+            "id": "string (blog post id)"
+          },
+          "successResponse": "BlogPost | null",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "POST",
+          "path": "/api/blog",
+          "description": "Creates a new blog post.",
+          "requestBody": "CreateBlogPostPayload",
+          "successResponse": "BlogPost",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/blog/:id",
+          "description": "Updates an existing blog post.",
+          "pathParams": {
+            "id": "string (blog post id)"
+          },
+          "requestBody": "UpdateBlogPostPayload",
+          "successResponse": "BlogPost | null",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/blog/:id",
+          "description": "Deletes a blog post.",
+          "pathParams": {
+            "id": "string (blog post id)"
+          },
+          "successResponse": "void",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "POST",
+          "path": "/api/blog/upload",
+          "description": "Uploads a blog featured image.",
+          "contentType": "multipart/form-data",
+          "requestBody": {
+            "file": "File"
+          },
+          "successResponse": "UploadResult",
+          "status": "MOCK (planned REST)"
+        }
+      ]
+    }
+  },
+  "publicServices": {
+    "productService": {
+      "service": "ProductService (Public)",
+      "location": "src/app/products/services/product.service.ts",
+      "currentImplementation": "Observable.of() (mock)",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/products",
+          "description": "Returns all public products.",
+          "successResponse": "Product[] (public model)",
+          "status": "MOCK (planned REST)"
+        },
+        {
+          "method": "GET",
+          "path": "/api/products?category=:categoryId",
+          "description": "Returns products filtered by category.",
+          "queryParams": {
+            "categoryId": "string | 'all'"
+          },

@@ -1,0 +1,148 @@
+<div class="corporate-pages-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Corporate Pages</h2>
+      <p class="manager-subtitle">Manage Quality & Infrastructure page content</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="page-tabs" role="tablist">
+    <button
+      type="button"
+      role="tab"
+      class="page-tab"
+      [class.active]="selectedPage() === 'quality'"
+      (click)="onSelectPage('quality')"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">verified</span>
+      Quality
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="page-tab"
+      [class.active]="selectedPage() === 'infrastructure'"
+      (click)="onSelectPage('infrastructure')"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">engineering</span>
+      Infrastructure
+    </button>
+  </div>
+
+  <!-- Error / Success banners -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  @if (successMessage(); as message) {
+    <div class="success-banner" role="status">
+      <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading page content…</span>
+    </div>
+  }
+
+  <!-- Editor -->
+  @if (!isLoading()) {
+    <form [formGroup]="form" (ngSubmit)="onSave()" class="editor-form">
+      <div class="form-card">
+        <div class="form-field">
+          <label class="form-label" for="page-title">Page Title *</label>
+          <input
+            id="page-title"
+            type="text"
+            formControlName="title"
+            class="form-input"
+            placeholder="e.g. Quality Assurance"
+          />
+          @if (form.get('title')?.invalid && form.get('title')?.touched) {
+            <p class="form-error">
+              @if (form.get('title')?.errors?.['required']) {
+                Title is required.
+              } @else if (form.get('title')?.errors?.['minlength']) {
+                Title must be at least 3 characters.
+              }
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Page Content *</label>
+
+          <!-- Toolbar -->
+          <div class="editor-toolbar">
+            <button type="button" class="toolbar-btn" (click)="execCmd('bold')" title="Bold">
+              <span class="material-symbols-outlined" aria-hidden="true">format_bold</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="execCmd('italic')" title="Italic">
+              <span class="material-symbols-outlined" aria-hidden="true">format_italic</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="execCmd('underline')" title="Underline">
+              <span class="material-symbols-outlined" aria-hidden="true">format_underlined</span>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn" (click)="setBlock('h2')" title="Heading 2">
+              <span class="toolbar-text">H2</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="setBlock('h3')" title="Heading 3">
+              <span class="toolbar-text">H3</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="setBlock('p')" title="Paragraph">
+              <span class="toolbar-text">P</span>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn" (click)="execCmd('insertUnorderedList')" title="Bullet list">
+              <span class="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>
+            </button>
+            <button type="button" class="toolbar-btn" (click)="execCmd('insertOrderedList')" title="Numbered list">
+              <span class="material-symbols-outlined" aria-hidden="true">format_list_numbered</span>
+            </button>
+            <span class="toolbar-divider"></span>
+            <button type="button" class="toolbar-btn" (click)="insertLink()" title="Insert link">
+              <span class="material-symbols-outlined" aria-hidden="true">link</span>
+            </button>
+          </div>
+
+          <!-- Contenteditable area -->
+          <div
+            #editor
+            class="editor-area"
+            contenteditable="true"
+            (input)="onEditorInput()"
+            [class.editor-error]="form.get('content')?.invalid && form.get('content')?.touched"
+            data-placeholder="Write your page content here…"
+          ></div>
+
+          @if (form.get('content')?.invalid && form.get('content')?.touched) {
+            <p class="form-error">Content is required (min 20 characters).</p>
+          }
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" class="btn-save" [disabled]="isSaving() || form.invalid">
+          @if (isSaving()) {
+            <span class="spinner spinner-sm" aria-hidden="true"></span>
+            <span>Saving…</span>
+          } @else {
+            <span class="material-symbols-outlined" aria-hidden="true">save</span>
+            <span>Save {{ pageTitle() }}</span>
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

@@ -1,0 +1,123 @@
+<div class="page-wrapper">
+  <!-- Hero Banner -->
+  <section class="hero-banner">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Careers</h1>
+      <p class="hero-subtitle">Join our team and build the future of industrial piping</p>
+    </div>
+  </section>
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading job openings…</span>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    <!-- Why work with us -->
+    <section class="why-section">
+      <div class="why-container">
+        <h2 class="section-title">Why Work With Us</h2>
+        <p class="section-subtitle">At Premolex, we're more than a manufacturer — we're a team of innovators building the infrastructure of tomorrow.</p>
+        <div class="why-grid">
+          <div class="why-card">
+            <span class="material-symbols-outlined" aria-hidden="true">trending_up</span>
+            <h3>Growth Opportunities</h3>
+            <p>Continuous learning and career advancement paths for every team member.</p>
+          </div>
+          <div class="why-card">
+            <span class="material-symbols-outlined" aria-hidden="true">shield</span>
+            <h3>Safety First</h3>
+            <p>ISO-certified facilities with a strong commitment to workplace safety.</p>
+          </div>
+          <div class="why-card">
+            <span class="material-symbols-outlined" aria-hidden="true">groups</span>
+            <h3>Collaborative Culture</h3>
+            <p>Work alongside industry experts in a supportive, team-driven environment.</p>
+          </div>
+          <div class="why-card">
+            <span class="material-symbols-outlined" aria-hidden="true">eco</span>
+            <h3>Sustainable Impact</h3>
+            <p>Contribute to eco-friendly manufacturing that powers global infrastructure.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Open Positions -->
+    <section class="positions-section">
+      <div class="positions-container">
+        <h2 class="section-title">Open Positions</h2>
+
+        @if (openJobs().length > 0) {
+          <div class="accordion">
+            @for (job of openJobs(); track job.id) {
+              <div class="accordion-item" [class.expanded]="isExpanded(job.id!)">
+                <!-- Accordion header -->
+                <button
+                  type="button"
+                  class="accordion-header"
+                  (click)="toggleAccordion(job.id!)"
+                  [attr.aria-expanded]="isExpanded(job.id!)"
+                >
+                  <div class="accordion-title-wrap">
+                    <span class="job-title">{{ job.title }}</span>
+                    <span class="job-meta">
+                      <span class="meta-item">
+                        <span class="material-symbols-outlined" aria-hidden="true">business</span>
+                        {{ job.department }}
+                      </span>
+                      <span class="meta-item">
+                        <span class="material-symbols-outlined" aria-hidden="true">location_on</span>
+                        {{ job.location }}
+                      </span>
+                    </span>
+                  </div>
+                  <span class="accordion-icon" aria-hidden="true">
+                    <span class="material-symbols-outlined">{{ isExpanded(job.id!) ? 'expand_less' : 'expand_more' }}</span>
+                  </span>
+                </button>
+
+                <!-- Accordion body -->
+                @if (isExpanded(job.id!)) {
+                  <div class="accordion-body">
+                    <div class="job-description">
+                      <h4>About the Role</h4>
+                      <p>{{ job.shortDescription }}</p>
+                    </div>
+                    <div class="job-requirements">
+                      <h4>Requirements</h4>
+                      <div class="requirements-content" [innerHTML]="sanitizeRequirements(job.requirements)"></div>
+                    </div>
+                    <div class="apply-row">
+                      <a [href]="getApplyLink(job)" class="apply-btn">
+                        <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+                        Apply Now
+                      </a>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <span class="material-symbols-outlined" aria-hidden="true">work_off</span>
+            <p>No open positions at the moment. Please check back soon.</p>
+          </div>
+        }
+      </div>
+    </section>
+  }
+</div>

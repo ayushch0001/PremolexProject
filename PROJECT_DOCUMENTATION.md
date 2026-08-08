@@ -16,13 +16,14 @@
 8. [Authentication Flow](#8-authentication-flow)
 9. [Admin Dashboard Flow](#9-admin-dashboard-flow)
 10. [Blog/News Flow](#10-blognews-flow)
-11. [Services Layer](#11-services-layer)
-12. [Models / Data Types](#12-models--data-types)
-13. [Directives](#13-directives)
-14. [Environment Configuration](#14-environment-configuration)
-15. [Styling & Theming](#15-styling--theming)
-16. [How to Run](#16-how-to-run)
-17. [Future Backend Integration](#17-future-backend-integration)
+11. [Firebase Dynamic Integration](#11-firebase-dynamic-integration)
+12. [Services Layer](#12-services-layer)
+13. [Models / Data Types](#13-models--data-types)
+14. [Directives](#14-directives)
+15. [Environment Configuration](#15-environment-configuration)
+16. [Styling & Theming](#16-styling--theming)
+17. [How to Run](#17-how-to-run)
+18. [Future Backend Integration](#18-future-backend-integration)
 
 ---
 
@@ -30,9 +31,10 @@
 
 Premolex is a **B2B industrial website** for a piping manufacturer (HDPE, PVC, CPVC, UPVC, SWR, Agriculture, and Casing pipes). The application consists of:
 
-- **Public-facing marketing site** — Homepage, About, Products catalog, Project gallery, Contact CTA, and Blog/News section.
-- **Admin dashboard** — Password-protected area for managing products, categories, blog posts, and Firebase configuration.
+- **Public-facing marketing site** — Homepage, About, Products catalog, Quality, Infrastructure, Certificates, Careers, Project gallery, Contact CTA, and Blog/News section.
+- **Admin dashboard** — Password-protected area for managing products, categories, blog posts, corporate pages (Quality/Infrastructure), certificates, careers, and Firebase configuration.
 - **Authentication layer** — JWT-based login system that protects the admin routes.
+- **Dynamic Firebase integration** — Firebase is initialized at runtime from credentials stored in `localStorage` (no build-time environment variables required).
 
 ---
 
@@ -45,11 +47,13 @@ Premolex is a **B2B industrial website** for a piping manufacturer (HDPE, PVC, C
 | **Tailwind CSS 3.4** | Utility-first styling |
 | **RxJS 7.8** | Reactive programming (Observables, BehaviorSubject) |
 | **Angular Router** | Client-side routing with lazy loading |
-| **Angular Forms** | Reactive forms for login & contact forms |
+| **Angular Forms** | Reactive forms for login, contact, and admin CRUD forms |
 | **Angular HTTP Client** | API communication with interceptors |
 | **Angular SSR** | Server-side rendering with `@angular/ssr` |
-| **Firebase** | Firestore + Storage (configurable via admin settings) |
+| **Firebase JS SDK** | Firestore + Storage + Auth (dynamically initialized via `FirebaseDynamicService`) |
 | **Node.js / Express** | Backend (planned — JWT auth endpoint) |
+
+> **Note:** The app uses the **standard Firebase JS Web SDK** (`firebase/app`, `firebase/firestore`, `firebase/storage`, `firebase/auth`) directly instead of `@angular/fire`, to avoid environment injection errors and allow fully dynamic configuration.
 
 ---
 
@@ -70,12 +74,15 @@ premolex/
 │       ├── app.ts                   # Root standalone component
 │       ├── app.html                 # Root template (header/footer shell)
 │       ├── app.css                  # Root styles
-│       ├── app.config.ts            # App providers (router, http, firebase)
+│       ├── app.config.ts            # App providers (router, http)
 │       ├── app.config.server.ts     # SSR providers
 │       ├── app.routes.ts            # Root route definitions
 │       ├── app.routes.server.ts     # SSR render modes
 │       ├── app.module.ts            # Legacy NgModule (unused, kept for reference)
-│       ├── firebase-config.service.ts  # Firebase dynamic config service
+│       ├── firebase-config.service.ts   # Legacy Firebase config service
+│       ├── firebase-dynamic.service.ts  # Dynamic Firebase init from localStorage
+│       ├── services/                # Firestore data layer
+│       │   └── firestore-data.service.ts  # Real Firestore CRUD (products, blogs, pages, certs, careers)
 │       ├── auth/                    # Authentication layer
 │       │   ├── auth.module.ts       # AuthModule (grouping)
 │       │   ├── auth.routes.ts       # /login route
@@ -86,9 +93,21 @@ premolex/
 │       ├── admin/                   # Admin dashboard
 │       │   ├── admin.routes.ts      # /admin routes (protected)
 │       │   ├── components/          # Layout, sidebar, header, managers, forms
+│       │   │   ├── admin-layout/    # Admin shell (sidebar + header + outlet)
+│       │   │   ├── admin-sidebar/   # 8-item navigation
+│       │   │   ├── admin-header/    # Page title + profile/logout
+│       │   │   ├── category-manager/    # Category tree CRUD
+│       │   │   ├── category-form/       # Add/edit category form
+│       │   │   ├── product-manager/     # Product table CRUD
+│       │   │   ├── product-form/        # Add/edit product form
+│       │   │   ├── blog-manager/        # Blog table CRUD
+│       │   │   ├── blog-form/           # Add/edit blog form
+│       │   │   ├── corporate-pages-manager/  # Quality/Infrastructure page editor
+│       │   │   ├── certificate-manager/      # Certificates CRUD (Firestore)
+│       │   │   └── careers-manager/          # Job postings CRUD (Firestore)
 │       │   ├── guards/auth.guard.ts # Re-exports auth guard
 │       │   ├── models/              # Product, Category, Blog models
-│       │   └── services/            # Product, Category, Blog services
+│       │   └── services/            # Product, Category, Blog services (mock)
 │       ├── admin-components/        # Legacy admin components
 │       │   ├── dashboard-overview.component/
 │       │   ├── product-form.component/
@@ -101,6 +120,7 @@ premolex/
 │       │   ├── header/              # Main navigation header
 │       │   ├── footer/              # Site footer
 │       │   ├── hero-carousel/       # Homepage hero slider
+│       │   ├── hero-slider/         # Alternate hero slider
 │       │   ├── corporate-values/    # Mission/Vision/Values cards
 │       │   ├── home-about/          # Company history section
 │       │   ├── applications-grid/   # Product feature grid
@@ -109,7 +129,12 @@ premolex/
 │       │   ├── project-gallery/     # Portfolio grid
 │       │   ├── home-contact-cta/    # Contact/lead form
 │       │   ├── home-blog-section/   # Latest news section
-│       │   └── blog-card/           # Blog post card
+│       │   ├── blog-card/           # Blog post card
+│       │   ├── quality/             # Quality page (Firestore-driven)
+│       │   ├── infrastructure/      # Infrastructure page (Firestore-driven)
+│       │   ├── certificates/        # Certificates page (Firestore-driven)
+│       │   ├── careers/             # Careers page (Firestore-driven)
+│       │   └── firebase-setup/      # Firebase credential setup page
 │       ├── products/                # Products catalog
 │       │   ├── products.routes.ts   # /Products routes
 │       │   ├── components/          # Layout, sidebar, grid, card
@@ -152,18 +177,21 @@ Registers all root providers:
 
 | Provider | Purpose |
 |---|---|
+| `provideBrowserGlobalErrorListeners()` | Global browser error listeners |
 | `provideRouter(routes)` | Client-side routing |
 | `provideClientHydration(withEventReplay())` | SSR hydration |
 | `provideZonelessChangeDetection()` | Zoneless change detection |
 | `provideHttpClient(withFetch(), withInterceptors([authInterceptor]))` | HTTP client with JWT interceptor |
-| `provideFirebaseApp(...)` | Firebase app initialization |
-| `provideFirestore(...)` | Firestore database |
-| `provideStorage(...)` | Firebase Storage |
+
+> **Note:** Firebase is **no longer** initialized via `@angular/fire` providers (`provideFirebaseApp`, `provideFirestore`, `provideStorage`). Instead, it is initialized **dynamically at runtime** by `FirebaseDynamicService` from credentials stored in `localStorage`.
 
 ### 4.4 SSR Server Routes (`app.routes.server.ts`)
 
-- `/login` → `RenderMode.Server` (dynamic, not pre-rendered)
-- `**` → `RenderMode.Prerender` (static pages pre-rendered)
+| Path | Render Mode |
+|---|---|
+| `/login` | `RenderMode.Server` (dynamic, not pre-rendered) |
+| `/firebase-setup` | `RenderMode.Server` (dynamic, not pre-rendered) |
+| `**` | `RenderMode.Prerender` (static pages pre-rendered) |
 
 ---
 
@@ -177,7 +205,12 @@ Registers all root providers:
 | `Home` | `HomeComponent` | No |
 | `about` | `AboutComponent` | No |
 | `Products` | Lazy → `PRODUCT_ROUTES` | No |
-| `firebaseConections` | `FirebaseConfigFormComponent` | No |
+| `firebaseConections` | `FirebaseConfigFormComponent` (legacy) | No |
+| `firebase-setup` | `FirebaseSetupComponent` | No |
+| `quality` | `QualityComponent` | No |
+| `infrastructure` | `InfrastructureComponent` | No |
+| `certificates` | `CertificatesComponent` | No |
+| `careers` | `CareersComponent` | No |
 | `login` | Lazy → `AUTH_ROUTES` | No |
 | `admin` | Lazy → `ADMIN_ROUTES` | **Yes** (AuthGuard) |
 
@@ -198,6 +231,9 @@ All children are wrapped in `AdminLayoutComponent` and protected by `canActivate
 | `categories` | `CategoryManagerComponent` |
 | `products` | `ProductManagerComponent` |
 | `blogs` | `BlogManagerComponent` |
+| `pages` | `CorporatePagesManagerComponent` |
+| `certificates` | `CertificateManagerComponent` |
+| `careers` | `CareersManagerComponent` |
 | `settings` | `FirebaseConfigFormComponent` |
 
 ### 5.4 Products Routes (`products/products.routes.ts`)
@@ -251,6 +287,7 @@ The `HomeComponent` composes the following sections **in order**:
 #### `HeaderComponent`
 - Sticky header with scroll shadow effect.
 - Desktop nav with dropdown for Products (5 sub-links).
+- Nav items: **Home, About Us, Products (dropdown), Quality, Infrastructure, Certificate, Career, Contact Us**.
 - Mobile hamburger menu with slide-in drawer.
 - Uses `PLATFORM_ID` for SSR-safe `window` access.
 
@@ -262,6 +299,9 @@ The `HomeComponent` composes the following sections **in order**:
 - 3 slides with Unsplash images.
 - Auto-plays every 5 seconds via RxJS `timer`.
 - Manual navigation resets the timer.
+
+#### `HeroSliderComponent`
+- Alternate hero slider component (available for use).
 
 #### `CorporateValuesComponent`
 - Receives `@Input() cards: ValueCard[]` from `HomeComponent`.
@@ -301,6 +341,40 @@ The `HomeComponent` composes the following sections **in order**:
 - Receives `@Input() post: BlogPost`.
 - Shows featured image (or placeholder), publish date (via `date` pipe), title, 2-line clamped excerpt, and "Read More" link.
 - Hover: card lifts `translateY(-6px)`, image zooms `scale(1.06)`.
+
+#### `QualityComponent` (NEW)
+- Route: `/quality`.
+- Loads page content from Firestore via `FirestoreDataService.getSitePage('quality')`.
+- Renders sanitized HTML content (`DomSanitizer.bypassSecurityTrustHtml`).
+- Shows loading spinner and error message states.
+- Fallback placeholder content if no page exists in Firestore.
+
+#### `InfrastructureComponent` (NEW)
+- Route: `/infrastructure`.
+- Loads page content from Firestore via `FirestoreDataService.getSitePage('infrastructure')`.
+- Same pattern as `QualityComponent`.
+
+#### `CertificatesComponent` (NEW)
+- Route: `/certificates`.
+- Loads certificates from Firestore via `FirestoreDataService.getCertificates()`.
+- Displays certificates in a grid with a **lightbox** viewer (click to enlarge, locks body scroll).
+- Loading and error states.
+
+#### `CareersComponent` (NEW)
+- Route: `/careers`.
+- Loads job postings from Firestore via `FirestoreDataService.getCareers()`.
+- Filters to only `status === 'open'` jobs.
+- **Accordion UI** — click a job to expand requirements.
+- Sanitizes requirements HTML for safe rendering.
+- "Apply" button builds a `mailto:careers@premolex.com` link with the job title in the subject.
+
+#### `FirebaseSetupComponent` (NEW)
+- Route: `/firebase-setup`.
+- Reactive form for Firebase credentials (apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId).
+- Pre-fills form from existing `localStorage` config.
+- Saves config via `FirebaseDynamicService.saveConfig()`.
+- Shows connection status (reactive `isConnected` signal).
+- "Disconnect" button clears config from `localStorage`.
 
 ---
 
@@ -423,7 +497,7 @@ User visits /admin
 ### 9.1 `AdminLayoutComponent`
 
 - Wraps all admin pages with:
-  - `<app-admin-sidebar>` — navigation (Dashboard, Categories, Products, Blogs, Settings)
+  - `<app-admin-sidebar>` — navigation (Dashboard, Categories, Products, Blogs, Pages, Certificates, Careers, Settings)
   - `<app-admin-header>` — page title + profile/logout dropdown
   - `<router-outlet>` — page content
 - Tracks `sidebarCollapsed` and `mobileSidebarOpen` signals.
@@ -431,7 +505,19 @@ User visits /admin
 
 ### 9.2 `AdminSidebarComponent`
 
-- 5 nav items with Material Symbols icons.
+- **8 nav items** with Material Symbols icons:
+
+| Label | Route | Icon |
+|---|---|---|
+| Dashboard | `/admin/dashboard` | `dashboard` |
+| Categories | `/admin/categories` | `category` |
+| Products | `/admin/products` | `inventory_2` |
+| Blogs | `/admin/blogs` | `article` |
+| Pages | `/admin/pages` | `description` |
+| Certificates | `/admin/certificates` | `workspace_premium` |
+| Careers | `/admin/careers` | `work` |
+| Settings | `/admin/settings` | `settings` |
+
 - Collapsible on desktop, drawer on mobile.
 
 ### 9.3 `AdminHeaderComponent`
@@ -464,13 +550,41 @@ User visits /admin
 - Uses `BlogService`.
 - Renders `BlogFormComponent` for add/edit.
 
-### 9.8 `FirebaseConfigFormComponent`
+### 9.8 `CorporatePagesManagerComponent` (NEW)
+
+- Route: `/admin/pages`.
+- Edits the **Quality** and **Infrastructure** corporate pages.
+- Toggle between pages via `selectedPage` signal (`'quality' | 'infrastructure'`).
+- Form: `title` (required, min 3 chars) + `content` (required, min 20 chars).
+- **Rich text editor** built on `contenteditable` (no external dependencies):
+  - Toolbar commands: bold, italic, underline, formatBlock (H2/H3/P), createLink.
+  - Uses `document.execCommand()`.
+- Saves via `FirestoreDataService.saveSitePage(pageKey, { title, content })`.
+- Loads existing content via `FirestoreDataService.getSitePage(pageKey)`.
+
+### 9.9 `CertificateManagerComponent` (NEW)
+
+- Route: `/admin/certificates`.
+- CRUD for certificates stored in Firestore (`certificates` collection).
+- Form: `title`, `description`, `issueYear` (1900–2100), `imageUrl`, `imageName`.
+- Image upload uses `FileReader` → data URL (local preview / placeholder for Firebase Storage).
+- Uses `FirestoreDataService` methods: `getCertificates()`, `addCertificate()`, `updateCertificate()`, `deleteCertificate()`.
+
+### 9.10 `CareersManagerComponent` (NEW)
+
+- Route: `/admin/careers`.
+- CRUD for job postings stored in Firestore (`careers` collection).
+- Form: `title`, `department`, `location`, `shortDescription` (max 300), `requirements` (min 20), `status` (`open`/`closed`).
+- **Rich text editor** for requirements (contenteditable, same pattern as Corporate Pages).
+- Uses `FirestoreDataService` methods: `getCareers()`, `addCareer()`, `updateCareer()`, `deleteCareer()`.
+
+### 9.11 `FirebaseConfigFormComponent`
 
 - Form to configure Firebase credentials (apiKey, authDomain, projectId, etc.).
 - Saves config to `localStorage` via `FirebaseConfigService`.
 - Connects Firestore + Storage dynamically.
 
-### 9.9 Form Components
+### 9.12 Form Components
 
 | Component | Purpose |
 |---|---|
@@ -535,7 +649,84 @@ Seeds 3 posts (2 published, 1 draft).
 
 ---
 
-## 11. Services Layer
+## 11. Firebase Dynamic Integration
+
+### 11.1 `FirebaseDynamicService` (`firebase-dynamic.service.ts`)
+
+Dynamically initializes Firebase from credentials stored in `localStorage` under key `premolex_firebase_config`.
+
+| Method | Description |
+|---|---|
+| `initializeDynamicFirebase()` | Reads config from localStorage and initializes Firebase (called in constructor on browser) |
+| `saveConfig(config)` | Saves config to localStorage and initializes Firebase |
+| `getConfig()` | Returns saved config or `null` |
+| `clearConfig()` | Removes config and disconnects Firebase |
+| `getFirestoreInstance()` | Returns Firestore instance or `null` |
+| `getStorageInstance()` | Returns Storage instance or `null` |
+| `getAuthInstance()` | Returns Auth instance or `null` |
+| `isFirebaseConnected()` | Returns `true` if Firebase app is initialized |
+
+**State:**
+- `isConnected` — `signal<boolean>` reactive connection state.
+
+**Key behavior:**
+- Uses `getApps().length ? getApp() : initializeApp(config)` to avoid duplicate initialization.
+- SSR-safe: only initializes in the browser (`isPlatformBrowser`).
+- Uses the **standard Firebase JS SDK** (`firebase/app`, `firebase/firestore`, `firebase/storage`, `firebase/auth`).
+
+### 11.2 `FirestoreDataService` (`services/firestore-data.service.ts`)
+
+Performs real CRUD operations against Firebase Firestore using the standard Firebase JS SDK. All methods return RxJS Observables (via `from()`) so they plug directly into Angular async pipes and tables.
+
+**Collections:**
+
+| Collection | Document Type | Notes |
+|---|---|---|
+| `products` | `FirestoreProduct` | Ordered by `title` ascending |
+| `blogs` | `FirestoreBlog` | Ordered by `createdAt` descending |
+| `site_pages` | `FirestoreSitePage` | Fixed doc ids: `quality`, `infrastructure` |
+| `certificates` | `FirestoreCertificate` | Ordered by `issueYear` descending |
+| `careers` | `FirestoreCareer` | Ordered by `createdAt` descending |
+
+**Products methods:**
+- `getProducts()` → `Observable<FirestoreProduct[]>`
+- `getProductById(id)` → `Observable<FirestoreProduct | null>`
+- `addProduct(data)` → `Observable<FirestoreProduct>`
+- `updateProduct(id, data)` → `Observable<FirestoreProduct>`
+- `deleteProduct(id)` → `Observable<void>`
+
+**Blogs methods:**
+- `getBlogs()` → `Observable<FirestoreBlog[]>`
+- `getBlogById(id)` → `Observable<FirestoreBlog | null>`
+- `addBlog(data)` → `Observable<FirestoreBlog>`
+- `updateBlog(id, data)` → `Observable<FirestoreBlog>`
+- `deleteBlog(id)` → `Observable<void>`
+
+**Site Pages methods:**
+- `getSitePage(id)` → `Observable<FirestoreSitePage | null>`
+- `getPageContent(pageId)` → `Observable<FirestoreSitePage | null>` (alias)
+- `updatePageContent(pageId, content)` → `Observable<FirestoreSitePage>` (upsert)
+- `saveSitePage(pageKey, data)` → `Observable<FirestoreSitePage>` (upsert with fixed doc id)
+
+**Certificates methods:**
+- `getCertificates()` → `Observable<FirestoreCertificate[]>`
+- `addCertificate(data)` → `Observable<FirestoreCertificate>`
+- `updateCertificate(id, data)` → `Observable<FirestoreCertificate>`
+- `deleteCertificate(id)` → `Observable<void>`
+
+**Careers methods:**
+- `getCareers()` / `getJobs()` → `Observable<FirestoreCareer[]>`
+- `addCareer(data)` / `addJob(data)` → `Observable<FirestoreCareer>`
+- `updateCareer(id, data)` / `updateJob(id, data)` → `Observable<FirestoreCareer>`
+- `deleteCareer(id)` / `deleteJob(id)` → `Observable<void>`
+
+**Error handling:**
+- Throws a clear error if Firebase is not connected: `'Database not connected. Please visit /firebase-setup.'`
+- All create/update operations stamp `createdAt` / `updatedAt` ISO timestamps.
+
+---
+
+## 12. Services Layer
 
 | Service | Location | Purpose |
 |---|---|---|
@@ -544,13 +735,15 @@ Seeds 3 posts (2 published, 1 draft).
 | `CategoryService` | `admin/services/` | Admin category CRUD + tree (mock) |
 | `BlogService` | `admin/services/` | Admin blog CRUD + upload (mock) |
 | `ProductService` (public) | `products/services/` | Public product catalog (mock) |
-| `FirebaseConfigService` | `app/` | Dynamic Firebase config + connection |
+| `FirebaseConfigService` | `app/` | Legacy Firebase config + connection |
+| `FirebaseDynamicService` | `app/` | **Dynamic Firebase init from localStorage** |
+| `FirestoreDataService` | `services/` | **Real Firestore CRUD (products, blogs, pages, certs, careers)** |
 
 All services use `providedIn: 'root'` (singleton).
 
 ---
 
-## 12. Models / Data Types
+## 13. Models / Data Types
 
 ### Admin Models (`admin/models/`)
 
@@ -575,9 +768,26 @@ All services use `providedIn: 'root'` (singleton).
 | `LoginCredentials` | email, password |
 | `LoginResponse` | token, user? (id, name, email, role) |
 
+### Firestore Models (`services/firestore-data.service.ts`)
+
+| Model | Fields |
+|---|---|
+| `FirestoreDocument` | id?, createdAt?, updatedAt? |
+| `FirestoreProduct` | title, slug, shortDescription, categoryId, subcategoryId, imageUrl, imageName, specifications[], status (`active`/`draft`) |
+| `FirestoreBlog` | title, slug, author, content, excerpt, featuredImageUrl, featuredImageName, status (`published`/`draft`), publishedAt |
+| `FirestoreSitePage` | pageKey (`quality`/`infrastructure`), title, content |
+| `FirestoreCertificate` | title, description, issueYear, imageUrl, imageName |
+| `FirestoreCareer` | title, department, location, shortDescription, requirements, status (`open`/`closed`) |
+
+### Firebase Config Model (`firebase-dynamic.service.ts`)
+
+| Model | Fields |
+|---|---|
+| `FirebaseConfig` | apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId |
+
 ---
 
-## 13. Directives
+## 14. Directives
 
 ### `ScrollAnimateDirective` (`directives/scroll-animate.directive.ts`)
 
@@ -587,7 +797,7 @@ All services use `providedIn: 'root'` (singleton).
 
 ---
 
-## 14. Environment Configuration
+## 15. Environment Configuration
 
 ### `environments/environment.ts` (Development)
 
@@ -611,7 +821,7 @@ export const environment = {
 
 ---
 
-## 15. Styling & Theming
+## 16. Styling & Theming
 
 ### Global Styles (`styles.css`)
 
@@ -639,7 +849,7 @@ export const environment = {
 
 ---
 
-## 16. How to Run
+## 17. How to Run
 
 ### Prerequisites
 
@@ -670,12 +880,20 @@ Open: **`http://localhost:4200/`**
 | `http://localhost:4200/` | Redirects to `/Home` |
 | `http://localhost:4200/Home` | Homepage |
 | `http://localhost:4200/Products` | Products catalog |
+| `http://localhost:4200/quality` | Quality page (Firestore-driven) |
+| `http://localhost:4200/infrastructure` | Infrastructure page (Firestore-driven) |
+| `http://localhost:4200/certificates` | Certificates page (Firestore-driven) |
+| `http://localhost:4200/careers` | Careers page (Firestore-driven) |
+| `http://localhost:4200/firebase-setup` | Firebase credential setup |
 | `http://localhost:4200/login` | Admin login page |
 | `http://localhost:4200/admin` | Admin dashboard (protected) |
 | `http://localhost:4200/admin/dashboard` | Admin dashboard overview |
 | `http://localhost:4200/admin/categories` | Category manager |
 | `http://localhost:4200/admin/products` | Product manager |
 | `http://localhost:4200/admin/blogs` | Blog manager |
+| `http://localhost:4200/admin/pages` | Corporate pages manager (Quality/Infrastructure) |
+| `http://localhost:4200/admin/certificates` | Certificate manager |
+| `http://localhost:4200/admin/careers` | Careers manager |
 | `http://localhost:4200/admin/settings` | Firebase settings |
 
 ### Production Build
@@ -686,7 +904,7 @@ npm run build
 
 ---
 
-## 17. Future Backend Integration
+## 18. Future Backend Integration
 
 The app is structured to easily swap mock services for a real Node.js/Express backend:
 
@@ -697,8 +915,11 @@ The app is structured to easily swap mock services for a real Node.js/Express ba
 | `CategoryService` | In-memory signal | `GET/POST/PUT/DELETE /api/categories` |
 | `BlogService` | In-memory signal | `GET/POST/PUT/DELETE /api/blog` |
 | `ProductService` (public) | `Observable.of()` | `GET /api/products` |
+| `FirestoreDataService` | **Real Firestore CRUD** | Can be swapped for REST endpoints |
 
 The `AuthInterceptor` automatically attaches the JWT to all outgoing requests, so protected API endpoints will receive the `Authorization: Bearer <token>` header.
+
+> **Note:** The `FirestoreDataService` already provides **real database persistence** via Firebase Firestore — no backend swap needed for products, blogs, site pages, certificates, or careers. The mock admin services (`ProductService`, `CategoryService`, `BlogService`) remain as in-memory alternatives.
 
 ---
 

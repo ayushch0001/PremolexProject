@@ -24,6 +24,9 @@ export class AdminSidebarComponent {
     { label: 'Categories', route: '/admin/categories', icon: 'category' },
     { label: 'Products', route: '/admin/products', icon: 'inventory_2' },
     { label: 'Blogs', route: '/admin/blogs', icon: 'article' },
+    { label: 'Pages', route: '/admin/pages', icon: 'description' },
+    { label: 'Certificates', route: '/admin/certificates', icon: 'workspace_premium' },
+    { label: 'Careers', route: '/admin/careers', icon: 'work' },
     { label: 'Settings', route: '/admin/settings', icon: 'settings' },
   ];
 }

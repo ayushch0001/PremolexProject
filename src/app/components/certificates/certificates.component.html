@@ -1,0 +1,88 @@
+<div class="page-wrapper">
+  <!-- Hero Banner -->
+  <section class="hero-banner">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="hero-title">Certificates</h1>
+      <p class="hero-subtitle">Our certifications and compliance credentials</p>
+    </div>
+  </section>
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading certificates…</span>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <!-- Certificates grid -->
+  @if (!isLoading() && !errorMessage()) {
+    <section class="certificates-section">
+      <div class="certificates-container">
+        @if (certificates().length > 0) {
+          <div class="certificates-grid">
+            @for (cert of certificates(); track cert.id) {
+              <div class="cert-card" (click)="openLightbox(cert)">
+                <div class="cert-image-wrap">
+                  @if (cert.imageUrl) {
+                    <img [src]="cert.imageUrl" [alt]="cert.title" class="cert-image" loading="lazy" />
+                  } @else {
+                    <div class="cert-placeholder">
+                      <span class="material-symbols-outlined" aria-hidden="true">workspace_premium</span>
+                    </div>
+                  }
+                  <!-- Hover overlay -->
+                  <div class="cert-overlay">
+                    <h3 class="overlay-title">{{ cert.title }}</h3>
+                    <p class="overlay-desc">{{ cert.description }}</p>
+                    <span class="overlay-hint">
+                      <span class="material-symbols-outlined" aria-hidden="true">zoom_in</span>
+                      Click to Enlarge
+                    </span>
+                  </div>
+                </div>
+                <div class="cert-footer">
+                  <span class="cert-title">{{ cert.title }}</span>
+                  <span class="cert-year">{{ cert.issueYear }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <span class="material-symbols-outlined" aria-hidden="true">workspace_premium</span>
+            <p>No certificates available yet. Please check back soon.</p>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Lightbox -->
+  @if (lightboxCert(); as cert) {
+    <div class="lightbox-overlay" (click)="closeLightbox()">
+      <div class="lightbox-content" (click)="$event.stopPropagation()">
+        <button type="button" class="lightbox-close" (click)="closeLightbox()" aria-label="Close">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
+        @if (cert.imageUrl) {
+          <img [src]="cert.imageUrl" [alt]="cert.title" class="lightbox-image" />
+        }
+        <div class="lightbox-info">
+          <h3 class="lightbox-title">{{ cert.title }}</h3>
+          <p class="lightbox-desc">{{ cert.description }}</p>
+          <span class="lightbox-year">Issued: {{ cert.issueYear }}</span>
+        </div>
+      </div>
+    </div>
+  }
+</div>
