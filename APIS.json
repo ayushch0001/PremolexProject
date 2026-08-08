@@ -1,251 +1,578 @@
 {
   "project": "Premolex Industries B2B Industrial Website",
-  "version": "1.0.0",
-  "description": "Complete API reference for all services used in the Premolex application. Includes REST endpoints (real and planned/mock) and Firebase Firestore database operations.",
-  "baseUrls": {
-    "development": {
-      "apiUrl": "http://localhost:3000/api",
-      "environmentFile": "src/environments/environment.ts"
+  "version": "2.0.0",
+  "description": "Complete API reference for all services used in the Premolex application. Includes the tested Firebase REST endpoints (Identity Toolkit, Firestore v1, Storage v1) and the remaining mock REST endpoints.",
+  "firebaseConfiguration": {
+    "description": "Firebase credentials are hardcoded in environment files (public keys - safe to ship in the client).",
+    "environmentFiles": {
+      "development": "src/environments/environment.ts",
+      "production": "src/environments/environment.prod.ts"
     },
-    "production": {
-      "apiUrl": "https://api.premolex.com/api",
-      "environmentFile": "src/environments/environment.prod.ts"
-    }
-  },
-  "authentication": {
-    "service": "AuthService",
-    "location": "src/app/auth/services/auth.service.ts",
-    "tokenStorageKey": "premolex_admin_token",
-    "authHeader": "Authorization: Bearer <token>",
-    "interceptor": "src/app/auth/interceptors/auth.interceptor.ts",
-    "endpoints": [
-      {
-        "method": "POST",
-        "path": "/auth/login",
-        "fullUrl": "{apiUrl}/auth/login",
-        "description": "Authenticates an admin user and returns a JWT token.",
-        "requestBody": {
-          "email": "string (required, valid email format)",
-          "password": "string (required)"
+    "config": {
+      "apiKey": "AIzaSyCVXND9DdDhfdm81tKR5hNTC6Z1-w_0NA0",
+      "authDomain": "premolex-a3c1c.firebaseapp.com",
+      "projectId": "premolex-a3c1c",
+      "storageBucket": "premolex-a3c1c.firebasestorage.app",
+      "messagingSenderId": "610846055734",
+      "appId": "1:610846055734:web:46db90142233e4b02da797",
+      "measurementId": "G-G3CZXJM65L"
+    },
+    "service": "FirebaseDynamicService",
+    "location": "src/app/firebase-dynamic.service.ts",
+    "localStorageOverrideKey": "premolex_firebase_config",
+    "methods": {
+      "initializeFirebase": {
+        "description": "Initializes Firebase from environment.firebaseConfig (default) or localStorage override.",
+        "returns": "boolean"
+      },
+      "saveConfig": {
+        "description": "Saves a config override to localStorage and re-initializes Firebase. Pass null to clear.",
+        "params": {
+          "config": "FirebaseConfig | null"
         },
-        "successResponse": {
-          "token": "string (JWT)",
-          "user": {
-            "id": "string",
-            "name": "string",
-            "email": "string",
-            "role": "string"
-          }
-        },
-        "errorResponses": [
-          {
-            "status": 401,
-            "description": "Invalid credentials"
-          },
-          {
-            "status": 500,
-            "description": "Server error"
-          }
-        ],
-        "status": "REAL (uses HttpClient)"
+        "returns": "boolean"
+      },
+      "getConfig": {
+        "description": "Returns the current effective Firebase config (env default, overridden by localStorage).",
+        "returns": "FirebaseConfig"
+      },
+      "getFirestoreInstance": {
+        "description": "Returns the Firestore instance, or null if not connected.",
+        "returns": "Firestore | null"
+      },
+      "getStorageInstance": {
+        "description": "Returns the Storage instance, or null if not connected.",
+        "returns": "FirebaseStorage | null"
+      },
+      "getAuthInstance": {
+        "description": "Returns the Auth instance, or null if not connected.",
+        "returns": "Auth | null"
+      },
+      "isFirebaseConnected": {
+        "description": "Returns true if Firebase is currently connected.",
+        "returns": "boolean"
       }
-    ]
+    }
   },
-  "adminServices": {
-    "description": "Mock services structured to mirror a standard REST API. Each method maps 1:1 to an HTTP endpoint for future backend integration.",
-    "productService": {
-      "service": "ProductService (Admin)",
-      "location": "src/app/admin/services/product.service.ts",
-      "currentImplementation": "In-memory signal (mock)",
-      "endpoints": [
-        {
-          "method": "GET",
-          "path": "/api/products",
-          "description": "Returns the flat list of products.",
-          "successResponse": "Product[]",
-          "status": "MOCK (planned REST)"
+  "testedRestApis": {
+    "description": "APIs verified via the tested Postman collection (Premoles.postman_collection.json). All use the Firebase public REST endpoints.",
+    "authentication": {
+      "name": "createdLoginCredentials",
+      "service": "AuthService",
+      "location": "src/app/auth/services/auth.service.ts",
+      "method": "POST",
+      "url": "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={apiKey}",
+      "description": "Authenticates an admin user via Firebase Identity Toolkit and returns an ID token.",
+      "requestBody": {
+        "email": "string (required)",
+        "password": "string (required)",
+        "returnSecureToken": "true"
+      },
+      "successResponse": {
+        "kind": "identitytoolkit#VerifyPasswordResponse",
+        "localId": "string (user uid)",
+        "email": "string",
+        "displayName": "string",
+        "idToken": "string (JWT - stored in localStorage)",
+        "registered": "boolean",
+        "refreshToken": "string",
+        "expiresIn": "string"
+      },
+      "tokenStorageKey": "premolex_admin_token",
+      "authHeader": "Authorization: Bearer <idToken>",
+      "status": "TESTED (REAL)"
+    },
+    "firestoreApi": {
+      "description": "Firestore REST v1 API - https://firestore.googleapis.com/v1/projects/PROJECT_ID/databases/(default)/documents",
+      "baseUrl": "https://firestore.googleapis.com/v1/projects/premolex-a3c1c/databases/(default)/documents",
+      "service": "FirestoreDataService",
+      "location": "src/app/services/firestore-data.service.ts",
+      "collections": {
+        "products": {
+          "endpoints": [
+            {
+              "name": "getAllProducts",
+              "method": "GET",
+              "path": "/projects/PROJECT_ID/databases/(default)/documents/products",
+              "fullUrl": "https://firestore.googleapis.com/v1/projects/premolex-a3c1c/databases/(default)/documents/products",
+              "description": "Fetches all product documents.",
+              "authRequired": "Bearer token (optional for public rules)",
+              "status": "TESTED (REAL)"
+            },
+            {
+              "name": "getProducts",
+              "method": "GET",
+              "path": "/projects/premolex-a3c1c/databases/(default)/documents/products",
+              "fullUrl": "https://firestore.googleapis.com/v1/projects/premolex-a3c1c/databases/(default)/documents/products",
+              "description": "Fetches all product documents (explicit project id).",
+              "authRequired": "None",
+              "status": "TESTED (REAL)"
+            },
+            {
+              "name": "addDataIntodb",
+              "method": "POST",
+              "path": "/projects/premolex-a3c1c/databases/(default)/documents/products",
+              "fullUrl": "https://firestore.googleapis.com/v1/projects/premolex-a3c1c/databases/(default)/documents/products",
+              "description": "Creates a new product document. Body uses Firestore fields format.",
+              "authRequired": "Bearer <Firebase ID token>",
+              "requestBodyExample": {
+                "fields": {
+                  "name": {
+                    "stringValue": "Premium Wireless Headphones"
+                  },
+                  "price": {
+                    "doubleValue": 129.99
+                  },
+                  "imageUrl": {
+                    "stringValue": "https://firebasestorage.googleapis.com/v0/b/premolex-a3c1c.firebasestorage.app/o/product_images%2Fheadphones.jpg?alt=media"
+                  }
+                }
+              },
+              "status": "TESTED (REAL)"
+            }
+          ]
         },
-        {
-          "method": "GET",
-          "path": "/api/products/:id",
-          "description": "Returns a single product by id.",
-          "pathParams": {
-            "id": "string (product id)"
-          },
-          "successResponse": "Product | null",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "POST",
-          "path": "/api/products",
-          "description": "Creates a new product.",
-          "requestBody": "CreateProductPayload",
-          "successResponse": "Product",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "PUT",
-          "path": "/api/products/:id",
-          "description": "Updates an existing product.",
-          "pathParams": {
-            "id": "string (product id)"
-          },
-          "requestBody": "UpdateProductPayload",
-          "successResponse": "Product | null",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/products/:id",
-          "description": "Deletes a product.",
-          "pathParams": {
-            "id": "string (product id)"
-          },
-          "successResponse": "void",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "POST",
-          "path": "/api/products/upload",
-          "description": "Mock multipart file upload. Emits HttpEvent stream (Sent -> UploadProgress -> Response).",
-          "contentType": "multipart/form-data",
-          "requestBody": {
-            "file": "File"
-          },
-          "successResponse": {
-            "url": "string (object URL for preview)",
-            "name": "string (file name)",
-            "size": "number (file size in bytes)"
-          },
-          "status": "MOCK (planned REST)"
+        "blogs": {
+          "endpoints": [
+            {
+              "name": "getBlogs",
+              "method": "GET",
+              "path": "/projects/premolex-a3c1c/databases/(default)/documents/blogs",
+              "fullUrl": "https://firestore.googleapis.com/v1/projects/premolex-a3c1c/databases/(default)/documents/blogs",
+              "description": "Fetches all blog post documents.",
+              "authRequired": "None",
+              "status": "TESTED (REAL)"
+            },
+            {
+              "name": "addBlog",
+              "method": "POST",
+              "path": "/projects/premolex-a3c1c/databases/(default)/documents/blogs",
+              "fullUrl": "https://firestore.googleapis.com/v1/projects/premolex-a3c1c/databases/(default)/documents/blogs",
+              "description": "Creates a new blog post document. Body uses Firestore fields format.",
+              "authRequired": "Bearer <Firebase ID token>",
+              "requestBodyExample": {
+                "fields": {
+                  "title": {
+                    "stringValue": "Welcome to the Premolex Blog!"
+                  },
+                  "content": {
+                    "stringValue": "This is our very first blog article, created securely via curl."
+                  }
+                }
+              },
+              "status": "TESTED (REAL)"
+            }
+          ]
         }
+      },
+      "dataFormat": {
+        "description": "Firestore REST API uses an envelope format. The service converts between plain JS objects and Firestore fields automatically.",
+        "request": {
+          "fields": {
+            "fieldName": {
+              "stringValue": "value",
+              "integerValue": "1",
+              "doubleValue": 1.5,
+              "booleanValue": true,
+              "nullValue": null,
+              "mapValue": {
+                "fields": {}
+              },
+              "arrayValue": {
+                "values": []
+              },
+              "timestampValue": "ISO-8601"
+            }
+          },
+          "updateMask": "?updateMask.fieldPaths=field1&updateMask.fieldPaths=field2"
+        },
+        "responseDocument": {
+          "name": "projects/PROJECT_ID/databases/(default)/documents/products/abc123",
+          "fields": {},
+          "createTime": "2026-01-01T00:00:00Z",
+          "updateTime": "2026-01-01T00:00:00Z"
+        }
+      },
+      "operations": [
+        "READ_ALL (GET collection)",
+        "READ_ONE (GET document/:id)",
+        "CREATE (POST collection)",
+        "UPDATE (PATCH document/:id?updateMask.fieldPaths=...)",
+        "DELETE (DELETE document/:id)"
       ]
     },
-    "categoryService": {
-      "service": "CategoryService",
-      "location": "src/app/admin/services/category.service.ts",
-      "currentImplementation": "In-memory signal (mock)",
+    "storageApi": {
+      "description": "Firebase Storage REST v1 API - https://firebasestorage.googleapis.com/v0/b/{bucket}/o",
+      "baseUrl": "https://firebasestorage.googleapis.com/v0/b/premolex-a3c1c.firebasestorage.app/o",
+      "service": "FirebaseStorageService",
+      "location": "src/app/services/firebase-storage.service.ts",
       "endpoints": [
         {
-          "method": "GET",
-          "path": "/api/categories",
-          "description": "Returns all categories.",
-          "successResponse": "Category[]",
-          "status": "MOCK (planned REST)"
-        },
-        {
+          "name": "saveImage",
           "method": "POST",
-          "path": "/api/categories",
-          "description": "Creates a new category.",
-          "requestBody": "CreateCategoryPayload",
-          "successResponse": "Category",
-          "status": "MOCK (planned REST)"
+          "url": "https://firebasestorage.googleapis.com/v0/b/premolex-a3c1c.firebasestorage.app/o?name=product_images/img1",
+          "description": "Uploads a raw image file to Firebase Storage under the given path (e.g. product_images/img1). Content-Type is the file MIME type (e.g. image/jpeg), body is the raw file bytes.",
+          "authRequired": "Bearer <Firebase ID token>",
+          "headers": {
+            "Content-Type": "image/jpeg (or file MIME type)"
+          },
+          "status": "TESTED (REAL)"
         },
         {
-          "method": "PUT",
-          "path": "/api/categories/:id",
-          "description": "Updates an existing category.",
-          "pathParams": {
-            "id": "string (category id)"
-          },
-          "requestBody": "UpdateCategoryPayload",
-          "successResponse": "Category | null",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/categories/:id",
-          "description": "Deletes a category.",
-          "pathParams": {
-            "id": "string (category id)"
-          },
-          "successResponse": "void",
-          "status": "MOCK (planned REST)"
-        }
-      ]
-    },
-    "blogService": {
-      "service": "BlogService",
-      "location": "src/app/admin/services/blog.service.ts",
-      "currentImplementation": "In-memory signal (mock)",
-      "endpoints": [
-        {
+          "name": "readImages",
           "method": "GET",
-          "path": "/api/blog",
-          "description": "Returns all blog posts.",
-          "successResponse": "BlogPost[]",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "GET",
-          "path": "/api/blog/:id",
-          "description": "Returns a single blog post by id.",
-          "pathParams": {
-            "id": "string (blog post id)"
-          },
-          "successResponse": "BlogPost | null",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "POST",
-          "path": "/api/blog",
-          "description": "Creates a new blog post.",
-          "requestBody": "CreateBlogPostPayload",
-          "successResponse": "BlogPost",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "PUT",
-          "path": "/api/blog/:id",
-          "description": "Updates an existing blog post.",
-          "pathParams": {
-            "id": "string (blog post id)"
-          },
-          "requestBody": "UpdateBlogPostPayload",
-          "successResponse": "BlogPost | null",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "DELETE",
-          "path": "/api/blog/:id",
-          "description": "Deletes a blog post.",
-          "pathParams": {
-            "id": "string (blog post id)"
-          },
-          "successResponse": "void",
-          "status": "MOCK (planned REST)"
-        },
-        {
-          "method": "POST",
-          "path": "/api/blog/upload",
-          "description": "Uploads a blog featured image.",
-          "contentType": "multipart/form-data",
-          "requestBody": {
-            "file": "File"
-          },
-          "successResponse": "UploadResult",
-          "status": "MOCK (planned REST)"
+          "url": "https://firebasestorage.googleapis.com/v0/b/premolex-a3c1c.firebasestorage.app/o/product_images%2Fimg1?alt=media",
+          "description": "Reads/downloads a file from Firebase Storage by its encoded path. Returns the raw file content when ?alt=media is used.",
+          "authRequired": "None",
+          "status": "TESTED (REAL)"
         }
       ]
     }
   },
-  "publicServices": {
-    "productService": {
-      "service": "ProductService (Public)",
-      "location": "src/app/products/services/product.service.ts",
-      "currentImplementation": "Observable.of() (mock)",
-      "endpoints": [
+  "remainingMockEndpoints": {
+    "description": "Mock services still structured to mirror a standard REST API for future backend integration. Not yet wired to real endpoints.",
+    "adminServices": {
+      "productService": {
+        "service": "ProductService (Admin)",
+        "location": "src/app/admin/services/product.service.ts",
+        "currentImplementation": "In-memory signal (mock) for CRUD; uploadImage now uses REAL Firebase Storage REST",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/products",
+            "description": "Returns the flat list of products.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "GET",
+            "path": "/api/products/:id",
+            "description": "Returns a single product by id.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "POST",
+            "path": "/api/products",
+            "description": "Creates a new product.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/products/:id",
+            "description": "Updates an existing product.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/products/:id",
+            "description": "Deletes a product.",
+            "status": "MOCK (planned REST)"
+          }
+        ]
+      },
+      "categoryService": {
+        "service": "CategoryService",
+        "location": "src/app/admin/services/category.service.ts",
+        "currentImplementation": "In-memory signal (mock)",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/categories",
+            "description": "Returns all categories.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "POST",
+            "path": "/api/categories",
+            "description": "Creates a new category.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/categories/:id",
+            "description": "Updates an existing category.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/categories/:id",
+            "description": "Deletes a category.",
+            "status": "MOCK (planned REST)"
+          }
+        ]
+      },
+      "blogService": {
+        "service": "BlogService",
+        "location": "src/app/admin/services/blog.service.ts",
+        "currentImplementation": "In-memory signal (mock) for CRUD; uploadImage now uses REAL Firebase Storage REST",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/blog",
+            "description": "Returns all blog posts.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "GET",
+            "path": "/api/blog/:id",
+            "description": "Returns a single blog post by id.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "POST",
+            "path": "/api/blog",
+            "description": "Creates a new blog post.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/blog/:id",
+            "description": "Updates an existing blog post.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/blog/:id",
+            "description": "Deletes a blog post.",
+            "status": "MOCK (planned REST)"
+          }
+        ]
+      }
+    },
+    "publicServices": {
+      "productService": {
+        "service": "ProductService (Public)",
+        "location": "src/app/products/services/product.service.ts",
+        "currentImplementation": "Observable.of() (mock)",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/products",
+            "description": "Returns all public products.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "GET",
+            "path": "/api/products?category=:categoryId",
+            "description": "Returns products filtered by category.",
+            "status": "MOCK (planned REST)"
+          },
+          {
+            "method": "GET",
+            "path": "/api/categories",
+            "description": "Returns all public product categories.",
+            "status": "MOCK (planned REST)"
+          }
+        ]
+      }
+    }
+  },
+  "firestoreCrudService": {
+    "description": "FirestoreDataService - real Firestore REST CRUD operations. All methods return RxJS Observables.",
+    "service": "FirestoreDataService",
+    "location": "src/app/services/firestore-data.service.ts",
+    "connectionError": "Error thrown if Firebase is not initialized.",
+    "collections": {
+      "products": {
+        "collectionName": "products",
+        "documentType": "FirestoreProduct",
+        "operations": [
+          {
+            "operation": "READ_ALL",
+            "method": "getProducts()",
+            "returns": "Observable<FirestoreProduct[]>"
+          },
+          {
+            "operation": "READ_ONE",
+            "method": "getProductById(id)",
+            "returns": "Observable<FirestoreProduct | null>"
+          },
+          {
+            "operation": "CREATE",
+            "method": "addProduct(data)",
+            "returns": "Observable<FirestoreProduct>"
+          },
+          {
+            "operation": "UPDATE",
+            "method": "updateProduct(id, data)",
+            "returns": "Observable<FirestoreProduct>"
+          },
+          {
+            "operation": "DELETE",
+            "method": "deleteProduct(id)",
+            "returns": "Observable<void>"
+          }
+        ]
+      },
+      "blogs": {
+        "collectionName": "blogs",
+        "documentType": "FirestoreBlog",
+        "operations": [
+          {
+            "operation": "READ_ALL",
+            "method": "getBlogs()",
+            "returns": "Observable<FirestoreBlog[]>"
+          },
+          {
+            "operation": "READ_ONE",
+            "method": "getBlogById(id)",
+            "returns": "Observable<FirestoreBlog | null>"
+          },
+          {
+            "operation": "CREATE",
+            "method": "addBlog(data)",
+            "returns": "Observable<FirestoreBlog>"
+          },
+          {
+            "operation": "UPDATE",
+            "method": "updateBlog(id, data)",
+            "returns": "Observable<FirestoreBlog>"
+          },
+          {
+            "operation": "DELETE",
+            "method": "deleteBlog(id)",
+            "returns": "Observable<void>"
+          }
+        ]
+      },
+      "site_pages": {
+        "collectionName": "site_pages",
+        "documentType": "FirestoreSitePage",
+        "fixedDocumentIds": [
+          "quality",
+          "infrastructure"
+        ],
+        "operations": [
+          {
+            "operation": "READ_ONE",
+            "method": "getSitePage(id)",
+            "returns": "Observable<FirestoreSitePage | null>"
+          },
+          {
+            "operation": "READ_ONE",
+            "method": "getPageContent(pageId)",
+            "returns": "Observable<FirestoreSitePage | null>"
+          },
+          {
+            "operation": "UPSERT",
+            "method": "updatePageContent(pageId, content)",
+            "returns": "Observable<FirestoreSitePage>"
+          },
+          {
+            "operation": "UPSERT",
+            "method": "saveSitePage(pageKey, data)",
+            "returns": "Observable<FirestoreSitePage>"
+          }
+        ]
+      },
+      "certificates": {
+        "collectionName": "certificates",
+        "documentType": "FirestoreCertificate",
+        "operations": [
+          {
+            "operation": "READ_ALL",
+            "method": "getCertificates()",
+            "returns": "Observable<FirestoreCertificate[]>"
+          },
+          {
+            "operation": "CREATE",
+            "method": "addCertificate(data)",
+            "returns": "Observable<FirestoreCertificate>"
+          },
+          {
+            "operation": "UPDATE",
+            "method": "updateCertificate(id, data)",
+            "returns": "Observable<FirestoreCertificate>"
+          },
+          {
+            "operation": "DELETE",
+            "method": "deleteCertificate(id)",
+            "returns": "Observable<void>"
+          }
+        ]
+      },
+      "careers": {
+        "collectionName": "careers",
+        "documentType": "FirestoreCareer",
+        "operations": [
+          {
+            "operation": "READ_ALL",
+            "method": "getCareers()",
+            "returns": "Observable<FirestoreCareer[]>"
+          },
+          {
+            "operation": "READ_ALL",
+            "method": "getJobs()",
+            "returns": "Observable<FirestoreCareer[]>"
+          },
+          {
+            "operation": "CREATE",
+            "method": "addCareer(data)",
+            "returns": "Observable<FirestoreCareer>"
+          },
+          {
+            "operation": "CREATE",
+            "method": "addJob(data)",
+            "returns": "Observable<FirestoreCareer>"
+          },
+          {
+            "operation": "UPDATE",
+            "method": "updateCareer(id, data)",
+            "returns": "Observable<FirestoreCareer>"
+          },
+          {
+            "operation": "UPDATE",
+            "method": "updateJob(id, data)",
+            "returns": "Observable<FirestoreCareer>"
+          },
+          {
+            "operation": "DELETE",
+            "method": "deleteCareer(id)",
+            "returns": "Observable<void>"
+          },
+          {
+            "operation": "DELETE",
+            "method": "deleteJob(id)",
+            "returns": "Observable<void>"
+          }
+        ]
+      }
+    },
+    "storageService": {
+      "service": "FirebaseStorageService",
+      "location": "src/app/services/firebase-storage.service.ts",
+      "operations": [
         {
-          "method": "GET",
-          "path": "/api/products",
-          "description": "Returns all public products.",
-          "successResponse": "Product[] (public model)",
-          "status": "MOCK (planned REST)"
+          "operation": "UPLOAD",
+          "method": "uploadFile(file, path)",
+          "description": "POST raw file bytes to Storage REST. Emits HttpEvent stream.",
+          "returns": "Observable<HttpEvent<StorageUploadResult>>"
         },
         {
-          "method": "GET",
-          "path": "/api/products?category=:categoryId",
-          "description": "Returns products filtered by category.",
-          "queryParams": {
-            "categoryId": "string | 'all'"
-          },
+          "operation": "GET_URL",
+          "method": "getDownloadUrl(path)",
+          "description": "Builds the public download URL (?alt=media).",
+          "returns": "string"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "testedFirebaseApis": 9,
+    "testedRestEndpoints": [
+      "POST signInWithPassword (Identity Toolkit)",
+      "GET documents/products (Firestore)",
+      "POST documents/products (Firestore)",
+      "GET documents/blogs (Firestore)",
+      "POST documents/blogs (Firestore)",
+      "POST o?name= (Storage upload)",
+      "GET o/{path}?alt=media (Storage download)"
+    ],
+    "remainingMockEndpoints": 16,
+    "firestoreCollections": 5,
+    "firestoreOperations": 25,
+    "storageUploadPaths": [
+      "product_images/",
+      "blog_images/"
+    ]
+  }
+}

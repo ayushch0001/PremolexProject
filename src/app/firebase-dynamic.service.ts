@@ -5,6 +5,7 @@ import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 import { getAuth, Auth } from 'firebase/auth';
+import { environment } from '../environments/environment';
 
 export interface FirebaseConfig {
   apiKey: string;
@@ -13,6 +14,7 @@ export interface FirebaseConfig {
   storageBucket: string;
   messagingSenderId: string;
   appId: string;
+  measurementId?: string;
 }
 
 const STORAGE_KEY = 'premolex_firebase_config';
@@ -20,7 +22,10 @@ const STORAGE_KEY = 'premolex_firebase_config';
 /**
  * FirebaseDynamicService
  *
- * Dynamically initializes Firebase from credentials stored in localStorage.
+ * Initializes Firebase using the hardcoded credentials from `environment.firebaseConfig`
+ * (public keys — safe to ship in the client). A localStorage config can optionally
+ * override the environment config (legacy dynamic-setup support).
+ *
  * Uses the standard Firebase JS Web SDK (`firebase/app`, `firebase/firestore`)
  * instead of `@angular/fire` to avoid environment injection errors.
  */
@@ -38,16 +43,20 @@ export class FirebaseDynamicService {
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
-      this.initializeDynamicFirebase();
+      this.initializeFirebase();
     }
   }
 
   /**
-   * Reads the config from localStorage and initializes Firebase if present.
-   * Called automatically on app load (constructor).
+   * Initializes Firebase. Priority:
+   *   1. localStorage config (if present) — legacy dynamic setup override.
+   *   2. environment.firebaseConfig (default, hardcoded public keys).
    */
-  initializeDynamicFirebase(): boolean {
-    const config = this.getConfig();
+  initializeFirebase(): boolean {
+    let config: FirebaseConfig | null = this.getLocalStorageConfig();
+    if (!config) {
+      config = environment.firebaseConfig as FirebaseConfig;
+    }
     if (!config) {
       this.isConnected.set(false);
       return false;
@@ -60,7 +69,7 @@ export class FirebaseDynamicService {
       this.storage = getStorage(this.app);
       this.auth = getAuth(this.app);
       this.isConnected.set(true);
-      console.log('[FirebaseDynamicService] Firebase initialized from localStorage.');
+      console.log('[FirebaseDynamicService] Firebase initialized.');
       return true;
     } catch (error) {
       console.error('[FirebaseDynamicService] Firebase initialization failed:', error);
@@ -70,17 +79,21 @@ export class FirebaseDynamicService {
   }
 
   /**
-   * Saves the Firebase config to localStorage and initializes Firebase.
-   * Returns true on success.
+   * Saves a config override to localStorage and re-initializes Firebase.
+   * Pass `null` to clear the override and fall back to environment config.
    */
-  saveConfig(config: FirebaseConfig): boolean {
+  saveConfig(config: FirebaseConfig | null): boolean {
     if (!isPlatformBrowser(this.platformId)) {
       return false;
     }
 
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-      return this.initializeDynamicFirebase();
+      if (config) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+      return this.initializeFirebase();
     } catch (error) {
       console.error('[FirebaseDynamicService] Failed to save config:', error);
       this.isConnected.set(false);
@@ -88,8 +101,13 @@ export class FirebaseDynamicService {
     }
   }
 
-  /** Returns the saved Firebase config from localStorage, or null. */
-  getConfig(): FirebaseConfig | null {
+  /** Returns the current effective Firebase config (env default, overridden by localStorage). */
+  getConfig(): FirebaseConfig {
+    return this.getLocalStorageConfig() ?? (environment.firebaseConfig as FirebaseConfig);
+  }
+
+  /** Reads the optional localStorage override, or null. */
+  getLocalStorageConfig(): FirebaseConfig | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null;
     }
@@ -107,16 +125,13 @@ export class FirebaseDynamicService {
     }
   }
 
-  /** Removes the config from localStorage and disconnects Firebase. */
+  /** Removes the localStorage override and re-initializes with environment config. */
   clearConfig(): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem(STORAGE_KEY);
     }
-    this.app = null;
-    this.db = null;
-    this.storage = null;
-    this.auth = null;
-    this.isConnected.set(false);
+    // Re-initialize from the environment config instead of disconnecting.
+    this.initializeFirebase();
   }
 
   /** Returns the Firestore instance, or null if not connected. */

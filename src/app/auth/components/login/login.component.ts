@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { FirebaseError } from 'firebase/app';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -57,29 +57,35 @@ export class LoginComponent {
   }
 
   private getErrorMessage(err: unknown): string {
-    // Firebase Auth error codes.
-    if (err instanceof FirebaseError) {
-      switch (err.code) {
-        case 'auth/invalid-credential':
-        case 'auth/wrong-password':
-        case 'auth/user-not-found':
+    // Firebase Identity Toolkit REST API error responses.
+    if (err instanceof HttpErrorResponse) {
+      const errorBody = err.error as { error?: { message?: string } } | null;
+      const code = errorBody?.error?.message ?? '';
+
+      switch (code) {
+        case 'EMAIL_NOT_FOUND':
+        case 'INVALID_PASSWORD':
+        case 'INVALID_LOGIN_CREDENTIALS':
           return 'Invalid email or password. Please try again.';
-        case 'auth/invalid-email':
+        case 'INVALID_EMAIL':
           return 'Please enter a valid email address.';
-        case 'auth/user-disabled':
+        case 'USER_DISABLED':
           return 'This account has been disabled. Please contact support.';
-        case 'auth/too-many-requests':
+        case 'TOO_MANY_ATTEMPTS_TRY_LATER':
           return 'Too many failed attempts. Please try again later.';
-        case 'auth/network-request-failed':
-          return 'Unable to reach the server. Please check your connection and try again.';
         default:
-          return err.message || 'An unexpected error occurred. Please try again later.';
+          if (err.status === 0) {
+            return 'Unable to reach the server. Please check your connection and try again.';
+          }
+          const fallback = (err.error as { error?: { message?: string } } | null)?.error?.message;
+          return fallback || 'An unexpected error occurred. Please try again later.';
       }
     }
 
-    // Fallback for non-Firebase errors (e.g. database not connected).
-    if (err instanceof Error) {
-      return err.message;
+    // Fallback for non-HTTP errors.
+    const error = err as Error | null;
+    if (error && error.message) {
+      return error.message;
     }
 
     return 'An unexpected error occurred. Please try again later.';

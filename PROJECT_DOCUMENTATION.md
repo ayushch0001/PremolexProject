@@ -33,8 +33,8 @@ Premolex is a **B2B industrial website** for a piping manufacturer (HDPE, PVC, C
 
 - **Public-facing marketing site** — Homepage, About, Products catalog, Quality, Infrastructure, Certificates, Careers, Project gallery, Contact CTA, and Blog/News section.
 - **Admin dashboard** — Password-protected area for managing products, categories, blog posts, corporate pages (Quality/Infrastructure), certificates, careers, and Firebase configuration.
-- **Authentication layer** — JWT-based login system that protects the admin routes.
-- **Dynamic Firebase integration** — Firebase is initialized at runtime from credentials stored in `localStorage` (no build-time environment variables required).
+- **Authentication layer** — JWT-based login system that protects the admin routes (uses the Firebase Identity Toolkit REST API).
+- **Firebase integration** — Firebase is initialized from hardcoded credentials in the environment files; data access uses the tested Firebase REST APIs (Firestore v1, Storage v1, Identity Toolkit).
 
 ---
 
@@ -50,10 +50,11 @@ Premolex is a **B2B industrial website** for a piping manufacturer (HDPE, PVC, C
 | **Angular Forms** | Reactive forms for login, contact, and admin CRUD forms |
 | **Angular HTTP Client** | API communication with interceptors |
 | **Angular SSR** | Server-side rendering with `@angular/ssr` |
-| **Firebase JS SDK** | Firestore + Storage + Auth (dynamically initialized via `FirebaseDynamicService`) |
+| **Firebase JS SDK** | Firestore + Storage + Auth (initialized from hardcoded env config via `FirebaseDynamicService`) |
+| **Firebase REST APIs** | Identity Toolkit (`signInWithPassword`), Firestore v1, Storage v1 (tested endpoints) |
 | **Node.js / Express** | Backend (planned — JWT auth endpoint) |
 
-> **Note:** The app uses the **standard Firebase JS Web SDK** (`firebase/app`, `firebase/firestore`, `firebase/storage`, `firebase/auth`) directly instead of `@angular/fire`, to avoid environment injection errors and allow fully dynamic configuration.
+> **Note:** The app uses the **standard Firebase JS Web SDK** (`firebase/app`, `firebase/firestore`, `firebase/storage`, `firebase/auth`) directly instead of `@angular/fire`. Firebase credentials are **hardcoded in the environment files** (public keys). Data access uses the **Firebase REST APIs** (Firestore v1, Storage v1, Identity Toolkit) which were validated with the tested Postman collection.
 
 ---
 
@@ -183,7 +184,7 @@ Registers all root providers:
 | `provideZonelessChangeDetection()` | Zoneless change detection |
 | `provideHttpClient(withFetch(), withInterceptors([authInterceptor]))` | HTTP client with JWT interceptor |
 
-> **Note:** Firebase is **no longer** initialized via `@angular/fire` providers (`provideFirebaseApp`, `provideFirestore`, `provideStorage`). Instead, it is initialized **dynamically at runtime** by `FirebaseDynamicService` from credentials stored in `localStorage`.
+> **Note:** Firebase is **not** initialized via `@angular/fire` providers (`provideFirebaseApp`, `provideFirestore`, `provideStorage`). Instead, it is initialized at runtime by `FirebaseDynamicService` using the **hardcoded credentials from `environment.firebaseConfig`** (an optional `localStorage` override is still supported for legacy setup-page compatibility).
 
 ### 4.4 SSR Server Routes (`app.routes.server.ts`)
 
@@ -435,16 +436,45 @@ User visits /admin
 
 ### 8.2 `AuthService` (`auth/services/auth.service.ts`)
 
+Uses the **Firebase Identity Toolkit REST API** (`createdLoginCredentials` endpoint) to authenticate.
+
 | Method | Description |
 |---|---|
-| `login(credentials)` | POSTs to `${apiUrl}/auth/login`, stores JWT in `localStorage` |
+| `login(credentials)` | POSTs to `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=<apiKey>` with `{ email, password, returnSecureToken: true }` — stores the returned `idToken` in `localStorage` |
 | `logout()` | Clears token, updates state |
-| `getToken()` | Returns current JWT or `null` |
+| `getToken()` | Returns current Firebase ID token or `null` |
 | `isAuthenticated()` | Returns `true` if token exists |
 | `isLoggedIn$` | `BehaviorSubject<boolean>` Observable — emits auth state instantly |
 | `token$` | `BehaviorSubject<string \| null>` Observable — emits current JWT |
 
-**Token storage:** `localStorage` under key `premolex_admin_token`.
+**API endpoint (tested):**
+
+```
+POST https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCVXND9DdDhfdm81tKR5hNTC6Z1-w_0NA0
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "returnSecureToken": true
+}
+```
+
+**Success response:**
+
+```json
+{
+  "kind": "identitytoolkit#VerifyPasswordResponse",
+  "localId": "user-uid",
+  "email": "user@example.com",
+  "idToken": "<JWT>",
+  "registered": true,
+  "refreshToken": "<refresh-token>",
+  "expiresIn": "3600"
+}
+```
+
+**Token storage:** `localStorage` under key `premolex_admin_token` (stores the `idToken` returned by the API).
 
 ### 8.3 `AuthGuard` (`auth/guards/auth.guard.ts`)
 
@@ -475,7 +505,7 @@ User visits /admin
 - Company logo (Premolex "P" mark + wordmark).
 - "Forgot Password?" link.
 - Loading spinner inside the Login button while pending.
-- Error banner for 401 (invalid credentials), network failures, and server errors.
+- Error banner for 401 (invalid credentials), network failures, and server errors. Error messages are parsed from the Identity Toolkit REST error responses (`EMAIL_NOT_FOUND`, `INVALID_PASSWORD`, `INVALID_LOGIN_CREDENTIALS`, `USER_DISABLED`, `TOO_MANY_ATTEMPTS_TRY_LATER`, etc.).
 
 **Flow:**
 1. User submits valid form.
@@ -653,14 +683,15 @@ Seeds 3 posts (2 published, 1 draft).
 
 ### 11.1 `FirebaseDynamicService` (`firebase-dynamic.service.ts`)
 
-Dynamically initializes Firebase from credentials stored in `localStorage` under key `premolex_firebase_config`.
+Initializes Firebase using the **hardcoded credentials from `environment.firebaseConfig`**. An optional `localStorage` override (key `premolex_firebase_config`) is still respected for legacy setup-page compatibility.
 
 | Method | Description |
 |---|---|
-| `initializeDynamicFirebase()` | Reads config from localStorage and initializes Firebase (called in constructor on browser) |
-| `saveConfig(config)` | Saves config to localStorage and initializes Firebase |
-| `getConfig()` | Returns saved config or `null` |
-| `clearConfig()` | Removes config and disconnects Firebase |
+| `initializeFirebase()` | Initializes Firebase from `environment.firebaseConfig` (default) or localStorage override (called in constructor on browser) |
+| `saveConfig(config)` | Saves a config override to localStorage (pass `null` to clear) and re-initializes |
+| `getConfig()` | Returns the current effective config — **always returns a `FirebaseConfig`** (env default or override) |
+| `getLocalStorageConfig()` | Reads the optional localStorage override, or `null` |
+| `clearConfig()` | Removes the localStorage override and re-initializes with environment config |
 | `getFirestoreInstance()` | Returns Firestore instance or `null` |
 | `getStorageInstance()` | Returns Storage instance or `null` |
 | `getAuthInstance()` | Returns Auth instance or `null` |
@@ -674,9 +705,27 @@ Dynamically initializes Firebase from credentials stored in `localStorage` under
 - SSR-safe: only initializes in the browser (`isPlatformBrowser`).
 - Uses the **standard Firebase JS SDK** (`firebase/app`, `firebase/firestore`, `firebase/storage`, `firebase/auth`).
 
+**Hardcoded config (`environment.ts` / `environment.prod.ts`):**
+
+```ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:3000/api',
+  firebaseConfig: {
+    apiKey: 'AIzaSyCVXND9DdDhfdm81tKR5hNTC6Z1-w_0NA0',
+    authDomain: 'premolex-a3c1c.firebaseapp.com',
+    projectId: 'premolex-a3c1c',
+    storageBucket: 'premolex-a3c1c.firebasestorage.app',
+    messagingSenderId: '610846055734',
+    appId: '1:610846055734:web:46db90142233e4b02da797',
+    measurementId: 'G-G3CZXJM65L',
+  },
+};
+```
+
 ### 11.2 `FirestoreDataService` (`services/firestore-data.service.ts`)
 
-Performs real CRUD operations against Firebase Firestore using the standard Firebase JS SDK. All methods return RxJS Observables (via `from()`) so they plug directly into Angular async pipes and tables.
+Performs real CRUD operations against Firebase Firestore using the **Firestore REST v1 API** (`https://firestore.googleapis.com/v1/projects/<projectId>/databases/(default)/documents/...`) — the same tested cURL endpoints from the Postman collection. All methods return RxJS Observables so they plug directly into Angular async pipes and tables.
 
 **Collections:**
 
@@ -720,9 +769,26 @@ Performs real CRUD operations against Firebase Firestore using the standard Fire
 - `updateCareer(id, data)` / `updateJob(id, data)` → `Observable<FirestoreCareer>`
 - `deleteCareer(id)` / `deleteJob(id)` → `Observable<void>`
 
+**Data format conversion:**
+- Automatically converts between plain JS objects and the Firestore REST **envelope format** (`fields`/`stringValue`/`integerValue`/`doubleValue`/`booleanValue`/`mapValue`/`arrayValue`).
+- Updates use `PATCH` with `updateMask.fieldPaths=...` query params.
+
 **Error handling:**
-- Throws a clear error if Firebase is not connected: `'Database not connected. Please visit /firebase-setup.'`
+- 404 on reads → returns `null`/`[]` (graceful).
 - All create/update operations stamp `createdAt` / `updatedAt` ISO timestamps.
+
+### 11.3 `FirebaseStorageService` (`services/firebase-storage.service.ts`)
+
+Handles file uploads/downloads against the **Firebase Storage REST v1 API** (`https://firebasestorage.googleapis.com/v0/b/<bucket>/o`) — matching the tested `saveImage` / `readImages` cURLs.
+
+| Method | Description |
+|---|---|
+| `uploadFile(file, path)` | Uploads raw file bytes via `POST .../o?name=<path>` with the file's MIME type as `Content-Type`. Emits `HttpEvent` stream (Sent → UploadProgress → Response) for progress UI. Returns a `StorageUploadResult` with the public download URL. |
+| `getDownloadUrl(path)` | Builds the public download URL (`.../o/<encoded-path>?alt=media`). |
+
+**Upload paths used:**
+- Product images → `product_images/<timestamp>_<sanitized-name>`
+- Blog featured images → `blog_images/<timestamp>_<sanitized-name>`
 
 ---
 
@@ -736,8 +802,9 @@ Performs real CRUD operations against Firebase Firestore using the standard Fire
 | `BlogService` | `admin/services/` | Admin blog CRUD + upload (mock) |
 | `ProductService` (public) | `products/services/` | Public product catalog (mock) |
 | `FirebaseConfigService` | `app/` | Legacy Firebase config + connection |
-| `FirebaseDynamicService` | `app/` | **Dynamic Firebase init from localStorage** |
-| `FirestoreDataService` | `services/` | **Real Firestore CRUD (products, blogs, pages, certs, careers)** |
+| `FirebaseDynamicService` | `app/` | **Firebase init from env config (with localStorage override)** |
+| `FirestoreDataService` | `services/` | **Real Firestore REST v1 CRUD (products, blogs, pages, certs, careers)** |
+| `FirebaseStorageService` | `services/` | **Real Firebase Storage REST v1 uploads/downloads** |
 
 All services use `providedIn: 'root'` (singleton).
 
@@ -805,6 +872,15 @@ All services use `providedIn: 'root'` (singleton).
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api',
+  firebaseConfig: {
+    apiKey: 'AIzaSyCVXND9DdDhfdm81tKR5hNTC6Z1-w_0NA0',
+    authDomain: 'premolex-a3c1c.firebaseapp.com',
+    projectId: 'premolex-a3c1c',
+    storageBucket: 'premolex-a3c1c.firebasestorage.app',
+    messagingSenderId: '610846055734',
+    appId: '1:610846055734:web:46db90142233e4b02da797',
+    measurementId: 'G-G3CZXJM65L',
+  },
 };
 ```
 
@@ -814,10 +890,19 @@ export const environment = {
 export const environment = {
   production: true,
   apiUrl: 'https://api.premolex.com/api',
+  firebaseConfig: {
+    apiKey: 'AIzaSyCVXND9DdDhfdm81tKR5hNTC6Z1-w_0NA0',
+    authDomain: 'premolex-a3c1c.firebaseapp.com',
+    projectId: 'premolex-a3c1c',
+    storageBucket: 'premolex-a3c1c.firebasestorage.app',
+    messagingSenderId: '610846055734',
+    appId: '1:610846055734:web:46db90142233e4b02da797',
+    measurementId: 'G-G3CZXJM65L',
+  },
 };
 ```
 
-> **Note:** The `AuthService` uses `environment.apiUrl` to build the login endpoint: `${apiUrl}/auth/login`.
+> **Note:** The `AuthService` uses `environment.firebaseConfig.apiKey` to build the Identity Toolkit login endpoint: `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=<apiKey>`.
 
 ---
 
@@ -910,16 +995,17 @@ The app is structured to easily swap mock services for a real Node.js/Express ba
 
 | Service | Current (Mock) | Future (REST) |
 |---|---|---|
-| `AuthService` | Already uses `HttpClient` → `POST /api/auth/login` | ✅ Ready |
-| `ProductService` (admin) | In-memory signal | `GET/POST/PUT/DELETE /api/products` |
+| `AuthService` | Uses Firebase Identity Toolkit REST (`signInWithPassword`) | ✅ Ready (tested) |
+| `ProductService` (admin) | In-memory signal (CRUD); uploads use real Storage REST | `GET/POST/PUT/DELETE /api/products` |
 | `CategoryService` | In-memory signal | `GET/POST/PUT/DELETE /api/categories` |
-| `BlogService` | In-memory signal | `GET/POST/PUT/DELETE /api/blog` |
+| `BlogService` | In-memory signal (CRUD); uploads use real Storage REST | `GET/POST/PUT/DELETE /api/blog` |
 | `ProductService` (public) | `Observable.of()` | `GET /api/products` |
-| `FirestoreDataService` | **Real Firestore CRUD** | Can be swapped for REST endpoints |
+| `FirestoreDataService` | **Real Firestore REST v1 CRUD** | ✅ Ready (tested) |
+| `FirebaseStorageService` | **Real Storage REST v1 uploads** | ✅ Ready (tested) |
 
-The `AuthInterceptor` automatically attaches the JWT to all outgoing requests, so protected API endpoints will receive the `Authorization: Bearer <token>` header.
+The `AuthInterceptor` automatically attaches the Firebase ID token to all outgoing requests, so protected API endpoints will receive the `Authorization: Bearer <token>` header.
 
-> **Note:** The `FirestoreDataService` already provides **real database persistence** via Firebase Firestore — no backend swap needed for products, blogs, site pages, certificates, or careers. The mock admin services (`ProductService`, `CategoryService`, `BlogService`) remain as in-memory alternatives.
+> **Note:** `FirestoreDataService` and `FirebaseStorageService` provide **real Firebase persistence** via the tested REST v1 endpoints — no backend swap needed for products, blogs, site pages, certificates, careers, or image uploads. The mock admin CRUD services (`ProductService`, `CategoryService`, `BlogService`) remain as in-memory alternatives for now, while their `uploadImage()` methods now use the real Firebase Storage REST API.
 
 ---
 

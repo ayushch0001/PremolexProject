@@ -1,19 +1,28 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable, from } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  User,
-  UserCredential,
-} from 'firebase/auth';
-import { FirebaseDynamicService } from '../../firebase-dynamic.service';
+import { environment } from '../../../environments/environment';
 
 export interface LoginCredentials {
   email: string;
   password: string;
+}
+
+/**
+ * Response shape from the Firebase Identity Toolkit endpoint
+ * `accounts:signInWithPassword` (the "createdLoginCredentials" cURL).
+ */
+export interface LoginResponse {
+  kind: string;
+  localId: string;
+  email: string;
+  displayName?: string;
+  idToken: string;
+  registered: boolean;
+  refreshToken: string;
+  expiresIn: string;
 }
 
 const TOKEN_KEY = 'premolex_admin_token';
@@ -21,13 +30,15 @@ const TOKEN_KEY = 'premolex_admin_token';
 /**
  * AuthService
  *
- * Handles authentication using Firebase Auth (Email/Password).
- * Stores the Firebase ID token in localStorage and exposes reactive
- * auth state via BehaviorSubjects.
+ * Authenticates against the Firebase Identity Toolkit REST API
+ * (`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=<API_KEY>`).
+ *
+ * On success the returned `idToken` is stored in localStorage (key
+ * `premolex_admin_token`) and used for route guarding + HTTP interception.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly firebaseService = inject(FirebaseDynamicService);
+  private readonly http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
 
   private readonly tokenSubject = new BehaviorSubject<string | null>(
@@ -36,7 +47,6 @@ export class AuthService {
   private readonly loggedInSubject = new BehaviorSubject<boolean>(
     this.hasStoredToken(),
   );
-  private readonly userSubject = new BehaviorSubject<User | null>(null);
 
   /** Observable that emits the current auth state (true = logged in). */
   readonly isLoggedIn$: Observable<boolean> = this.loggedInSubject.asObservable();
@@ -44,54 +54,41 @@ export class AuthService {
   /** Observable that emits the current Firebase ID token (or null). */
   readonly token$: Observable<string | null> = this.tokenSubject.asObservable();
 
-  /** Observable that emits the current Firebase User (or null). */
-  readonly user$: Observable<User | null> = this.userSubject.asObservable();
+  /** The Firebase web API key used for the Identity Toolkit call. */
+  private readonly apiKey = environment.firebaseConfig.apiKey;
 
-  constructor() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.listenToAuthState();
-    }
-  }
+  /** Base URL for the Firebase Identity Toolkit v1 API. */
+  private readonly identityToolkitUrl =
+    'https://identitytoolkit.googleapis.com/v1';
 
   /**
-   * Signs in with Firebase Auth (Email/Password).
-   * On success, stores the Firebase ID token in localStorage.
+   * Signs in using the Firebase Identity Toolkit REST endpoint.
+   * On success, stores the returned `idToken` in localStorage.
    */
-  login(credentials: LoginCredentials): Observable<UserCredential> {
-    const auth = this.firebaseService.getAuthInstance();
-    if (!auth) {
-      throw new Error('Database not connected. Please visit /firebase-setup.');
-    }
+  login(credentials: LoginCredentials): Observable<LoginResponse> {
+    const url = `${this.identityToolkitUrl}/accounts:signInWithPassword?key=${this.apiKey}`;
 
-    return from(signInWithEmailAndPassword(auth, credentials.email, credentials.password)).pipe(
-      tap((credential) => {
-        this.userSubject.next(credential.user);
-        // Fetch the ID token and store it.
-        credential.user.getIdToken().then((token) => {
-          this.setToken(token);
-        });
-      }),
-    );
+    return this.http
+      .post<LoginResponse>(url, {
+        email: credentials.email,
+        password: credentials.password,
+        returnSecureToken: true,
+      })
+      .pipe(
+        tap((response) => {
+          this.setToken(response.idToken);
+        }),
+      );
   }
 
-  /** Signs out of Firebase Auth and clears the stored token. */
+  /** Clears the stored token and resets auth state. */
   logout(): void {
-    const auth = this.firebaseService.getAuthInstance();
-    if (auth) {
-      signOut(auth).catch((err) => console.error('[AuthService] Sign out failed:', err));
-    }
     this.clearToken();
-    this.userSubject.next(null);
   }
 
   /** Returns the current Firebase ID token, or null if not authenticated. */
   getToken(): string | null {
     return this.tokenSubject.getValue();
-  }
-
-  /** Returns the current Firebase User, or null. */
-  getUser(): User | null {
-    return this.userSubject.getValue();
   }
 
   /** Returns true if a token is currently stored. */
@@ -101,27 +98,8 @@ export class AuthService {
 
   // ------------------------------------------------------------------ private
 
-  /** Listens to Firebase Auth state changes and updates the reactive state. */
-  private listenToAuthState(): void {
-    const auth = this.firebaseService.getAuthInstance();
-    if (!auth) {
-      return;
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      this.userSubject.next(user);
-      if (user) {
-        user.getIdToken().then((token) => {
-          this.setToken(token);
-        });
-      } else {
-        this.clearToken();
-      }
-    });
-  }
-
   private setToken(token: string): void {
-    if (typeof localStorage !== 'undefined') {
+    if (isPlatformBrowser(this.platformId) && typeof localStorage !== 'undefined') {
       localStorage.setItem(TOKEN_KEY, token);
     }
     this.tokenSubject.next(token);
@@ -129,7 +107,7 @@ export class AuthService {
   }
 
   private clearToken(): void {
-    if (typeof localStorage !== 'undefined') {
+    if (isPlatformBrowser(this.platformId) && typeof localStorage !== 'undefined') {
       localStorage.removeItem(TOKEN_KEY);
     }
     this.tokenSubject.next(null);

@@ -1,7 +1,6 @@
-import { Injectable, signal } from '@angular/core';
-import { HttpEvent, HttpEventType, HttpResponse } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay, concatMap } from 'rxjs/operators';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpEvent } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import {
   CreateProductPayload,
   Product,
@@ -10,6 +9,7 @@ import {
   UpdateProductPayload,
 } from '../models/product.model';
 import { CategoryService } from './category.service';
+import { FirebaseStorageService } from '../../services/firebase-storage.service';
 
 /**
  * Mock upload result returned after a "multipart" file upload completes.
@@ -38,6 +38,7 @@ export interface UploadResult {
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   private readonly products = signal<Product[]>([]);
+  private readonly storageService = inject(FirebaseStorageService);
 
   constructor(private readonly categoryService: CategoryService) {
     this.seed();
@@ -84,61 +85,13 @@ export class ProductService {
   }
 
   /**
-   * Mock multipart file upload.
-   *
-   * Emits a stream of `HttpEvent`s that mimic a real `HttpClient` upload:
-   *   1. HttpEventType.Sent            (request started)
-   *   2. HttpEventType.UploadProgress  (0% -> 100%, several ticks)
-   *   3. HttpEventType.Response        (final UploadResult)
-   *
-   * In a real backend this would be:
-   *   this.http.post<UploadResult>('/api/products/upload', formData, {
-   *     reportProgress: true,
-   *     observe: 'events',
-   *   });
+   * Uploads a product image to Firebase Storage using the tested
+   * `saveImage` REST endpoint. Emits an `HttpEvent` stream
+   * (Sent -> UploadProgress -> Response) so the form can show progress.
    */
   uploadImage(file: File): Observable<HttpEvent<UploadResult>> {
-    const total = file.size || 1;
-    const ticks = 5;
-    const progressEvents: Observable<HttpEvent<UploadResult>>[] = [];
-
-    for (let i = 1; i <= ticks; i++) {
-      const loaded = Math.round((total / ticks) * i);
-      progressEvents.push(
-        of<HttpEvent<UploadResult>>({
-          type: HttpEventType.UploadProgress,
-          loaded,
-          total,
-        }).pipe(delay(120)),
-      );
-    }
-
-    const finalResult: UploadResult = {
-      url: this.buildObjectUrl(file),
-      name: file.name,
-      size: file.size,
-    };
-
-    const responseEvent: Observable<HttpEvent<UploadResult>> = of<HttpEvent<UploadResult>>(
-      new HttpResponse<UploadResult>({ status: 200, statusText: 'OK', body: finalResult }),
-    ).pipe(delay(120));
-
-    // Sent event first, then progress ticks, then the final response.
-    const sent$ = of<HttpEvent<UploadResult>>({ type: HttpEventType.Sent }).pipe(delay(80));
-    const progress$ = progressEvents.reduce(
-      (acc, ev) => acc.pipe(concatMap(() => ev)),
-      of<HttpEvent<UploadResult>>({ type: HttpEventType.Sent }),
-    );
-    return sent$.pipe(concatMap(() => progress$), concatMap(() => responseEvent));
-  }
-
-  /** Build a temporary in-browser URL so the UI can preview the uploaded file. */
-  private buildObjectUrl(file: File): string {
-    // Guard for SSR environments where URL.createObjectURL is unavailable.
-    if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
-      return '';
-    }
-    return URL.createObjectURL(file);
+    const path = `product_images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    return this.storageService.uploadFile(file, path) as Observable<HttpEvent<UploadResult>>;
   }
 
   // --------------------------------------------------------------------- seed

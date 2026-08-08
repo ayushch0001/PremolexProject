@@ -1,13 +1,13 @@
-import { Injectable, signal } from '@angular/core';
-import { HttpEvent, HttpEventType, HttpResponse } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay, concatMap } from 'rxjs/operators';
+import { Injectable, signal, inject } from '@angular/core';
+import { HttpEvent } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import {
   BlogPost,
   BlogStatus,
   CreateBlogPostPayload,
   UpdateBlogPostPayload,
 } from '../models/blog.model';
+import { FirebaseStorageService } from '../../services/firebase-storage.service';
 
 /**
  * Mock upload result returned after a "multipart" file upload completes.
@@ -33,6 +33,7 @@ export interface BlogUploadResult {
 @Injectable({ providedIn: 'root' })
 export class BlogService {
   private readonly posts = signal<BlogPost[]>([]);
+  private readonly storageService = inject(FirebaseStorageService);
 
   constructor() {
     this.seed();
@@ -81,49 +82,13 @@ export class BlogService {
   }
 
   /**
-   * Mock multipart file upload — emits HttpEvents like a real HttpClient request.
-   * See ProductService.uploadImage for the full pattern documentation.
+   * Uploads a blog featured image to Firebase Storage using the tested
+   * `saveImage` REST endpoint. Emits an `HttpEvent` stream
+   * (Sent -> UploadProgress -> Response) so the form can show progress.
    */
   uploadImage(file: File): Observable<HttpEvent<BlogUploadResult>> {
-    const total = file.size || 1;
-    const ticks = 5;
-    const progressEvents: Observable<HttpEvent<BlogUploadResult>>[] = [];
-
-    for (let i = 1; i <= ticks; i++) {
-      const loaded = Math.round((total / ticks) * i);
-      progressEvents.push(
-        of<HttpEvent<BlogUploadResult>>({
-          type: HttpEventType.UploadProgress,
-          loaded,
-          total,
-        }).pipe(delay(120)),
-      );
-    }
-
-    const finalResult: BlogUploadResult = {
-      url: this.buildObjectUrl(file),
-      name: file.name,
-      size: file.size,
-    };
-
-    const responseEvent: Observable<HttpEvent<BlogUploadResult>> = of<HttpEvent<BlogUploadResult>>(
-      new HttpResponse<BlogUploadResult>({ status: 200, statusText: 'OK', body: finalResult }),
-    ).pipe(delay(120));
-
-    const sent$ = of<HttpEvent<BlogUploadResult>>({ type: HttpEventType.Sent }).pipe(delay(80));
-    const progress$ = progressEvents.reduce(
-      (acc, ev) => acc.pipe(concatMap(() => ev)),
-      of<HttpEvent<BlogUploadResult>>({ type: HttpEventType.Sent }),
-    );
-    return sent$.pipe(concatMap(() => progress$), concatMap(() => responseEvent));
-  }
-
-  /** Build a temporary in-browser URL for previewing the uploaded file. */
-  private buildObjectUrl(file: File): string {
-    if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
-      return '';
-    }
-    return URL.createObjectURL(file);
+    const path = `blog_images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    return this.storageService.uploadFile(file, path) as Observable<HttpEvent<BlogUploadResult>>;
   }
 
   // --------------------------------------------------------------------- seed
