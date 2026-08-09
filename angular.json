@@ -63,6 +63,11 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "allowedHosts": [
+              "a89f-2409-4090-402b-f003-f578-192d-5815-ef49.ngrok-free.app"
+            ]
+          },
           "configurations": {
             "production": {
               "buildTarget": "premolex:build:production"

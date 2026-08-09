@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { FirestoreDataService, FirestoreProduct } from '../../services/firestore-data.service';
 
@@ -13,7 +14,7 @@ interface FeaturedProduct {
 @Component({
   standalone: true,
   selector: 'app-products',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.css'],
 })

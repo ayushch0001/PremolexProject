@@ -1,0 +1,59 @@
+<section class="blog-detail">
+  <div class="blog-detail__container">
+    <!-- Loading state -->
+    @if (isLoading()) {
+      <div class="blog-detail__loading">
+        <p>Loading post...</p>
+      </div>
+    }
+
+    <!-- Error state -->
+    @if (!isLoading() && error()) {
+      <div class="blog-detail__error">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        <p>{{ error() }}</p>
+        <a routerLink="/blog" class="blog-detail__back-link">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back to Blog
+        </a>
+      </div>
+    }
+
+    <!-- Post content -->
+    @if (!isLoading() && post()) {
+      <article class="blog-detail__article">
+        <!-- Back link -->
+        <a routerLink="/blog" class="blog-detail__back-link">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back to Blog
+        </a>
+
+        <!-- Featured image -->
+        @if (post()!.featuredImageUrl) {
+          <div class="blog-detail__image-wrap">
+            <img [src]="post()!.featuredImageUrl!" [alt]="post()!.title" class="blog-detail__image" />
+          </div>
+        }
+
+        <!-- Post header -->
+        <header class="blog-detail__header">
+          <time class="blog-detail__date" [attr.datetime]="post()!.publishedAt ?? post()!.createdAt">
+            {{ formattedDate() }}
+          </time>
+          <h1 class="blog-detail__title">{{ post()!.title }}</h1>
+          @if (post()!.author) {
+            <p class="blog-detail__author">By {{ post()!.author }}</p>
+          }
+        </header>
+
+        <!-- Post content -->
+        <div class="blog-detail__content">
+          @if (post()!.excerpt) {
+            <p class="blog-detail__excerpt">{{ post()!.excerpt }}</p>
+          }
+          <div class="blog-detail__body" [innerHTML]="post()!.content"></div>
+        </div>
+      </article>
+    }
+  </div>
+</section>

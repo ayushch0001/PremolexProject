@@ -8,6 +8,8 @@ import { InfrastructureComponent } from './components/infrastructure/infrastruct
 import { CertificatesComponent } from './components/certificates/certificates.component';
 import { CareersComponent } from './components/careers/careers.component';
 import { ContactComponent } from './components/contact/contact.component';
+import { BlogComponent } from './public-pages/blog/blog.component';
+import { BlogDetailComponent } from './public-pages/blog/blog-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'Home', pathMatch: 'full' },
@@ -27,6 +29,8 @@ export const routes: Routes = [
   { path: 'certificates', component: CertificatesComponent },
   { path: 'careers', component: CareersComponent },
   { path: 'contact', component: ContactComponent },
+  { path: 'blog', component: BlogComponent },
+  { path: 'blog/:slug', component: BlogDetailComponent },
 
   // Auth (login)
   {

@@ -1,0 +1,35 @@
+<section class="blog-page">
+  <div class="blog-page__container">
+    <!-- Page header -->
+    <header class="blog-page__header">
+      <h1 class="blog-page__title">Blog & News</h1>
+      <p class="blog-page__subtitle">
+        Stay updated with the latest company news, product announcements, and industry insights.
+      </p>
+    </header>
+
+    <!-- Loading state -->
+    @if (isLoading()) {
+      <div class="blog-page__loading">
+        <p>Loading posts...</p>
+      </div>
+    }
+
+    <!-- Posts grid -->
+    @if (!isLoading() && publishedPosts().length > 0) {
+      <div class="blog-page__grid">
+        @for (post of publishedPosts(); track post.id) {
+          <app-blog-card [post]="post" />
+        }
+      </div>
+    }
+
+    <!-- Empty state -->
+    @if (!isLoading() && publishedPosts().length === 0) {
+      <div class="blog-page__empty">
+        <span class="material-symbols-outlined" aria-hidden="true">article</span>
+        <p>No blog posts yet. Check back soon for updates.</p>
+      </div>
+    }
+  </div>
+</section>
