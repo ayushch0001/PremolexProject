@@ -1,7 +1,8 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { BlogPost } from '../../admin/models/blog.model';
-import { BlogService } from '../../admin/services/blog.service';
+import { FirestoreDataService, FirestoreBlog } from '../../services/firestore-data.service';
 import { BlogCardComponent } from '../blog-card/blog-card.component';
 
 @Component({
@@ -11,10 +12,11 @@ import { BlogCardComponent } from '../blog-card/blog-card.component';
   templateUrl: './home-blog-section.component.html',
   styleUrls: ['./home-blog-section.component.css'],
 })
-export class HomeBlogSectionComponent implements OnInit {
-  private readonly blogService = inject(BlogService);
+export class HomeBlogSectionComponent implements OnInit, OnDestroy {
+  private readonly firestoreService = inject(FirestoreDataService);
 
   private readonly allPosts = signal<BlogPost[]>([]);
+  private readonly subscriptions = new Subscription();
 
   /** The 3 most recently published blog posts. */
   readonly recentPosts = computed<BlogPost[]>(() =>
@@ -29,6 +31,19 @@ export class HomeBlogSectionComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    this.allPosts.set(this.blogService.getPosts());
+    this.subscriptions.add(
+      this.firestoreService.getBlogs().subscribe({
+        next: (docs) => {
+          this.allPosts.set(docs as BlogPost[]);
+        },
+        error: (err) => {
+          console.error('[HomeBlogSection] Failed to load blogs:', err);
+        },
+      }),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

@@ -7,6 +7,7 @@ import { QualityComponent } from './components/quality/quality.component';
 import { InfrastructureComponent } from './components/infrastructure/infrastructure.component';
 import { CertificatesComponent } from './components/certificates/certificates.component';
 import { CareersComponent } from './components/careers/careers.component';
+import { ContactComponent } from './components/contact/contact.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'Home', pathMatch: 'full' },
@@ -25,6 +26,7 @@ export const routes: Routes = [
   { path: 'infrastructure', component: InfrastructureComponent },
   { path: 'certificates', component: CertificatesComponent },
   { path: 'careers', component: CareersComponent },
+  { path: 'contact', component: ContactComponent },
 
   // Auth (login)
   {

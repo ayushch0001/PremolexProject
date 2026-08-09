@@ -1,25 +1,37 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, map } from 'rxjs';
 import { Category, CategoryTreeNode } from '../models/category.model';
+import { FirestoreDataService, FirestoreCategory } from '../../services/firestore-data.service';
 
 /**
- * Mock CategoryService.
+ * CategoryService
  *
- * Structured to mirror a standard REST API so it can be swapped for a real
- * Node.js/Express backend later. Each method maps 1:1 to an HTTP endpoint:
- *   - getCategories()        -> GET    /api/categories
- *   - createCategory(data)   -> POST   /api/categories
- *   - updateCategory(id, d)  -> PUT    /api/categories/:id
- *   - deleteCategory(id)     -> DELETE /api/categories/:id
+ * Persists categories to Firebase Firestore via `FirestoreDataService`
+ * (Firestore REST v1 API). Keeps an in-memory signal cache for synchronous
+ * reads (tree building, dropdowns) and refreshes it from Firestore.
  */
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
+  private readonly firestoreService = inject(FirestoreDataService);
   private readonly categories = signal<Category[]>([]);
 
   constructor() {
-    this.seed();
+    this.refresh();
   }
 
-  /** Returns the flat list of categories. */
+  /** Refreshes the in-memory cache from Firestore. */
+  refresh(): void {
+    this.firestoreService.getCategories().subscribe({
+      next: (docs) => {
+        this.categories.set(docs as Category[]);
+      },
+      error: (err) => {
+        console.error('[CategoryService] Failed to load categories:', err);
+      },
+    });
+  }
+
+  /** Returns the flat list of categories (from the in-memory cache). */
   getCategories(): Category[] {
     return this.categories();
   }
@@ -29,9 +41,7 @@ export class CategoryService {
     const flat = this.categories();
     const map = new Map<string, CategoryTreeNode>();
 
-    flat.forEach((c) =>
-      map.set(c.id, { ...c, children: [] }),
-    );
+    flat.forEach((c) => map.set(c.id, { ...c, children: [] }));
 
     const roots: CategoryTreeNode[] = [];
     map.forEach((node) => {
@@ -50,120 +60,61 @@ export class CategoryService {
     return this.categories().filter((c) => c.parentId === null);
   }
 
-  createCategory(data: Omit<Category, 'id' | 'createdAt'>): Category {
-    const category: Category = {
-      ...data,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-    };
-    this.categories.update((list) => [...list, category]);
-    return category;
+  /** Creates a category in Firestore and refreshes the cache. */
+  createCategory(data: Omit<Category, 'id' | 'createdAt'>): Observable<Category> {
+    return this.firestoreService
+      .addCategory(data as Omit<FirestoreCategory, 'id' | 'createdAt' | 'updatedAt'>)
+      .pipe(
+        map((doc) => {
+          this.refresh();
+          return doc as Category;
+        }),
+      );
   }
 
-  updateCategory(id: string, data: Partial<Omit<Category, 'id' | 'createdAt'>>): Category | null {
-    let updated: Category | null = null;
-    this.categories.update((list) =>
-      list.map((c) => {
-        if (c.id === id) {
-          updated = { ...c, ...data, id, createdAt: c.createdAt };
-          return updated;
-        }
-        return c;
-      }),
-    );
-    return updated;
+  /** Updates a category in Firestore and refreshes the cache. */
+  updateCategory(
+    id: string,
+    data: Partial<Omit<Category, 'id' | 'createdAt'>>,
+  ): Observable<Category> {
+    return this.firestoreService
+      .updateCategory(id, data as Partial<Omit<FirestoreCategory, 'id' | 'createdAt'>>)
+      .pipe(
+        map((doc) => {
+          this.refresh();
+          return doc as Category;
+        }),
+      );
   }
 
-  deleteCategory(id: string): void {
+  /** Deletes a category (and its subcategories) from Firestore and refreshes the cache. */
+  deleteCategory(id: string): Observable<void> {
     // Remove the category and any subcategories that reference it as parent.
-    this.categories.update((list) =>
-      list.filter((c) => c.id !== id && c.parentId !== id),
-    );
-  }
+    const subIds = this.categories()
+      .filter((c) => c.parentId === id)
+      .map((c) => c.id);
 
-  private seed(): void {
-    const now = new Date().toISOString();
-    this.categories.set([
-      {
-        id: 'cat-hdpe',
-        name: 'HDPE Pipes',
-        slug: 'hdpe-pipes',
-        description: 'High-density polyethylene piping systems.',
-        parentId: null,
-        createdAt: now,
-      },
-      {
-        id: 'cat-hdpe-pressure',
-        name: 'Pressure Pipes',
-        slug: 'hdpe-pressure-pipes',
-        description: 'PE100 pressure-rated HDPE pipes.',
-        parentId: 'cat-hdpe',
-        createdAt: now,
-      },
-      {
-        id: 'cat-hdpe-drainage',
-        name: 'Drainage Pipes',
-        slug: 'hdpe-drainage-pipes',
-        description: 'Corrugated and smooth-wall drainage pipes.',
-        parentId: 'cat-hdpe',
-        createdAt: now,
-      },
-      {
-        id: 'cat-pvc',
-        name: 'PVC Pipes',
-        slug: 'pvc-pipes',
-        description: 'Rigid unplasticized PVC piping.',
-        parentId: null,
-        createdAt: now,
-      },
-      {
-        id: 'cat-pvc-conduit',
-        name: 'Electrical Conduit',
-        slug: 'pvc-electrical-conduit',
-        description: 'Flame-retardant conduit for cable protection.',
-        parentId: 'cat-pvc',
-        createdAt: now,
-      },
-      {
-        id: 'cat-upvc',
-        name: 'UPVC Systems',
-        slug: 'upvc-systems',
-        description: 'Unplasticized PVC profiles and fittings.',
-        parentId: null,
-        createdAt: now,
-      },
-      {
-        id: 'cat-cpvc',
-        name: 'CPVC Solutions',
-        slug: 'cpvc-solutions',
-        description: 'Chlorinated PVC for high-temperature plumbing.',
-        parentId: null,
-        createdAt: now,
-      },
-      {
-        id: 'cat-swr',
-        name: 'SWR Drainage',
-        slug: 'swr-drainage',
-        description: 'Soil, waste and rainwater drainage systems.',
-        parentId: null,
-        createdAt: now,
-      },
-      {
-        id: 'cat-agri',
-        name: 'Agriculture Pipes',
-        slug: 'agriculture-pipes',
-        description: 'Irrigation and farm water supply piping.',
-        parentId: null,
-        createdAt: now,
-      },
-      {
-        id: 'cat-casing',
-        name: 'Casing Pipes',
-        slug: 'casing-pipes',
-        description: 'Heavy-wall casing for borewell applications.',
-        parentId: null,
-        createdAt: now,
-      },
-    ]);
+    // Delete subcategories first, then the parent.
+    const deletes: Observable<void>[] = [
+      ...subIds.map((subId) => this.firestoreService.deleteCategory(subId)),
+      this.firestoreService.deleteCategory(id),
+    ];
+
+    return new Observable<void>((subscriber) => {
+      let completed = 0;
+      deletes.forEach((del) => {
+        del.subscribe({
+          next: () => {
+            completed++;
+            if (completed === deletes.length) {
+              this.refresh();
+              subscriber.next();
+              subscriber.complete();
+            }
+          },
+          error: (err) => subscriber.error(err),
+        });
+      });
+    });
   }
 }

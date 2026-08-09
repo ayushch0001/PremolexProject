@@ -62,6 +62,21 @@ export interface FirestoreCareer extends FirestoreDocument {
   status: 'open' | 'closed';
 }
 
+/** Category stored in the `categories` collection. */
+export interface FirestoreCategory extends FirestoreDocument {
+  name: string;
+  slug: string;
+  description: string;
+  parentId: string | null;
+}
+
+/** Project item stored in the `projects` collection (homepage gallery + public pages). */
+export interface FirestoreProject extends FirestoreDocument {
+  title: string;
+  category: string;
+  image: string;
+}
+
 // ---------------------------------------------------------------------------
 // Firestore REST API types
 // ---------------------------------------------------------------------------
@@ -97,6 +112,8 @@ const BLOGS_COLLECTION = 'blogs';
 const SITE_PAGES_COLLECTION = 'site_pages';
 const CERTIFICATES_COLLECTION = 'certificates';
 const CAREERS_COLLECTION = 'careers';
+const CATEGORIES_COLLECTION = 'categories';
+const PROJECTS_COLLECTION = 'projects';
 
 /**
  * FirestoreDataService
@@ -254,6 +271,89 @@ export class FirestoreDataService {
     return this.updateDoc(SITE_PAGES_COLLECTION, pageKey, payload).pipe(
       map((doc) => this.fromDoc<FirestoreSitePage>(doc)),
     );
+  }
+
+  // --------------------------------------------------------------------------
+  // Categories
+  // --------------------------------------------------------------------------
+
+  /** Fetches all categories (parent categories first, sorted by name). */
+  getCategories(): Observable<FirestoreCategory[]> {
+    return this.listCollection(CATEGORIES_COLLECTION).pipe(
+      map((docs) =>
+        docs
+          .map((doc) => this.fromDoc<FirestoreCategory>(doc))
+          .sort((a, b) => {
+            // Top-level categories first (parentId === null), then by name.
+            if (!a.parentId && b.parentId) return -1;
+            if (a.parentId && !b.parentId) return 1;
+            return (a.name ?? '').localeCompare(b.name ?? '');
+          }),
+      ),
+    );
+  }
+
+  /** Fetches a single category by document id (null if not found). */
+  getCategoryById(id: string): Observable<FirestoreCategory | null> {
+    return this.getDoc(CATEGORIES_COLLECTION, id).pipe(
+      map((doc) => (doc ? this.fromDoc<FirestoreCategory>(doc) : null)),
+    );
+  }
+
+  /** Adds a new category document to the `categories` collection. */
+  addCategory(
+    data: Omit<FirestoreCategory, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Observable<FirestoreCategory> {
+    const payload = this.withTimestamps(data);
+    return this.createDoc(CATEGORIES_COLLECTION, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreCategory>(doc)),
+    );
+  }
+
+  /** Updates an existing category document by id. */
+  updateCategory(
+    id: string,
+    data: Partial<Omit<FirestoreCategory, 'id' | 'createdAt'>>,
+  ): Observable<FirestoreCategory> {
+    const payload = this.withUpdatedAt(data);
+    return this.updateDoc(CATEGORIES_COLLECTION, id, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreCategory>(doc)),
+    );
+  }
+
+  /** Deletes a category document by id. */
+  deleteCategory(id: string): Observable<void> {
+    return this.deleteDoc(CATEGORIES_COLLECTION, id);
+  }
+
+  // --------------------------------------------------------------------------
+  // Projects (Gallery)
+  // --------------------------------------------------------------------------
+
+  /** Fetches all project items for the gallery (sorted by title). */
+  getProjects(): Observable<FirestoreProject[]> {
+    return this.listCollection(PROJECTS_COLLECTION).pipe(
+      map((docs) =>
+        docs
+          .map((doc) => this.fromDoc<FirestoreProject>(doc))
+          .sort((a, b) => (a.title ?? '').localeCompare(b.title ?? '')),
+      ),
+    );
+  }
+
+  /** Adds a new project item to the `projects` collection. */
+  addProject(
+    data: Omit<FirestoreProject, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Observable<FirestoreProject> {
+    const payload = this.withTimestamps(data);
+    return this.createDoc(PROJECTS_COLLECTION, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreProject>(doc)),
+    );
+  }
+
+  /** Deletes a project item by id. */
+  deleteProject(id: string): Observable<void> {
+    return this.deleteDoc(PROJECTS_COLLECTION, id);
   }
 
   // --------------------------------------------------------------------------

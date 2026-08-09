@@ -1,4 +1,5 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Category, CategoryTreeNode } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
 import { CategoryFormComponent } from '../category-form/category-form.component';
@@ -10,7 +11,7 @@ import { CategoryFormComponent } from '../category-form/category-form.component'
   templateUrl: './category-manager.component.html',
   styleUrls: ['./category-manager.component.css'],
 })
-export class CategoryManagerComponent {
+export class CategoryManagerComponent implements OnInit, OnDestroy {
   private readonly categoryService = inject(CategoryService);
 
   readonly tree = signal<CategoryTreeNode[]>([]);
@@ -18,6 +19,10 @@ export class CategoryManagerComponent {
 
   readonly showForm = signal(false);
   readonly editingCategory = signal<Category | null>(null);
+  readonly isDeleting = signal(false);
+  readonly errorMessage = signal<string | null>(null);
+
+  private readonly subscriptions = new Subscription();
 
   readonly totalCategories = computed<number>(() => {
     const count = (nodes: CategoryTreeNode[]): number =>
@@ -25,8 +30,12 @@ export class CategoryManagerComponent {
     return count(this.tree());
   });
 
-  constructor() {
+  ngOnInit(): void {
     this.refresh();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   refresh(): void {
@@ -77,8 +86,21 @@ export class CategoryManagerComponent {
         : `Delete "${category.name}"? This cannot be undone.`;
 
     if (window.confirm(message)) {
-      this.categoryService.deleteCategory(category.id);
-      this.refresh();
+      this.isDeleting.set(true);
+      this.errorMessage.set(null);
+
+      this.subscriptions.add(
+        this.categoryService.deleteCategory(category.id).subscribe({
+          next: () => {
+            this.isDeleting.set(false);
+            this.refresh();
+          },
+          error: (err: Error) => {
+            this.isDeleting.set(false);
+            this.errorMessage.set(err.message);
+          },
+        }),
+      );
     }
   }
 }

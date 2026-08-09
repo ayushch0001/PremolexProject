@@ -11,7 +11,7 @@
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
-      <div *ngFor="let product of products" 
+      <div *ngFor="let product of products()"
            class="bg-surface-container-lowest border border-outline-variant rounded group hover:bg-surface-bright transition-colors">
         <div class="h-48 border-b border-outline-variant bg-surface-container relative">
           <div class="w-full h-full bg-cover bg-center mix-blend-multiply"

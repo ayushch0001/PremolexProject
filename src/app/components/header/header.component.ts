@@ -37,8 +37,8 @@ export class HeaderComponent implements OnInit {
     { label: 'Products', path: '/Products', hasDropdown: true, children: this.products },
     { label: 'Quality', path: '/quality', hasDropdown: false },
     { label: 'Infrastructure', path: '/infrastructure', hasDropdown: false },
-    { label: 'Certificate', path: '/certificate', hasDropdown: false },
-    { label: 'Career', path: '/career', hasDropdown: false },
+    { label: 'Certificate', path: '/certificates', hasDropdown: false },
+    { label: 'Career', path: '/careers', hasDropdown: false },
     { label: 'Contact Us', path: '/contact', hasDropdown: false },
   ];
 

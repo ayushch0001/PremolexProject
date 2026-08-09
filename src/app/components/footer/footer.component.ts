@@ -18,8 +18,8 @@ export class FooterComponent {
     { label: 'Products', path: '/Products' },
     { label: 'Quality', path: '/quality' },
     { label: 'Infrastructure', path: '/infrastructure' },
-    { label: 'Certificate', path: '/certificate' },
-    { label: 'Career', path: '/career' },
+    { label: 'Certificate', path: '/certificates' },
+    { label: 'Career', path: '/careers' },
     { label: 'Contact Us', path: '/contact' },
   ];
 

@@ -1,5 +1,6 @@
-import { Component, input, output, computed, inject, OnInit } from '@angular/core';
+import { Component, input, output, computed, inject, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { Category } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
 
@@ -10,7 +11,7 @@ import { CategoryService } from '../../services/category.service';
   templateUrl: './category-form.component.html',
   styleUrls: ['./category-form.component.css'],
 })
-export class CategoryFormComponent implements OnInit {
+export class CategoryFormComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly categoryService = inject(CategoryService);
 
@@ -35,6 +36,8 @@ export class CategoryFormComponent implements OnInit {
     parentId: [null],
   });
 
+  private readonly subscriptions = new Subscription();
+
   ngOnInit(): void {
     const existing = this.category();
     if (existing) {
@@ -47,6 +50,10 @@ export class CategoryFormComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -57,23 +64,33 @@ export class CategoryFormComponent implements OnInit {
     const existing = this.category();
 
     if (existing) {
-      const updated = this.categoryService.updateCategory(existing.id, {
-        name: value.name,
-        slug: value.slug,
-        description: value.description,
-        parentId: value.parentId ?? null,
-      });
-      if (updated) {
-        this.saved.emit(updated);
-      }
+      this.subscriptions.add(
+        this.categoryService
+          .updateCategory(existing.id, {
+            name: value.name,
+            slug: value.slug,
+            description: value.description,
+            parentId: value.parentId ?? null,
+          })
+          .subscribe({
+            next: (updated) => this.saved.emit(updated),
+            error: (err) => console.error('[CategoryForm] Update failed:', err),
+          }),
+      );
     } else {
-      const created = this.categoryService.createCategory({
-        name: value.name,
-        slug: value.slug,
-        description: value.description,
-        parentId: value.parentId ?? null,
-      });
-      this.saved.emit(created);
+      this.subscriptions.add(
+        this.categoryService
+          .createCategory({
+            name: value.name,
+            slug: value.slug,
+            description: value.description,
+            parentId: value.parentId ?? null,
+          })
+          .subscribe({
+            next: (created) => this.saved.emit(created),
+            error: (err) => console.error('[CategoryForm] Create failed:', err),
+          }),
+      );
     }
   }
 

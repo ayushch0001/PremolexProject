@@ -53,6 +53,7 @@ export class ProductLayoutComponent implements OnInit, OnDestroy {
   );
 
   private readonly querySub: Subscription;
+  private readonly dataSub = new Subscription();
 
   constructor() {
     this.querySub = this.route.queryParams.subscribe((params) => {
@@ -67,16 +68,33 @@ export class ProductLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.productService.getCategories().subscribe((cats) => {
-      this.categories.set(cats);
-    });
-    this.productService.getProducts().subscribe((products) => {
-      this.products.set(products);
-    });
+    this.dataSub.add(
+      this.productService.getCategories().subscribe((cats) => {
+        this.categories.set(cats);
+        // Re-map products now that category names are available.
+        this.products.update((list) =>
+          list.map((p) => ({
+            ...p,
+            category: this.resolveCategoryName(p.categoryId),
+          })),
+        );
+      }),
+    );
+    this.dataSub.add(
+      this.productService.getProducts().subscribe((products) => {
+        this.products.set(
+          products.map((p) => ({
+            ...p,
+            category: this.resolveCategoryName(p.categoryId),
+          })),
+        );
+      }),
+    );
   }
 
   ngOnDestroy(): void {
     this.querySub.unsubscribe();
+    this.dataSub.unsubscribe();
   }
 
   onSelectCategory(categoryId: string): void {
@@ -95,5 +113,10 @@ export class ProductLayoutComponent implements OnInit, OnDestroy {
 
   closeSpecs(): void {
     this.selectedProduct.set(null);
+  }
+
+  /** Resolves a category id to its display name using the loaded categories. */
+  private resolveCategoryName(categoryId: string): string {
+    return this.categories().find((c) => c.id === categoryId)?.name ?? categoryId;
   }
 }
