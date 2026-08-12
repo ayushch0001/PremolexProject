@@ -192,7 +192,7 @@
             class="editor-content"
             contenteditable="true"
             (input)="onEditorInput()"
-            [innerHTML]="form.get('content')?.value || ''"
+            [innerHTML]="editorHtml()"
             role="textbox"
             aria-multiline="true"
             aria-label="Blog content editor"

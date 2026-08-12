@@ -77,6 +77,17 @@ export class BlogFormComponent implements OnInit, OnDestroy {
   readonly showPreview = signal(false);
   readonly sanitizedPreview = signal<SafeHtml>('');
   readonly wordCount = signal<number>(0);
+  /**
+   * Dedicated HTML source for the contenteditable editor.
+   *
+   * The editor's `innerHTML` is bound to this (NOT to the live `content` control).
+   * Angular therefore only writes the editor DOM when this signal changes — once on
+   * init and once when restoring after Preview. It is intentionally NOT updated on
+   * every keystroke: re-setting `innerHTML` destroys the live DOM nodes and resets
+   * the contenteditable caret to index 0 (the "AYUSH -> HSUYA" bug). Typing only
+   * flows DOM -> control via `onEditorInput`.
+   */
+  readonly editorHtml = signal<string>('');
 
   // ---- Form ----
   readonly form: FormGroup = this.fb.group({
@@ -116,6 +127,7 @@ export class BlogFormComponent implements OnInit, OnDestroy {
       this.imageName.set(existing.featuredImageName);
       this.uploadedUrl = existing.featuredImageUrl;
       this.slugTouched = true;
+      this.editorHtml.set(existing.content);
       this.updateWordCount(existing.content);
     }
   }
@@ -196,6 +208,10 @@ export class BlogFormComponent implements OnInit, OnDestroy {
   // ---- Preview with sanitization ----
   togglePreview(): void {
     if (this.showPreview()) {
+      // Refresh the bound HTML from the control before the edit view is shown
+      // again, so the contenteditable div repopulates with the latest content.
+      // (editorHtml is NOT touched during typing, to avoid resetting the caret.)
+      this.editorHtml.set(this.contentControl.value ?? '');
       this.showPreview.set(false);
       return;
     }
