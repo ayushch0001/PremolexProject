@@ -39,7 +39,6 @@ export class HeaderComponent implements OnInit {
     { label: 'Infrastructure', path: '/infrastructure', hasDropdown: false },
     { label: 'Certificate', path: '/certificates', hasDropdown: false },
     { label: 'Career', path: '/careers', hasDropdown: false },
-    { label: 'Contact Us', path: '/contact', hasDropdown: false },
   ];
 
   ngOnInit(): void {

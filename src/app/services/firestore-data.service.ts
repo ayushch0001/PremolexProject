@@ -100,6 +100,16 @@ export interface FirestoreContactQuery extends FirestoreDocument {
   notes: string;
 }
 
+/** Team member displayed on the About page. */
+export interface FirestoreTeamMember extends FirestoreDocument {
+  name: string;
+  role: string;
+  imageUrl: string;
+  imageName: string | null;
+  message: string;
+  sortOrder: number;
+}
+
 // ---------------------------------------------------------------------------
 // Firestore REST API types
 // ---------------------------------------------------------------------------
@@ -139,6 +149,7 @@ const CATEGORIES_COLLECTION = 'categories';
 const PROJECTS_COLLECTION = 'projects';
 const JOB_APPLICATIONS_COLLECTION = 'job_applications';
 const CONTACT_QUERIES_COLLECTION = 'contact_queries';
+const TEAM_MEMBERS_COLLECTION = 'team_members';
 
 /**
  * FirestoreDataService
@@ -478,6 +489,47 @@ export class FirestoreDataService {
   /** Deletes a contact query by id. */
   deleteContactQuery(id: string): Observable<void> {
     return this.deleteDoc(CONTACT_QUERIES_COLLECTION, id);
+  }
+
+  // --------------------------------------------------------------------------
+  // Team Members
+  // --------------------------------------------------------------------------
+
+  /** Fetches all team members (sorted by sortOrder). */
+  getTeamMembers(): Observable<FirestoreTeamMember[]> {
+    return this.listCollection(TEAM_MEMBERS_COLLECTION).pipe(
+      map((docs) =>
+        docs
+          .map((doc) => this.fromDoc<FirestoreTeamMember>(doc))
+          .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)),
+      ),
+    );
+  }
+
+  /** Adds a new team member to the `team_members` collection. */
+  addTeamMember(
+    data: Omit<FirestoreTeamMember, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Observable<FirestoreTeamMember> {
+    const payload = this.withTimestamps(data);
+    return this.createDoc(TEAM_MEMBERS_COLLECTION, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreTeamMember>(doc)),
+    );
+  }
+
+  /** Updates an existing team member by id. */
+  updateTeamMember(
+    id: string,
+    data: Partial<Omit<FirestoreTeamMember, 'id' | 'createdAt'>>,
+  ): Observable<FirestoreTeamMember> {
+    const payload = this.withUpdatedAt(data);
+    return this.updateDoc(TEAM_MEMBERS_COLLECTION, id, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreTeamMember>(doc)),
+    );
+  }
+
+  /** Deletes a team member by id. */
+  deleteTeamMember(id: string): Observable<void> {
+    return this.deleteDoc(TEAM_MEMBERS_COLLECTION, id);
   }
 
   // --------------------------------------------------------------------------

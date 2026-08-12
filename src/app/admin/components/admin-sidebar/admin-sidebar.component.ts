@@ -30,6 +30,7 @@ export class AdminSidebarComponent {
     { label: 'Projects', route: '/admin/projects', icon: 'construction' },
     { label: 'Job Applications', route: '/admin/job-applications', icon: 'assignment_ind' },
     { label: 'Contact Queries', route: '/admin/contact-queries', icon: 'mail' },
+    { label: 'Team Members', route: '/admin/team-members', icon: 'groups' },
     { label: 'Settings', route: '/admin/settings', icon: 'settings' },
   ];
 }

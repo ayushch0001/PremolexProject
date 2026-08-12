@@ -1,0 +1,230 @@
+<div class="team-members-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Team Members</h2>
+      <p class="manager-subtitle">{{ members().length }} total members</p>
+    </div>
+    <button type="button" class="btn-add" (click)="openAddForm()">
+      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      Add Member
+    </button>
+  </div>
+
+  <!-- Error banner -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading team members…</span>
+    </div>
+  }
+
+  <!-- Desktop table -->
+  @if (!isLoading()) {
+    <div class="table-wrap">
+      <table class="member-table">
+        <thead>
+          <tr>
+            <th class="col-image">Image</th>
+            <th class="col-name">Name</th>
+            <th class="col-role">Role</th>
+            <th class="col-message">Message</th>
+            <th class="col-order">Order</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (member of rows(); track member.id) {
+            <tr class="member-row">
+              <td class="col-image">
+                <div class="thumb">
+                  @if (member.imageUrl) {
+                    <img [src]="member.imageUrl" [alt]="member.name" />
+                  } @else {
+                    <span class="material-symbols-outlined thumb-placeholder" aria-hidden="true">person</span>
+                  }
+                </div>
+              </td>
+              <td class="col-name">
+                <span class="member-name">{{ member.name }}</span>
+              </td>
+              <td class="col-role">
+                <span class="role-badge">{{ member.role }}</span>
+              </td>
+              <td class="col-message">
+                <p class="member-message">{{ member.message }}</p>
+              </td>
+              <td class="col-order">
+                <span class="order-badge">{{ member.sortOrder }}</span>
+              </td>
+              <td class="col-actions">
+                <button type="button" class="icon-btn" (click)="openEditForm(member)" aria-label="Edit {{ member.name }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                </button>
+                <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(member)" aria-label="Delete {{ member.name }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-cell">
+                <p class="empty-text">No team members yet. Click "Add Member" to create one.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div class="card-list">
+      @for (member of rows(); track member.id) {
+        <div class="member-card">
+          <div class="card-row">
+            <div class="thumb">
+              @if (member.imageUrl) {
+                <img [src]="member.imageUrl" [alt]="member.name" />
+              } @else {
+                <span class="material-symbols-outlined thumb-placeholder" aria-hidden="true">person</span>
+              }
+            </div>
+            <div class="card-main">
+              <span class="member-name">{{ member.name }}</span>
+              <span class="role-badge">{{ member.role }}</span>
+              <p class="member-message">{{ member.message }}</p>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="icon-btn" (click)="openEditForm(member)" aria-label="Edit {{ member.name }}">
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+              </button>
+              <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(member)" aria-label="Delete {{ member.name }}">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-card">
+          <p class="empty-text">No team members yet.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Add/Edit modal -->
+@if (showForm()) {
+  <div class="form-overlay" (click)="closeForm()">
+    <div class="form-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="form-header">
+        <h2 class="form-title">{{ editingMember() ? 'Edit Team Member' : 'Add Team Member' }}</h2>
+        <button type="button" class="form-close" (click)="closeForm()" aria-label="Close form">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSave()" class="form-body">
+        <div class="form-group">
+          <label for="member-name">Name *</label>
+          <input
+            id="member-name"
+            type="text"
+            formControlName="name"
+            placeholder="e.g. Rajesh Kumar"
+            [class.input-error]="form.get('name')?.invalid && form.get('name')?.touched"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <p class="field-error">Name is required (min 2 characters).</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="member-role">Role *</label>
+          <input
+            id="member-role"
+            type="text"
+            formControlName="role"
+            placeholder="e.g. Managing Director"
+            [class.input-error]="form.get('role')?.invalid && form.get('role')?.touched"
+          />
+          @if (form.get('role')?.invalid && form.get('role')?.touched) {
+            <p class="field-error">Role is required.</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Member Photo</label>
+          <div class="upload-zone">
+            @if (form.get('imageUrl')?.value) {
+              <div class="preview-wrap">
+                <img [src]="form.get('imageUrl')?.value" alt="Member photo preview" class="preview-img" />
+                <button type="button" class="remove-img" (click)="removeImage()" aria-label="Remove photo">
+                  <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+              </div>
+            } @else {
+              <label class="upload-label" for="member-image">
+                <span class="material-symbols-outlined" aria-hidden="true">upload</span>
+                <span>Click to upload member photo</span>
+              </label>
+              <input id="member-image" type="file" accept="image/*" class="hidden-input" (change)="onFilePicked($event)" />
+            }
+          </div>
+          @if (form.get('imageName')?.value) {
+            <p class="file-name">{{ form.get('imageName')?.value }}</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="member-message">Message *</label>
+          <textarea
+            id="member-message"
+            formControlName="message"
+            rows="3"
+            placeholder="A short 3-4 line message from this leader..."
+            [class.input-error]="form.get('message')?.invalid && form.get('message')?.touched"
+          ></textarea>
+          @if (form.get('message')?.invalid && form.get('message')?.touched) {
+            <p class="field-error">Message is required (min 10 characters).</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="member-order">Display Order *</label>
+          <input
+            id="member-order"
+            type="number"
+            formControlName="sortOrder"
+            placeholder="0"
+            [class.input-error]="form.get('sortOrder')?.invalid && form.get('sortOrder')?.touched"
+          />
+          @if (form.get('sortOrder')?.invalid && form.get('sortOrder')?.touched) {
+            <p class="field-error">Display order is required.</p>
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSaving() || form.invalid">
+            @if (isSaving()) {
+              <span class="spinner spinner-sm" aria-hidden="true"></span>
+              <span>Saving…</span>
+            } @else {
+              {{ editingMember() ? 'Save Changes' : 'Add Member' }}
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

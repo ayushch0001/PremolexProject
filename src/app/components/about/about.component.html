@@ -20,3 +20,50 @@
     </div>
   </div>
 </section>
+<!-- Leadership Team Section -->
+<section class="py-xl px-gutter max-w-container-max mx-auto">
+  <div class="text-center mb-lg">
+    <h2 class="font-headline-lg text-headline-lg text-primary mb-xs">Our Leadership</h2>
+    <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">
+      Meet the visionaries driving Premolex Industries forward with decades of industry expertise.
+    </p>
+  </div>
+
+  @if (isLoading()) {
+  <div class="text-center py-xl text-on-surface-variant">
+    <span class="material-symbols-outlined animate-spin inline-block">progress_activity</span>
+    <p class="mt-sm">Loading team members...</p>
+  </div>
+  }
+
+  @if (!isLoading() && topMembers().length > 0) {
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+    @for (member of topMembers(); track member.id) {
+    <div
+      class="bg-surface-container-lowest border border-outline-variant rounded overflow-hidden group hover:border-primary transition-colors duration-200">
+      <div class="aspect-square overflow-hidden bg-surface-container-low">
+        @if (member.imageUrl) {
+        <img [src]="member.imageUrl" [alt]="member.name"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        } @else {
+        <div class="w-full h-full flex items-center justify-center">
+          <span class="material-symbols-outlined text-6xl text-on-surface-variant/50">person</span>
+        </div>
+        }
+      </div>
+      <div class="p-sm">
+        <h3 class="font-headline-md text-headline-md text-on-surface mb-xs">{{ member.name }}</h3>
+        <p class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-sm">{{ member.role }}</p>
+        <p class="font-body-md text-body-md text-on-surface-variant">{{ member.message }}</p>
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  @if (!isLoading() && topMembers().length === 0) {
+  <div class="text-center py-xl text-on-surface-variant">
+    <p>Team member information coming soon.</p>
+  </div>
+  }
+</section>
