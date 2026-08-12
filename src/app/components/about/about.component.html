@@ -38,11 +38,6 @@
 
   @if (!isLoading() && topMembers().length > 0) {
   <section class="leadership-section">
-    <div class="leadership-header">
-      <h2 class="leadership-title">Our Leadership</h2>
-      <p class="leadership-subtitle">Meet the visionaries driving Premolex Industries forward with decades of industry
-        expertise.</p>
-    </div>
     <div class="leadership-grid">
       @for (member of topMembers(); track member.id) {
       <article class="leadership-card">

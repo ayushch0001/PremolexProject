@@ -45,17 +45,27 @@
     box-shadow: 0 16px 40px rgba(10, 37, 64, 0.12);
 }
 
+/* Image container: shows the FULL image without cropping */
 .leadership-image {
-    height: 220px;
+    height: 240px;
     position: relative;
-    overflow: hidden;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e0e7ff 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        box-sizing: border-box;
 }
 
+/* object-fit: contain ensures the entire image is visible */
 .leadership-img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+        object-position: center;
     transition: transform 0.3s ease;
+    border: 3px solid rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .leadership-card:hover .leadership-img {
@@ -63,7 +73,7 @@
 }
 
 .leadership-placeholder {
-    height: 220px;
+    height: 240px;
     display: flex;
     align-items: center;
     justify-content: center;
