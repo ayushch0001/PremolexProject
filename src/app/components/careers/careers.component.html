@@ -101,10 +101,10 @@
                       <div class="requirements-content" [innerHTML]="sanitizeRequirements(job.requirements)"></div>
                     </div>
                     <div class="apply-row">
-                      <a [href]="getApplyLink(job)" class="apply-btn">
+                      <button type="button" (click)="openApplyForm(job)" class="apply-btn">
                         <span class="material-symbols-outlined" aria-hidden="true">mail</span>
                         Apply Now
-                      </a>
+                      </button>
                     </div>
                   </div>
                 }
@@ -120,4 +120,82 @@
       </div>
     </section>
   }
+<!-- Apply Form Modal -->
+@if (showApplyForm() && applyingJob(); as job) {
+<div class="apply-modal-overlay" (click)="closeApplyForm()">
+  <div class="apply-modal" (click)="$event.stopPropagation()">
+    <button type="button" class="apply-modal-close" (click)="closeApplyForm()" aria-label="Close">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <h3 class="apply-modal-title">Apply for {{ job.title }}</h3>
+    <p class="apply-modal-subtitle">{{ job.department }} &middot; {{ job.location }}</p>
+
+    @if (isSubmitted()) {
+    <div class="apply-success">
+      <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+      <p>Your application has been submitted successfully! Our HR team will review your application and contact you.</p>
+      <button type="button" class="apply-btn" (click)="closeApplyForm()">Close</button>
+    </div>
+    } @else {
+    <form [formGroup]="applyForm" (ngSubmit)="onSubmitApplication()" class="apply-form" novalidate>
+      @if (submitError()) {
+      <div class="apply-error" role="alert">
+        <span class="material-symbols-outlined" aria-hidden="true">error</span>
+        <span>{{ submitError() }}</span>
+      </div>
+      }
+
+      <div class="apply-form-group">
+        <label class="apply-form-label" for="applicantName">Full Name</label>
+        <input id="applicantName" type="text" formControlName="applicantName" class="apply-form-input"
+          placeholder="Your full name" [class.input-error]="f['applicantName'].touched && f['applicantName'].invalid" />
+        @if (f['applicantName'].touched && f['applicantName'].invalid) {
+        <span class="apply-error-text">Please enter your name (min. 2 characters)</span>
+        }
+      </div>
+
+      <div class="apply-form-group">
+        <label class="apply-form-label" for="applicantEmail">Email</label>
+        <input id="applicantEmail" type="email" formControlName="applicantEmail" class="apply-form-input"
+          placeholder="your@email.com"
+          [class.input-error]="f['applicantEmail'].touched && f['applicantEmail'].invalid" />
+        @if (f['applicantEmail'].touched && f['applicantEmail'].invalid) {
+        <span class="apply-error-text">Please enter a valid email address</span>
+        }
+      </div>
+
+      <div class="apply-form-group">
+        <label class="apply-form-label" for="applicantPhone">Phone</label>
+        <input id="applicantPhone" type="tel" formControlName="applicantPhone" class="apply-form-input"
+          placeholder="+91 98765 43210"
+          [class.input-error]="f['applicantPhone'].touched && f['applicantPhone'].invalid" />
+        @if (f['applicantPhone'].touched && f['applicantPhone'].invalid) {
+        <span class="apply-error-text">Please enter a valid phone number</span>
+        }
+      </div>
+
+      <div class="apply-form-group">
+        <label class="apply-form-label" for="coverLetter">Cover Letter</label>
+        <textarea id="coverLetter" formControlName="coverLetter" class="apply-form-input apply-form-textarea"
+          placeholder="Tell us why you're a great fit for this role..." rows="4"
+          [class.input-error]="f['coverLetter'].touched && f['coverLetter'].invalid"></textarea>
+        @if (f['coverLetter'].touched && f['coverLetter'].invalid) {
+        <span class="apply-error-text">Please write a cover letter (min. 20 characters)</span>
+        }
+      </div>
+
+      <button type="submit" class="apply-btn apply-btn-submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+        <span class="spinner" aria-hidden="true"></span>
+        Submitting...
+        } @else {
+        Submit Application
+        }
+      </button>
+    </form>
+    }
+  </div>
+</div>
+}
 </div>

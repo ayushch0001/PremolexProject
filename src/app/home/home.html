@@ -1,141 +1,87 @@
+<main class="flex-grow">
 
+    <!-- Hero Carousel -->
+    <app-hero-carousel></app-hero-carousel>
+    
+    <!-- Corporate Values (Mission, Vision, Values) -->
+    <app-corporate-values [cards]="valueCards"></app-corporate-values>
+    
+    <!-- Home About Section (Company History) -->
+    <app-home-about></app-home-about>
+    
+    <!-- Applications Grid (Features of HDPE Pipe) -->
+    <app-applications-grid></app-applications-grid>
 
-    <main class="flex-grow">
-
-        <!-- Hero Carousel -->
-        <app-hero-carousel></app-hero-carousel>
-        
-        <!-- Corporate Values (Mission, Vision, Values) -->
-        <app-corporate-values [cards]="valueCards"></app-corporate-values>
-        
-        <!-- Home About Section (Company History) -->
-        <app-home-about></app-home-about>
-        
-        <!-- Applications Grid (Features of HDPE Pipe) -->
-        <app-applications-grid></app-applications-grid>
-
-        <!-- Dashboard Quick Stats -->
-        <section class="py-xl px-gutter max-w-container-max mx-auto mt-16 relative z-30">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-sm">
-                <div *ngFor="let stat of stats"
-                    class="bg-surface-container-lowest border border-outline-variant p-md rounded shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    <div class="flex items-center gap-sm">
-                        <div class="bg-primary/10 p-xs rounded-full">
-                            <span class="material-symbols-outlined text-primary text-3xl">{{ stat.icon }}</span>
-                        </div>
-                        <div>
-                            <p class="font-headline-md text-headline-md text-on-surface font-bold">{{ stat.value }}</p>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant">{{ stat.label }}</p>
-                        </div>
+    <!-- Dashboard Quick Stats -->
+    <section class="py-xl px-gutter max-w-container-max mx-auto mt-16 relative z-30">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-sm">
+            <div *ngFor="let stat of stats"
+                class="bg-surface-container-lowest border border-outline-variant p-md rounded shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div class="flex items-center gap-sm">
+                    <div class="bg-primary/10 p-xs rounded-full">
+                        <span class="material-symbols-outlined text-primary text-3xl">{{ stat.icon }}</span>
+                    </div>
+                    <div>
+                        <p class="font-headline-md text-headline-md text-on-surface font-bold">{{ stat.value }}</p>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant">{{ stat.label }}</p>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <app-about></app-about>
+
+    <!-- Dashboard Performance Cards -->
+    <section class="py-xl px-gutter max-w-container-max mx-auto">
+        <div class="flex justify-between items-center mb-lg">
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-primary">Performance Overview</h2>
+                <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Real-time metrics and insights
+                </p>
+            </div>
+            <button
+                class="bg-primary text-on-primary font-label-md text-label-md px-md py-sm rounded hover:bg-primary-container hover:text-on-primary-container transition-colors">
+                View All Stats
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
+            <div *ngFor="let pStat of productStats; let i = index"
+                class="bg-surface-container-lowest border border-outline-variant p-md rounded hover:shadow-lg transition-all duration-300 cursor-pointer"
+                (click)="onCardClick('stat-' + pStat.label)">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant">{{ pStat.label }}</p>
+                        <p class="font-headline-md text-headline-md text-on-surface font-bold mt-xs">
+                            {{ pStat.value }}</p>
+                    </div>
+                    <span class="text-green-600 text-sm font-medium" *ngIf="pStat.trend === 'up'">
+                        {{ pStat.change }}
+                    </span>
+                </div>
+                <div class="mt-sm w-full h-1 bg-surface-container rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full" [style.width.%]="productStats[i]"></div>
+                </div>
+            </div>
+        </div>
         </section>
 
-        <!-- About Section -->
-        <app-about></app-about>
+    <!-- Products Section -->
+    <app-products></app-products>
 
-        <!-- Dashboard Performance Cards -->
-        <section class="py-xl px-gutter max-w-container-max mx-auto">
-            <div class="flex justify-between items-center mb-lg">
-                <div>
-                    <h2 class="font-headline-lg text-headline-lg text-primary">Performance Overview</h2>
-                    <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Real-time metrics and insights
-                    </p>
-                </div>
-                <button
-                    class="bg-primary text-on-primary font-label-md text-label-md px-md py-sm rounded hover:bg-primary-container hover:text-on-primary-container transition-colors">
-                    View All Stats
-                </button>
-            </div>
+    <!-- Latest News & Updates (Blog Section) -->
+    <app-home-blog-section></app-home-blog-section>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-md">
-                <div *ngFor="let pStat of productStats; let i = index"
-                    class="bg-surface-container-lowest border border-outline-variant p-md rounded hover:shadow-lg transition-all duration-300 cursor-pointer"
-                    (click)="onCardClick('stat-' + pStat.label)">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant">{{ pStat.label }}</p>
-                            <p class="font-headline-md text-headline-md text-on-surface font-bold mt-xs">
-                                {{ pStat.value }}</p>
-                        </div>
-                        <span class="text-green-600 text-sm font-medium" *ngIf="pStat.trend === 'up'">
-                            {{ pStat.change }}
-                        </span>
-                    </div>
-                    <div class="mt-sm w-full h-1 bg-surface-container rounded-full overflow-hidden">
-                        <div class="h-full bg-primary rounded-full" [style.width.%]="productStats[i]"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- Project Gallery (Portfolio) -->
+    <app-project-gallery></app-project-gallery>
 
-        <!-- Products Section -->
-        <app-products></app-products>
 
-        <!-- Project Gallery (Portfolio) -->
-        <app-project-gallery></app-project-gallery>
 
-        <!-- Quick Links & Recent Activity -->
-        <section class="py-xl px-gutter max-w-container-max mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+    <!-- Contact CTA (Lead Generation Form) -->
+    <app-home-contact-cta></app-home-contact-cta>
 
-                <!-- Quick Links -->
-                <div class="md:col-span-1 bg-surface-container-lowest border border-outline-variant rounded p-md">
-                    <h3 class="font-headline-md text-headline-md text-on-surface mb-sm flex items-center gap-xs">
-                        <span class="material-symbols-outlined text-primary">quick_reference</span>
-                        Quick Links
-                    </h3>
-                    <div class="space-y-sm">
-                        <a *ngFor="let link of quickLinks" [href]="link.link"
-                            class="flex items-center gap-sm p-sm rounded hover:bg-surface-container transition-colors group">
-                            <span
-                                class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">
-                                {{ link.icon }}
-                            </span>
-                            <span
-                                class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">
-                                {{ link.label }}
-                            </span>
-                            <span
-                                class="material-symbols-outlined text-on-surface-variant ml-auto text-sm">arrow_forward</span>
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Recent Activity -->
-                <div class="md:col-span-2 bg-surface-container-lowest border border-outline-variant rounded p-md">
-                    <div class="flex justify-between items-center mb-sm">
-                        <h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-xs">
-                            <span class="material-symbols-outlined text-primary">updates</span>
-                            Recent Activity
-                        </h3>
-                        <button class="font-label-sm text-label-sm text-primary hover:underline">View All</button>
-                    </div>
-                    <div class="space-y-sm">
-                        <div *ngFor="let activity of recentActivities"
-                            class="flex items-start gap-sm p-sm rounded hover:bg-surface-container transition-colors border-b border-outline-variant last:border-0">
-                            <div class="bg-primary/10 p-xs rounded-full flex-shrink-0 mt-xs">
-                                <span class="material-symbols-outlined text-primary text-xl">{{ activity.icon }}</span>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-body-md text-body-md text-on-surface font-medium">{{ activity.title }}
-                                </p>
-                                <p class="font-body-md text-body-md text-on-surface-variant text-sm">
-                                    {{ activity.description }}</p>
-                                <span
-                                    class="font-label-sm text-label-sm text-on-surface-variant">{{ activity.time }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Contact CTA (Lead Generation Form) -->
-        <app-home-contact-cta></app-home-contact-cta>
-
-        <!-- Latest News & Updates (Blog Section) -->
-        <app-home-blog-section></app-home-blog-section>
-
-    </main>
+</main>

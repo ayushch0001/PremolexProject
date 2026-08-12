@@ -9,6 +9,9 @@ import { FirebaseConfigFormComponent } from '../admin-components/firebase-config
 import { CorporatePagesManagerComponent } from './components/corporate-pages-manager/corporate-pages-manager.component';
 import { CertificateManagerComponent } from './components/certificate-manager/certificate-manager.component';
 import { CareersManagerComponent } from './components/careers-manager/careers-manager.component';
+import { ProjectManagerComponent } from './components/project-manager/project-manager.component';
+import { JobApplicationsManagerComponent } from './components/job-applications-manager/job-applications-manager.component';
+import { ContactQueriesManagerComponent } from './components/contact-queries-manager/contact-queries-manager.component';
 
 export const ADMIN_ROUTES: Routes = [
   {
@@ -24,6 +27,9 @@ export const ADMIN_ROUTES: Routes = [
       { path: 'pages', component: CorporatePagesManagerComponent },
       { path: 'certificates', component: CertificateManagerComponent },
       { path: 'careers', component: CareersManagerComponent },
+      { path: 'projects', component: ProjectManagerComponent },
+      { path: 'job-applications', component: JobApplicationsManagerComponent },
+      { path: 'contact-queries', component: ContactQueriesManagerComponent },
       { path: 'settings', component: FirebaseConfigFormComponent },
     ],
   },

@@ -1,0 +1,186 @@
+<div class="job-applications-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Job Applications</h2>
+      <p class="manager-subtitle">{{ applications().length }} total applications</p>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading applications…</span>
+    </div>
+  }
+
+  <!-- Desktop table -->
+  @if (!isLoading()) {
+    <div class="table-wrap">
+      <table class="app-table">
+        <thead>
+          <tr>
+            <th class="col-applicant">Applicant</th>
+            <th class="col-job">Job</th>
+            <th class="col-contact">Contact</th>
+            <th class="col-status">Status</th>
+            <th class="col-date">Applied</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (app of rows(); track app.id) {
+            <tr class="app-row">
+              <td class="col-applicant">
+                <span class="applicant-name">{{ app.applicantName }}</span>
+              </td>
+              <td class="col-job">
+                <span class="job-title">{{ app.jobTitle }}</span>
+              </td>
+              <td class="col-contact">
+                <div class="contact-info">
+                  <span class="contact-email">{{ app.applicantEmail }}</span>
+                  <span class="contact-phone">{{ app.applicantPhone }}</span>
+                </div>
+              </td>
+              <td class="col-status">
+                <span class="status-badge" [class]="getStatusClass(app.status)">{{ app.status }}</span>
+              </td>
+              <td class="col-date">
+                <span class="date-text">{{ app.createdAt | date: 'mediumDate' }}</span>
+              </td>
+              <td class="col-actions">
+                <button type="button" class="icon-btn" (click)="openDetail(app)" aria-label="View {{ app.applicantName }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                </button>
+                <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(app)" aria-label="Delete {{ app.applicantName }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-cell">
+                <p class="empty-text">No job applications yet.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div class="card-list">
+      @for (app of rows(); track app.id) {
+        <div class="app-card">
+          <div class="card-row">
+            <div class="card-main">
+              <span class="applicant-name">{{ app.applicantName }}</span>
+              <span class="job-title">{{ app.jobTitle }}</span>
+              <span class="status-badge" [class]="getStatusClass(app.status)">{{ app.status }}</span>
+              <span class="date-text">{{ app.createdAt | date: 'mediumDate' }}</span>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="icon-btn" (click)="openDetail(app)" aria-label="View {{ app.applicantName }}">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+              </button>
+              <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(app)" aria-label="Delete {{ app.applicantName }}">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-card">
+          <p class="empty-text">No job applications yet.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Detail modal -->
+@if (showDetail() && selectedApplication(); as app) {
+  <div class="form-overlay" (click)="closeDetail()">
+    <div class="form-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="form-header">
+        <h2 class="form-title">Application Details</h2>
+        <button type="button" class="form-close" (click)="closeDetail()" aria-label="Close form">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="form-body">
+        <div class="detail-section">
+          <h3 class="detail-label">Applicant</h3>
+          <p class="detail-value">{{ app.applicantName }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="detail-label">Position</h3>
+          <p class="detail-value">{{ app.jobTitle }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="detail-label">Contact</h3>
+          <p class="detail-value">{{ app.applicantEmail }}</p>
+          <p class="detail-value">{{ app.applicantPhone }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="detail-label">Cover Letter</h3>
+          <p class="detail-value detail-cover">{{ app.coverLetter }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="detail-label">Applied On</h3>
+          <p class="detail-value">{{ app.createdAt | date: 'fullDate' }}</p>
+        </div>
+
+        <form [formGroup]="statusForm" (ngSubmit)="onUpdateStatus()" class="status-form">
+          <div class="form-group">
+            <label for="app-status">Status</label>
+            <select id="app-status" formControlName="status" class="form-select">
+              <option value="new">New</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="contacted">Contacted</option>
+              <option value="rejected">Rejected</option>
+              <option value="hired">Hired</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="app-notes">Follow-up Notes</label>
+            <textarea
+              id="app-notes"
+              formControlName="notes"
+              rows="3"
+              placeholder="Add follow-up notes for this application..."
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeDetail()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+              @if (isSaving()) {
+                <span class="spinner spinner-sm" aria-hidden="true"></span>
+                <span>Saving…</span>
+              } @else {
+                Update Status
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}

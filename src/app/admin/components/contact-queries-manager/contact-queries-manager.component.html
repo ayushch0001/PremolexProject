@@ -1,0 +1,181 @@
+<div class="contact-queries-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Contact Queries</h2>
+      <p class="manager-subtitle">{{ queries().length }} total queries</p>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading queries…</span>
+    </div>
+  }
+
+  <!-- Desktop table -->
+  @if (!isLoading()) {
+    <div class="table-wrap">
+      <table class="query-table">
+        <thead>
+          <tr>
+            <th class="col-name">Name</th>
+            <th class="col-subject">Subject</th>
+            <th class="col-email">Email</th>
+            <th class="col-status">Status</th>
+            <th class="col-date">Received</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (query of rows(); track query.id) {
+            <tr class="query-row">
+              <td class="col-name">
+                <span class="query-name">{{ query.name }}</span>
+              </td>
+              <td class="col-subject">
+                <span class="query-subject">{{ query.subject }}</span>
+              </td>
+              <td class="col-email">
+                <span class="query-email">{{ query.email }}</span>
+              </td>
+              <td class="col-status">
+                <span class="status-badge" [class]="getStatusClass(query.status)">{{ query.status }}</span>
+              </td>
+              <td class="col-date">
+                <span class="date-text">{{ query.createdAt | date: 'mediumDate' }}</span>
+              </td>
+              <td class="col-actions">
+                <button type="button" class="icon-btn" (click)="openDetail(query)" aria-label="View {{ query.name }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+                </button>
+                <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(query)" aria-label="Delete {{ query.name }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-cell">
+                <p class="empty-text">No contact queries yet.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div class="card-list">
+      @for (query of rows(); track query.id) {
+        <div class="query-card">
+          <div class="card-row">
+            <div class="card-main">
+              <span class="query-name">{{ query.name }}</span>
+              <span class="query-subject">{{ query.subject }}</span>
+              <span class="status-badge" [class]="getStatusClass(query.status)">{{ query.status }}</span>
+              <span class="date-text">{{ query.createdAt | date: 'mediumDate' }}</span>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="icon-btn" (click)="openDetail(query)" aria-label="View {{ query.name }}">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+              </button>
+              <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(query)" aria-label="Delete {{ query.name }}">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-card">
+          <p class="empty-text">No contact queries yet.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Detail modal -->
+@if (showDetail() && selectedQuery(); as query) {
+  <div class="form-overlay" (click)="closeDetail()">
+    <div class="form-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="form-header">
+        <h2 class="form-title">Query Details</h2>
+        <button type="button" class="form-close" (click)="closeDetail()" aria-label="Close form">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="form-body">
+        <div class="detail-section">
+          <h3 class="detail-label">Name</h3>
+          <p class="detail-value">{{ query.name }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="detail-label">Email</h3>
+          <p class="detail-value">{{ query.email }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="detail-label">Subject</h3>
+          <p class="detail-value">{{ query.subject }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="detail-label">Message</h3>
+          <p class="detail-value detail-message">{{ query.message }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3 class="detail-label">Received On</h3>
+          <p class="detail-value">{{ query.createdAt | date: 'fullDate' }}</p>
+        </div>
+
+        <form [formGroup]="statusForm" (ngSubmit)="onUpdateStatus()" class="status-form">
+          <div class="form-group">
+            <label for="query-status">Status</label>
+            <select id="query-status" formControlName="status" class="form-select">
+              <option value="new">New</option>
+              <option value="reviewed">Reviewed</option>
+              <option value="contacted">Contacted</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="query-notes">Follow-up Notes</label>
+            <textarea
+              id="query-notes"
+              formControlName="notes"
+              rows="3"
+              placeholder="Add follow-up notes for this query..."
+            ></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="closeDetail()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+              @if (isSaving()) {
+                <span class="spinner spinner-sm" aria-hidden="true"></span>
+                <span>Saving…</span>
+              } @else {
+                Update Status
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}

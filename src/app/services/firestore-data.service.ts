@@ -77,6 +77,29 @@ export interface FirestoreProject extends FirestoreDocument {
   image: string;
 }
 
+/** Job application submitted from the public careers page. */
+export interface FirestoreJobApplication extends FirestoreDocument {
+  jobId: string;
+  jobTitle: string;
+  applicantName: string;
+  applicantEmail: string;
+  applicantPhone: string;
+  coverLetter: string;
+  resumeUrl: string | null;
+  status: 'new' | 'reviewed' | 'contacted' | 'rejected' | 'hired';
+  notes: string;
+}
+
+/** Contact query submitted from the home page contact form. */
+export interface FirestoreContactQuery extends FirestoreDocument {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: 'new' | 'reviewed' | 'contacted' | 'closed';
+  notes: string;
+}
+
 // ---------------------------------------------------------------------------
 // Firestore REST API types
 // ---------------------------------------------------------------------------
@@ -114,6 +137,8 @@ const CERTIFICATES_COLLECTION = 'certificates';
 const CAREERS_COLLECTION = 'careers';
 const CATEGORIES_COLLECTION = 'categories';
 const PROJECTS_COLLECTION = 'projects';
+const JOB_APPLICATIONS_COLLECTION = 'job_applications';
+const CONTACT_QUERIES_COLLECTION = 'contact_queries';
 
 /**
  * FirestoreDataService
@@ -354,6 +379,105 @@ export class FirestoreDataService {
   /** Deletes a project item by id. */
   deleteProject(id: string): Observable<void> {
     return this.deleteDoc(PROJECTS_COLLECTION, id);
+  }
+
+  /** Updates an existing project item by id. */
+  updateProject(
+    id: string,
+    data: Partial<Omit<FirestoreProject, 'id' | 'createdAt'>>,
+  ): Observable<FirestoreProject> {
+    const payload = this.withUpdatedAt(data);
+    return this.updateDoc(PROJECTS_COLLECTION, id, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreProject>(doc)),
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Job Applications
+  // --------------------------------------------------------------------------
+
+  /** Fetches all job applications (newest first). */
+  getJobApplications(): Observable<FirestoreJobApplication[]> {
+    return this.listCollection(JOB_APPLICATIONS_COLLECTION).pipe(
+      map((docs) =>
+        docs
+          .map((doc) => this.fromDoc<FirestoreJobApplication>(doc))
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime(),
+          ),
+      ),
+    );
+  }
+
+  /** Adds a new job application to the `job_applications` collection. */
+  addJobApplication(
+    data: Omit<FirestoreJobApplication, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Observable<FirestoreJobApplication> {
+    const payload = this.withTimestamps(data);
+    return this.createDoc(JOB_APPLICATIONS_COLLECTION, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreJobApplication>(doc)),
+    );
+  }
+
+  /** Updates an existing job application by id. */
+  updateJobApplication(
+    id: string,
+    data: Partial<Omit<FirestoreJobApplication, 'id' | 'createdAt'>>,
+  ): Observable<FirestoreJobApplication> {
+    const payload = this.withUpdatedAt(data);
+    return this.updateDoc(JOB_APPLICATIONS_COLLECTION, id, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreJobApplication>(doc)),
+    );
+  }
+
+  /** Deletes a job application by id. */
+  deleteJobApplication(id: string): Observable<void> {
+    return this.deleteDoc(JOB_APPLICATIONS_COLLECTION, id);
+  }
+
+  // --------------------------------------------------------------------------
+  // Contact Queries
+  // --------------------------------------------------------------------------
+
+  /** Fetches all contact queries (newest first). */
+  getContactQueries(): Observable<FirestoreContactQuery[]> {
+    return this.listCollection(CONTACT_QUERIES_COLLECTION).pipe(
+      map((docs) =>
+        docs
+          .map((doc) => this.fromDoc<FirestoreContactQuery>(doc))
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime(),
+          ),
+      ),
+    );
+  }
+
+  /** Adds a new contact query to the `contact_queries` collection. */
+  addContactQuery(
+    data: Omit<FirestoreContactQuery, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Observable<FirestoreContactQuery> {
+    const payload = this.withTimestamps(data);
+    return this.createDoc(CONTACT_QUERIES_COLLECTION, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreContactQuery>(doc)),
+    );
+  }
+
+  /** Updates an existing contact query by id. */
+  updateContactQuery(
+    id: string,
+    data: Partial<Omit<FirestoreContactQuery, 'id' | 'createdAt'>>,
+  ): Observable<FirestoreContactQuery> {
+    const payload = this.withUpdatedAt(data);
+    return this.updateDoc(CONTACT_QUERIES_COLLECTION, id, payload).pipe(
+      map((doc) => this.fromDoc<FirestoreContactQuery>(doc)),
+    );
+  }
+
+  /** Deletes a contact query by id. */
+  deleteContactQuery(id: string): Observable<void> {
+    return this.deleteDoc(CONTACT_QUERIES_COLLECTION, id);
   }
 
   // --------------------------------------------------------------------------

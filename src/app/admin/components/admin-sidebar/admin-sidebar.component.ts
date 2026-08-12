@@ -27,6 +27,9 @@ export class AdminSidebarComponent {
     { label: 'Pages', route: '/admin/pages', icon: 'description' },
     { label: 'Certificates', route: '/admin/certificates', icon: 'workspace_premium' },
     { label: 'Careers', route: '/admin/careers', icon: 'work' },
+    { label: 'Projects', route: '/admin/projects', icon: 'construction' },
+    { label: 'Job Applications', route: '/admin/job-applications', icon: 'assignment_ind' },
+    { label: 'Contact Queries', route: '/admin/contact-queries', icon: 'mail' },
     { label: 'Settings', route: '/admin/settings', icon: 'settings' },
   ];
 }

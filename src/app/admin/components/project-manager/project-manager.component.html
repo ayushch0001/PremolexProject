@@ -1,0 +1,189 @@
+<div class="project-manager">
+  <!-- Header -->
+  <div class="manager-header">
+    <div>
+      <h2 class="manager-title">Projects</h2>
+      <p class="manager-subtitle">{{ projects().length }} total projects</p>
+    </div>
+    <button type="button" class="btn-add" (click)="openAddForm()">
+      <span class="material-symbols-outlined" aria-hidden="true">add</span>
+      Add Project
+    </button>
+  </div>
+
+  <!-- Error banner -->
+  @if (errorMessage(); as message) {
+    <div class="error-banner" role="alert">
+      <span class="material-symbols-outlined" aria-hidden="true">error</span>
+      <span>{{ message }}</span>
+    </div>
+  }
+
+  <!-- Loading state -->
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Loading projects…</span>
+    </div>
+  }
+
+  <!-- Desktop table -->
+  @if (!isLoading()) {
+    <div class="table-wrap">
+      <table class="project-table">
+        <thead>
+          <tr>
+            <th class="col-image">Image</th>
+            <th class="col-title">Project Title</th>
+            <th class="col-category">Category</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (project of rows(); track project.id) {
+            <tr class="project-row">
+              <td class="col-image">
+                <div class="thumb">
+                  @if (project.image) {
+                    <img [src]="project.image" [alt]="project.title" />
+                  } @else {
+                    <span class="material-symbols-outlined thumb-placeholder" aria-hidden="true">image</span>
+                  }
+                </div>
+              </td>
+              <td class="col-title">
+                <span class="project-title">{{ project.title }}</span>
+              </td>
+              <td class="col-category">
+                <span class="category-badge">{{ project.category }}</span>
+              </td>
+              <td class="col-actions">
+                <button type="button" class="icon-btn" (click)="openEditForm(project)" aria-label="Edit {{ project.title }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+                </button>
+                <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(project)" aria-label="Delete {{ project.title }}">
+                  <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="empty-cell">
+                <p class="empty-text">No projects yet. Click "Add Project" to create one.</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div class="card-list">
+      @for (project of rows(); track project.id) {
+        <div class="project-card">
+          <div class="card-row">
+            <div class="thumb">
+              @if (project.image) {
+                <img [src]="project.image" [alt]="project.title" />
+              } @else {
+                <span class="material-symbols-outlined thumb-placeholder" aria-hidden="true">image</span>
+              }
+            </div>
+            <div class="card-main">
+              <span class="project-title">{{ project.title }}</span>
+              <span class="category-badge">{{ project.category }}</span>
+            </div>
+            <div class="card-actions">
+              <button type="button" class="icon-btn" (click)="openEditForm(project)" aria-label="Edit {{ project.title }}">
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
+              </button>
+              <button type="button" class="icon-btn icon-btn-danger" (click)="onDelete(project)" aria-label="Delete {{ project.title }}">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-card">
+          <p class="empty-text">No projects yet.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Add/Edit modal -->
+@if (showForm()) {
+  <div class="form-overlay" (click)="closeForm()">
+    <div class="form-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+      <div class="form-header">
+        <h2 class="form-title">{{ editingProject() ? 'Edit Project' : 'Add Project' }}</h2>
+        <button type="button" class="form-close" (click)="closeForm()" aria-label="Close form">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSave()" class="form-body">
+        <div class="form-group">
+          <label for="project-title">Project Title *</label>
+          <input
+            id="project-title"
+            type="text"
+            formControlName="title"
+            placeholder="e.g. Municipal Water Supply Project"
+            [class.input-error]="form.get('title')?.invalid && form.get('title')?.touched"
+          />
+          @if (form.get('title')?.invalid && form.get('title')?.touched) {
+            <p class="field-error">Title is required (min 3 characters).</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="project-category">Category *</label>
+          <input
+            id="project-category"
+            type="text"
+            formControlName="category"
+            placeholder="e.g. Water Supply, Industrial, Agriculture"
+            [class.input-error]="form.get('category')?.invalid && form.get('category')?.touched"
+          />
+          @if (form.get('category')?.invalid && form.get('category')?.touched) {
+            <p class="field-error">Category is required.</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="project-image">Image URL *</label>
+          <input
+            id="project-image"
+            type="url"
+            formControlName="image"
+            placeholder="https://example.com/project-image.jpg"
+            [class.input-error]="form.get('image')?.invalid && form.get('image')?.touched"
+          />
+          @if (form.get('image')?.invalid && form.get('image')?.touched) {
+            <p class="field-error">Image URL is required.</p>
+          }
+          @if (form.get('image')?.value) {
+            <div class="preview-wrap">
+              <img [src]="form.get('image')?.value" alt="Project preview" class="preview-img" />
+            </div>
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSaving() || form.invalid">
+            @if (isSaving()) {
+              <span class="spinner spinner-sm" aria-hidden="true"></span>
+              <span>Saving…</span>
+            } @else {
+              {{ editingProject() ? 'Save Changes' : 'Add Project' }}
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
