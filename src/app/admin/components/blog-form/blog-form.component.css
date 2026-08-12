@@ -447,6 +447,8 @@
   line-height: 1.7;
   color: #1e293b;
   outline: none;
+  direction: ltr;
+    text-align: left;
 }
 
 .editor-content:empty::before {

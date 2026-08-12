@@ -33,7 +33,7 @@ const TOKEN_KEY = 'premolex_admin_token';
  * Authenticates against the Firebase Identity Toolkit REST API
  * (`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=<API_KEY>`).
  *
- * On success the returned `idToken` is stored in localStorage (key
+ * On success the returned `idToken` is stored in sessionStorage (key
  * `premolex_admin_token`) and used for route guarding + HTTP interception.
  */
 @Injectable({ providedIn: 'root' })
@@ -63,7 +63,7 @@ export class AuthService {
 
   /**
    * Signs in using the Firebase Identity Toolkit REST endpoint.
-   * On success, stores the returned `idToken` in localStorage.
+   * On success, stores the returned `idToken` in sessionStorage.
    */
   login(credentials: LoginCredentials): Observable<LoginResponse> {
     const url = `${this.identityToolkitUrl}/accounts:signInWithPassword?key=${this.apiKey}`;
@@ -99,26 +99,26 @@ export class AuthService {
   // ------------------------------------------------------------------ private
 
   private setToken(token: string): void {
-    if (isPlatformBrowser(this.platformId) && typeof localStorage !== 'undefined') {
-      localStorage.setItem(TOKEN_KEY, token);
+    if (isPlatformBrowser(this.platformId) && typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem(TOKEN_KEY, token);
     }
     this.tokenSubject.next(token);
     this.loggedInSubject.next(true);
   }
 
   private clearToken(): void {
-    if (isPlatformBrowser(this.platformId) && typeof localStorage !== 'undefined') {
-      localStorage.removeItem(TOKEN_KEY);
+    if (isPlatformBrowser(this.platformId) && typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(TOKEN_KEY);
     }
     this.tokenSubject.next(null);
     this.loggedInSubject.next(false);
   }
 
   private getStoredToken(): string | null {
-    if (typeof localStorage === 'undefined') {
+    if (!isPlatformBrowser(this.platformId) || typeof sessionStorage === 'undefined') {
       return null;
     }
-    return localStorage.getItem(TOKEN_KEY);
+    return sessionStorage.getItem(TOKEN_KEY);
   }
 
   private hasStoredToken(): boolean {

@@ -1,5 +1,6 @@
-import { Component, input, output } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject, input, output } from '@angular/core';
+import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { AuthService } from '../../../auth/services/auth.service';
 
 interface NavItem {
   label: string;
@@ -18,6 +19,10 @@ export class AdminSidebarComponent {
   readonly collapsed = input(false);
   readonly mobileOpen = input(false);
   readonly closeMobile = output<void>();
+  private readonly authService = inject(AuthService);
+
+  constructor(private readonly router: Router) { }
+
 
   readonly navItems: NavItem[] = [
     { label: 'Dashboard', route: '/admin/dashboard', icon: 'dashboard' },
@@ -33,4 +38,11 @@ export class AdminSidebarComponent {
     { label: 'Team Members', route: '/admin/team-members', icon: 'groups' },
     { label: 'Settings', route: '/admin/settings', icon: 'settings' },
   ];
+
+
+  logout(): void {
+
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }

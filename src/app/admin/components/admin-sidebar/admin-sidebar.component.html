@@ -37,6 +37,10 @@
 
   <!-- Footer -->
   <div class="sidebar-footer">
+    <button type="button" class="profile-menu-item" role="menuitem" (click)="logout()">
+      <span class="material-symbols-outlined" aria-hidden="true">logout</span>
+      <span>Logout</span>
+    </button>
     <a class="nav-link" routerLink="/" (click)="closeMobile.emit()">
       <span class="material-symbols-outlined nav-icon" aria-hidden="true">public</span>
       <span class="nav-label">View Site</span>
