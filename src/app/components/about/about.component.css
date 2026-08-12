@@ -1,2 +1,122 @@
 .about { padding:2rem 0; }
 .about p { color:#374151 }
+
+/* Leadership Section */
+.leadership-section {
+    padding: 6rem 2rem;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+}
+
+.leadership-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.leadership-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0a2540;
+    margin-bottom: 0.5rem;
+}
+
+.leadership-subtitle {
+    font-size: 1.1rem;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.leadership-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.leadership-card {
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(10, 37, 64, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.leadership-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(10, 37, 64, 0.12);
+}
+
+.leadership-image {
+    height: 220px;
+    position: relative;
+    overflow: hidden;
+}
+
+.leadership-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.leadership-card:hover .leadership-img {
+    transform: scale(1.05);
+}
+
+.leadership-placeholder {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+}
+
+.leadership-icon {
+    font-size: 4rem;
+    color: #94a3b8;
+    opacity: 0.6;
+}
+
+.leadership-content {
+    padding: 2rem;
+}
+
+.leadership-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0a2540;
+    margin-bottom: 0.5rem;
+}
+
+.leadership-role {
+    font-size: 1rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+}
+
+.leadership-bio {
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .leadership-section {
+        padding: 4rem 1rem;
+    }
+
+    .leadership-header {
+        margin-bottom: 2rem;
+    }
+
+    .leadership-title {
+        font-size: 2rem;
+    }
+
+    .leadership-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
