@@ -1,35 +1,42 @@
-<section class="blog-page">
-  <div class="blog-page__container">
-    <!-- Page header -->
-    <header class="blog-page__header">
-      <h1 class="blog-page__title">Blog & News</h1>
-      <p class="blog-page__subtitle">
-        Stay updated with the latest company news, product announcements, and industry insights.
-      </p>
-    </header>
+<div class="text-on-surface font-body-lg min-h-screen flex flex-col bg-[#F9FAFB]">
+  <main class="flex-grow max-w-container-max mx-auto w-full px-gutter py-xl">
+    <!-- Page Header -->
+    <div
+      class="mb-lg border-b border-outline-variant pb-md flex flex-col md:flex-row justify-between items-start md:items-end gap-sm">
+      <div>
+        <h1 class="font-headline-xl text-headline-xl text-on-surface mb-xs">Blog & News</h1>
+        <p class="font-body-md text-body-md text-on-surface-variant max-w-3xl">
+          Stay updated with the latest company news, product announcements, and industry insights.
+        </p>
+      </div>
+      <div class="flex items-center gap-xs">
+        <span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Latest Updates</span>
+      </div>
+      </div>
 
-    <!-- Loading state -->
+    <!-- Loading State -->
     @if (isLoading()) {
-      <div class="blog-page__loading">
-        <p>Loading posts...</p>
+      <div class="py-xl text-center text-on-surface-variant font-body-lg">
+        <span class="material-symbols-outlined animate-spin inline-block">progress_activity</span>
+        <p class="mt-sm">Loading posts...</p>
       </div>
     }
 
-    <!-- Posts grid -->
+    <!-- Posts Grid -->
     @if (!isLoading() && publishedPosts().length > 0) {
-      <div class="blog-page__grid">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md">
         @for (post of publishedPosts(); track post.id) {
           <app-blog-card [post]="post" />
         }
       </div>
     }
 
-    <!-- Empty state -->
+    <!-- Empty State -->
     @if (!isLoading() && publishedPosts().length === 0) {
-      <div class="blog-page__empty">
-        <span class="material-symbols-outlined" aria-hidden="true">article</span>
+      <div class="py-xl text-center text-on-surface-variant font-body-lg">
+        <span class="material-symbols-outlined text-5xl block mb-sm opacity-50">article</span>
         <p>No blog posts yet. Check back soon for updates.</p>
       </div>
     }
-  </div>
-</section>
+  </main>
+</div>

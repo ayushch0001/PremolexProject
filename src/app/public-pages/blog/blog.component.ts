@@ -1,6 +1,5 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { FirestoreDataService } from '../../services/firestore-data.service';
 import { BlogPost } from '../../admin/models/blog.model';
 import { BlogCardComponent } from '../../components/blog-card/blog-card.component';
@@ -8,7 +7,7 @@ import { BlogCardComponent } from '../../components/blog-card/blog-card.componen
 @Component({
   selector: 'app-blog',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, BlogCardComponent],
+  imports: [CommonModule, BlogCardComponent],
   templateUrl: './blog.component.html',
   styleUrls: ['./blog.component.css'],
 })

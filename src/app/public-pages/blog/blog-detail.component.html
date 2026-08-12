@@ -1,59 +1,65 @@
-<section class="blog-detail">
-  <div class="blog-detail__container">
-    <!-- Loading state -->
+<div class="text-on-surface font-body-lg min-h-screen flex flex-col bg-[#F9FAFB]">
+  <main class="flex-grow max-w-container-max mx-auto w-full px-gutter py-xl">
+    <!-- Loading State -->
     @if (isLoading()) {
-      <div class="blog-detail__loading">
-        <p>Loading post...</p>
+      <div class="py-xl text-center text-on-surface-variant font-body-lg">
+        <span class="material-symbols-outlined animate-spin inline-block">progress_activity</span>
+        <p class="mt-sm">Loading post...</p>
       </div>
     }
 
-    <!-- Error state -->
+    <!-- Error State -->
     @if (!isLoading() && error()) {
-      <div class="blog-detail__error">
-        <span class="material-symbols-outlined" aria-hidden="true">error</span>
-        <p>{{ error() }}</p>
-        <a routerLink="/blog" class="blog-detail__back-link">
+      <div class="py-xl text-center text-on-surface-variant font-body-lg">
+        <span class="material-symbols-outlined text-5xl block mb-sm opacity-50">error</span>
+        <p class="mb-md">{{ error() }}</p>
+        <a routerLink="/blog"
+          class="inline-flex items-center gap-xs font-label-md text-label-md text-primary hover:underline">
           <span class="material-symbols-outlined">arrow_back</span>
           Back to Blog
         </a>
       </div>
     }
 
-    <!-- Post content -->
+    <!-- Post Content -->
     @if (!isLoading() && post()) {
-      <article class="blog-detail__article">
-        <!-- Back link -->
-        <a routerLink="/blog" class="blog-detail__back-link">
+      <article class="max-w-4xl mx-auto">
+        <!-- Back Link -->
+        <a routerLink="/blog"
+          class="inline-flex items-center gap-xs font-label-md text-label-md text-primary hover:underline mb-lg">
           <span class="material-symbols-outlined">arrow_back</span>
           Back to Blog
         </a>
 
-        <!-- Featured image -->
+        <!-- Featured Image -->
         @if (post()!.featuredImageUrl) {
-          <div class="blog-detail__image-wrap">
-            <img [src]="post()!.featuredImageUrl!" [alt]="post()!.title" class="blog-detail__image" />
+          <div class="rounded-lg overflow-hidden border border-outline-variant mb-lg bg-surface-container-low">
+            <img [src]="post()!.featuredImageUrl!" [alt]="post()!.title" class="w-full h-auto object-cover max-h-[400px]" />
           </div>
         }
 
-        <!-- Post header -->
-        <header class="blog-detail__header">
-          <time class="blog-detail__date" [attr.datetime]="post()!.publishedAt ?? post()!.createdAt">
+        <!-- Post Header -->
+        <header class="mb-lg border-b border-outline-variant pb-md">
+          <time class="font-label-sm text-label-sm text-secondary uppercase tracking-wider"
+            [attr.datetime]="post()!.publishedAt ?? post()!.createdAt">
             {{ formattedDate() }}
           </time>
-          <h1 class="blog-detail__title">{{ post()!.title }}</h1>
+          <h1 class="font-headline-xl text-headline-xl text-on-surface mt-xs mb-sm">{{ post()!.title }}</h1>
           @if (post()!.author) {
-            <p class="blog-detail__author">By {{ post()!.author }}</p>
+            <p class="font-body-md text-body-md text-on-surface-variant">By {{ post()!.author }}</p>
           }
         </header>
 
-        <!-- Post content -->
-        <div class="blog-detail__content">
+        <!-- Post Body -->
+        <div>
           @if (post()!.excerpt) {
-            <p class="blog-detail__excerpt">{{ post()!.excerpt }}</p>
+            <p class="font-body-lg text-body-lg text-on-surface-variant italic mb-md border-l-4 border-primary pl-sm">
+              {{ post()!.excerpt }}
+            </p>
           }
-          <div class="blog-detail__body" [innerHTML]="post()!.content"></div>
+          <div class="font-body-md text-body-md text-on-surface leading-relaxed" [innerHTML]="post()!.content"></div>
         </div>
       </article>
     }
-  </div>
-</section>
+  </main>
+</div>

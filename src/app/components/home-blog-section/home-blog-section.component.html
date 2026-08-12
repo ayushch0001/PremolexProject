@@ -1,25 +1,28 @@
-<section class="blog-section">
-  <div class="blog-section__container">
+<section class="py-xl bg-surface-container-low px-gutter border-y border-outline-variant">
+  <div class="max-w-container-max mx-auto">
     <!-- Section header -->
-    <div class="blog-section__header">
-      <h2 class="blog-section__title">Latest News & Updates</h2>
-      <a class="blog-section__view-all" [routerLink]="['/blog']">
-        View All News
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+    <div class="flex justify-between items-end mb-lg">
+      <div>
+        <h2 class="font-headline-lg text-headline-lg text-primary">Latest News & Updates</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Stay informed with company news and product
+          announcements.</p>
+      </div>
+      <a class="font-label-md text-label-md text-primary flex items-center hover:underline" [routerLink]="['/blog']">
+        View All News <span class="material-symbols-outlined ml-xs">arrow_forward</span>
       </a>
     </div>
 
     <!-- Posts grid: 1 column on mobile, 2 on tablet, 3 on desktop -->
     @if (recentPosts().length > 0) {
-      <div class="blog-section__grid">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
         @for (post of recentPosts(); track post.id) {
           <app-blog-card [post]="post" />
         }
       </div>
     } @else {
-      <p class="blog-section__empty">
+      <div class="py-xl text-center text-on-surface-variant font-body-lg border border-dashed border-outline-variant rounded">
         No news yet. Check back soon for company updates and product announcements.
-      </p>
+      </div>
     }
   </div>
 </section>

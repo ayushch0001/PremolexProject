@@ -1,31 +1,35 @@
-<article class="blog-card">
+<article
+  class="bg-surface-container-lowest border border-outline-variant rounded group hover:border-primary transition-colors duration-200 flex flex-col h-full overflow-hidden">
   <!-- Featured image with zoom-on-hover -->
-  <div class="blog-card__image-wrap">
+  <div
+    class="bg-surface-container-low flex items-center justify-center relative overflow-hidden aspect-[16/9] flex-shrink-0">
     @if (post().featuredImageUrl) {
-      <img
-        [src]="post().featuredImageUrl!"
-        [alt]="post().title"
-        class="blog-card__image"
-        loading="lazy"
-      />
+      <img [src]="post().featuredImageUrl!" [alt]="post().title"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
     } @else {
-      <div class="blog-card__image-placeholder">
-        <span class="material-symbols-outlined" aria-hidden="true">article</span>
+      <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-surface-container-low">
+        <span class="material-symbols-outlined text-5xl text-on-surface-variant/50" aria-hidden="true">article</span>
       </div>
     }
   </div>
 
   <!-- Card body -->
-  <div class="blog-card__body">
-    <time class="blog-card__date" [attr.datetime]="post().publishedAt ?? post().createdAt">
+  <div class="p-sm flex flex-col flex-grow">
+    <time class="font-label-sm text-label-sm text-secondary uppercase tracking-wider mb-xs"
+      [attr.datetime]="post().publishedAt ?? post().createdAt">
       {{ (post().publishedAt ?? post().createdAt) | date: 'mediumDate' }}
     </time>
 
-    <h3 class="blog-card__title">{{ post().title }}</h3>
+    <h3 class="font-headline-md text-headline-md text-on-surface mb-xs group-hover:text-primary transition-colors">
+      {{ post().title }}
+    </h3>
 
-    <p class="blog-card__excerpt">{{ post().excerpt }}</p>
+    <p class="font-body-md text-body-md text-on-surface-variant mb-md flex-grow line-clamp-2">
+      {{ post().excerpt }}
+    </p>
 
-    <a class="blog-card__read-more" [routerLink]="['/blog', post().slug]">
+    <a class="inline-flex items-center gap-xs font-label-md text-label-md text-primary hover:gap-sm transition-all w-fit mt-auto pt-sm border-t border-outline-variant"
+      [routerLink]="['/blog', post().slug]">
       Read More
       <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
     </a>
