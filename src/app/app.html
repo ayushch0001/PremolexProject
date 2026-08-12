@@ -1,5 +1,5 @@
 <div class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
-  @if (!isAuthPage()) {
+  @if (!hideGlobalLayout()) {
     <!-- Top Contact Bar -->
     <app-top-bar></app-top-bar>
 
@@ -12,7 +12,7 @@
     <router-outlet />
   </main>
 
-  @if (!isAuthPage()) {
+  @if (!hideGlobalLayout()) {
     <!-- Footer -->
     <app-footer></app-footer>
   }

@@ -16,14 +16,18 @@ export class App {
   private readonly router = inject(Router);
 
   protected readonly title = signal('premolex');
-  protected readonly isAuthPage = signal(false);
+  protected readonly hideGlobalLayout = signal(false);
 
   constructor() {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => {
         const url = (event as NavigationEnd).urlAfterRedirects;
-        this.isAuthPage.set(url.startsWith('/login') || url.startsWith('/firebase-setup'));
+        this.hideGlobalLayout.set(
+          url.startsWith('/login') ||
+          url.startsWith('/firebase-setup') ||
+          url.startsWith('/admin')
+        );
       });
   }
 }

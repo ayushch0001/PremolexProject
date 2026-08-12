@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AdminSidebarComponent } from '../admin-sidebar/admin-sidebar.component';
-import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 const PAGE_TITLES: Record<string, string> = {
   '/admin/dashboard': 'Dashboard',
@@ -22,7 +21,7 @@ const PAGE_TITLES: Record<string, string> = {
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [RouterOutlet, AdminSidebarComponent, AdminHeaderComponent],
+  imports: [RouterOutlet, AdminSidebarComponent],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.css'],
 })
