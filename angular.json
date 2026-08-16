@@ -31,7 +31,9 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": []
+              "allowedHosts": [
+                "bd66-2409-4090-402b-f003-6dc8-808f-52-7f9a.ngrok-free.app"
+              ]
             },
             "ssr": {
               "entry": "src/server.ts"
@@ -65,7 +67,7 @@
           "builder": "@angular/build:dev-server",
           "options": {
             "allowedHosts": [
-              "a89f-2409-4090-402b-f003-f578-192d-5815-ef49.ngrok-free.app"
+              "bd66-2409-4090-402b-f003-6dc8-808f-52-7f9a.ngrok-free.app"
             ]
           },
           "configurations": {

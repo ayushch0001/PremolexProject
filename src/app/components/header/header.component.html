@@ -1,5 +1,5 @@
 <header class="w-full sticky top-0 z-50 bg-white transition-all duration-300"
-        [class.shadow-md]="isScrolled">
+        [class.shadow-md]="isScrolled()">
   <div class="max-w-container-max mx-auto px-gutter">
     <div class="flex items-center justify-between h-16 lg:h-20">
       <!-- Logo -->
@@ -15,11 +15,11 @@
 
       <!-- Desktop Navigation -->
       <nav class="hidden lg:flex items-center gap-1">
-        <ng-container *ngFor="let item of navItems">
+        <ng-container *ngFor="let item of navItems()">
           <!-- Nav Item with Dropdown -->
           <div *ngIf="item.hasDropdown" class="relative"
-               (mouseenter)="openDropdown = item.label"
-               (mouseleave)="openDropdown = null">
+               (mouseenter)="openDropdown.set(item.label)"
+               (mouseleave)="openDropdown.set(null)">
             <a [routerLink]="item.path"
                routerLinkActive="active-link"
                [routerLinkActiveOptions]="{exact: true}"
@@ -27,13 +27,14 @@
                (click)="toggleDropdown(item.label)">
               {{ item.label }}
               <span class="material-symbols-outlined text-[18px] transition-transform duration-200"
-                    [class.rotate-180]="openDropdown === item.label">expand_more</span>
+                    [class.rotate-180]="openDropdown() === item.label">expand_more</span>
             </a>
             <!-- Dropdown Menu -->
-            <div *ngIf="openDropdown === item.label"
+            <div *ngIf="openDropdown() === item.label"
                  class="dropdown-menu absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50">
               <a *ngFor="let child of item.children"
                  [routerLink]="child.path"
+                 [queryParams]="child.queryParams"
                  class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-[#FFF5EB] hover:text-[#FF6B00] transition-colors duration-150"
                  (click)="closeDropdown()">
                 {{ child.label }}
@@ -57,20 +58,20 @@
               (click)="toggleMobileMenu()"
               aria-label="Toggle menu">
         <span class="material-symbols-outlined text-2xl">
-          {{ isMobileMenuOpen ? 'close' : 'menu' }}
+          {{ isMobileMenuOpen() ? 'close' : 'menu' }}
         </span>
       </button>
     </div>
   </div>
 
   <!-- Mobile Side Drawer Overlay -->
-  <div *ngIf="isMobileMenuOpen"
+  <div *ngIf="isMobileMenuOpen()"
        class="fixed inset-0 bg-black/50 z-40 lg:hidden"
        (click)="closeMobileMenu()">
   </div>
 
   <!-- Mobile Side Drawer -->
-  <div *ngIf="isMobileMenuOpen"
+  <div *ngIf="isMobileMenuOpen()"
        class="fixed top-0 right-0 h-full w-72 bg-white z-50 shadow-2xl lg:hidden overflow-y-auto transform transition-transform duration-300">
     <div class="p-4">
       <!-- Mobile Logo -->
@@ -92,18 +93,27 @@
 
       <!-- Mobile Navigation -->
       <nav class="flex flex-col gap-1">
-        <ng-container *ngFor="let item of navItems">
+        <ng-container *ngFor="let item of navItems()">
           <!-- Mobile Dropdown Item -->
           <div *ngIf="item.hasDropdown">
-            <button class="w-full flex items-center justify-between px-3 py-3 text-sm font-medium text-[#0A2540] hover:bg-[#FFF5EB] hover:text-[#FF6B00] rounded-lg transition-colors"
-                    (click)="toggleDropdown(item.label)">
-              {{ item.label }}
-              <span class="material-symbols-outlined text-[18px] transition-transform duration-200"
-                    [class.rotate-180]="openDropdown === item.label">expand_more</span>
-            </button>
-            <div *ngIf="openDropdown === item.label" class="ml-4 space-y-1 mb-2">
+            <div class="flex items-center">
+              <a [routerLink]="item.path"
+                class="flex-1 px-3 py-3 text-sm font-medium text-[#0A2540] hover:bg-[#FFF5EB] hover:text-[#FF6B00] rounded-lg transition-colors"
+                (click)="closeMobileMenu()">
+                {{ item.label }}
+              </a>
+              <span role="button" tabindex="0"
+                class="w-10 h-10 flex items-center justify-center text-[#0A2540] hover:bg-[#FFF5EB] hover:text-[#FF6B00] rounded-lg transition-colors cursor-pointer"
+                (click)="toggleDropdown(item.label)" (keydown.enter)="toggleDropdown(item.label)"
+                [attr.aria-label]="'Toggle ' + item.label + ' submenu'">
+                <span class="material-symbols-outlined text-[18px] transition-transform duration-200"
+                      [class.rotate-180]="openDropdown() === item.label">expand_more</span>
+              </span>
+            </div>
+            <div *ngIf="openDropdown() === item.label" class="ml-4 space-y-1 mb-2">
               <a *ngFor="let child of item.children"
                  [routerLink]="child.path"
+                 [queryParams]="child.queryParams"
                  class="block px-3 py-2.5 text-sm text-gray-600 hover:bg-[#FFF5EB] hover:text-[#FF6B00] rounded-lg transition-colors"
                  (click)="closeMobileMenu()">
                 {{ child.label }}
