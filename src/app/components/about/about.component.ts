@@ -25,8 +25,11 @@ export class AboutComponent implements OnInit, OnDestroy {
   );
 
   missionItems = [
+    { icon: '', title: 'Industries We Serve', description: 'Government Projects, Railway, Airport, Metro Tunnel, Bridge, Dam, Road, Smart City, Solar Power Plant, Agriculture Irrigation, Drip & Sprinkler, STP, ETP, Chemical Industry, Slurry Transportation, Iron Ore & Coal Pipe, Oil & Gas, Mining, Biogas Plant, Food Grade Pipe, Pharmaceutical, Telecom Duct, Fire Fighting and Fire Retardant Pipes.' },
+    { icon: '', title: 'Special Products', description: 'Geotextile Wrapped Perforated Pipe, Geodrain Pipe, Chemical Resistant Pipe, Temperature Proof Pipe, Customized Size Pipe, Underground Cable Duct, Large Diameter HDPE Pipe.' },
     { icon: 'precision_manufacturing', title: 'Mission', description: 'To engineer uncompromising fluid delivery systems.' },
-    { icon: 'visibility', title: 'Vision', description: 'Setting the global standard for industrial durability.' }
+    { icon: 'visibility', title: 'Vision', description: 'Setting the global standard for industrial durability.' },
+
   ];
 
   ngOnInit(): void {
