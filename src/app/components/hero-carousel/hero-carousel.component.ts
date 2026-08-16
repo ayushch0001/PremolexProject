@@ -21,21 +21,21 @@ export interface HeroSlide {
 export class HeroCarouselComponent implements OnInit, OnDestroy {
   slides: HeroSlide[] = [
     {
-      image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1920&q=80',
+      image: '/sliderImages/Slider-1.jpg',
       title: 'Transforming Industry With Innovative Piping Solutions',
       subtitle: 'Precision-engineered pipes for oil, gas, water, and industrial infrastructure worldwide.',
       ctaLabel: 'Explore Our Ranges',
       ctaLink: '/Products',
     },
     {
-      image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=1920&q=80',
+      image: '/sliderImages/Slider2.png',
       title: 'Quality You Can Trust, Delivery You Can Rely On',
       subtitle: 'ISO 9001 certified manufacturing with end-to-end supply chain excellence.',
       ctaLabel: 'Explore Our Ranges',
       ctaLink: '/Products',
     },
     {
-      image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920&q=80',
+      image: '/sliderImages/Slider-2.jpg',
       title: 'Sustainable Piping for a Better Tomorrow',
       subtitle: 'Eco-friendly materials and processes that reduce environmental impact without compromising quality.',
       ctaLabel: 'Explore Our Ranges',
@@ -55,7 +55,7 @@ export class HeroCarouselComponent implements OnInit, OnDestroy {
   }
 
   private startAutoPlay(): void {
-    this.timerSubscription = timer(5000, 5000).subscribe(() => {
+    this.timerSubscription = timer(500, 500).subscribe(() => {
       this.nextSlide();
     });
   }

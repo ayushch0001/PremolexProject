@@ -21,5 +21,5 @@ export class HomeAboutComponent {
     { text: 'Expert team with 15+ years of industry experience' },
   ];
 
-  facilityImage = 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&q=80';
+  facilityImage = '/sliderImages/Slider4.jpg';
 }
